@@ -1,0 +1,46 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Starlink Firmware{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+<div class="justify-content-center">
+  <div class="container px-4 py-5">
+    <h2 class="pb-2 border-bottom">Useful Links Related to Starlink</h2>
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+      <div class="feature col">
+        <div class="feature-icon">
+          <img src="{{ url_for('static', filename='links/reddit.png') }}" width="75px">
+        </div>
+        <h2><a href="https://www.reddit.com/r/Starlink" target="_blank">Starlink Subreddit</h2></a>
+        <p>r/Starlink is for news, images/videos and discussions related to Starlink, the SpaceX satellite internet constellation</p>
+      </div>
+      <div class="feature col">
+        <div class="feature-icon">
+          <img src="{{ url_for('static', filename='links/discord.png') }}" width="75px">
+        </div>
+        <h2><a href="https://discord.gg/Rr2u4ystEe" target="_blank">Starlink Discord</a></h2>
+        <p>Use this Discord server as a place to chat about Starlink news as a secondary resource to the subreddit.</p>
+      </div>
+    </div>
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-2">
+      <div class="feature col">
+        <div class="feature-icon">
+          <img src="{{ url_for('static', filename='links/starlink-sx.png') }}" width="75px">
+        </div>
+        <h2><a href="https://starlink.sx" target="_blank">Satellite Map</a></h2>
+        <p>This tool was created to help view Starlink coverage over any place on Earth</p>
+      </div>
+      <div class="feature col">
+        <div class="feature-icon">
+          <img src="{{ url_for('static', filename='links/starlink-status.png') }}" width="75px">
+        </div>
+        <h2><a href="https://starlinkstatus.space/" target="_blank">Starlink Status (Very buggy currently)</a></h2>
+        <p>Community based Starlink Statistics around the World</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

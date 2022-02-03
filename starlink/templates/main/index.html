@@ -1,0 +1,25 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Starlink Firmware{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="row text-center d-grid gap-4 position-absolute top-50 start-50 translate-middle">
+    <h1 class="header">Starlink Firmware Tracking</h1>
+    <img class="rounded mx-auto d-block w-75" src="{{ url_for('static', filename='dishy_space.jpg') }}" alt="Logo">
+    <br><br>
+    <br><br>
+    <div class="row mb-3">
+        <h2>Information</h2>
+        <p>This website was made to make tracking Starlink firmware revisions easier. This is a crowdsourced project and could be incorrect.</p>
+        <p>Feel free to edit to add new firmware versions. Please do not vandalize.</p>
+        <p>This website was based off this <a class="text-decoration-none" href="https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic/edit#gid=383580049" target="_blank">spreadsheet</a></p>
+    </div>
+    <div class="row mb-3">
+        <h2>Contact</h2>
+        <p>For any inquiries, contact me on Discord with 'Micky#6815'</p>
+    </div>
+  </div>
+{% endblock %}
