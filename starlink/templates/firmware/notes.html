@@ -8,7 +8,7 @@
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
             "searching": true,
-            "ordering": false,
+            "ordering": true,
             "order": [0, "dsc"],
             "paging":  true,
             "pagingType": "simple",
@@ -48,7 +48,7 @@
       </thead>
       <tbody>
         <tr>
-          <td></td>
+          <td><p hidden>9999-12-31</p></td>
           <form method="post" id="addNoteForm">
             <td><input type="text" class="form-control" id="note" name="note" maxLength="300" required></td>
             <td><button type="submit" class="btn btn-primary" name="btn" value="addNote">Add</button></td>
