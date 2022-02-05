@@ -95,11 +95,12 @@ def notes(listType, entryID):
 
 def sendNotification(version, type, reddit):
     webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
-    embed = DiscordEmbed(title=version, description=f"[Link](https://starlink.app.mickit.net/firmware/{type})", color=242424)
+    hostDomain = url_for('index', _external=True)[:-1]
+    embed = DiscordEmbed(title=version, description=f"[Link]({hostDomain}+'/'+{type})", color=242424)
     embed.add_embed_field(name='Firmware Type', value=type.capitalize())
     if reddit: embed.add_embed_field(name='Reddit', value=f"[Thread]({reddit})")
     else: embed.add_embed_field(name='Reddit Thread', value="Not Provided")
-    embed.set_thumbnail(url=url_for('index', _external=True)[:-1] + url_for('static', filename=f'types/{type}.png'))
+    embed.set_thumbnail(url=hostDomain + url_for('static', filename=f'thumbnails/{type}.png'))
     embed.set_timestamp()
     webhook.add_embed(embed)
     response = webhook.execute()
