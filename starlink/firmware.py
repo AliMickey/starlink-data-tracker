@@ -1,7 +1,9 @@
+from doctest import debug_script
 from flask import (
-    Blueprint, flash, redirect, render_template, request, abort
+    Blueprint, current_app, flash, redirect, render_template, request, abort, current_app, url_for
 )
 from datetime import datetime
+from discord_webhook import DiscordWebhook, DiscordEmbed
 from starlink.db import get_db
 
 bp = Blueprint('firmware', __name__, url_prefix='/firmware')
@@ -17,6 +19,7 @@ def list(listType):
             redditThread = request.form['redditThread']
             db.execute('INSERT INTO fw_versions (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.now().date(), listType, version, redditThread))
             db.commit()
+            sendNotification(version, listType, redditThread)
             flash("Version added successfully", "success")
             return redirect(request.referrer)
 
@@ -44,7 +47,7 @@ def list(listType):
             id, date_added, version, reddit = row
             #convDate = datetime.strptime(date_added, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
             noteAmount = db.execute('SELECT Count(id) FROM notes WHERE version_id = ?', (id,)).fetchone()[0]
-            listDict[id] = {'dateAdded': date_added, 'version': version, 'reddit': reddit, 'noteAmount': noteAmount}
+            listDict[id] = {'dateAdded': date_added, 'id': id, 'version': version, 'reddit': reddit, 'noteAmount': noteAmount}
 
         return render_template('firmware/list.html', listType=listType.capitalize(), listDict=listDict)
     else:
@@ -80,7 +83,7 @@ def notes(listType, entryID):
     ''', [entryID,]).fetchall()
     for row in rowData:
         id, date_added, note = row
-        listDict[id] = {'dateAdded': date_added, 'note': note}
+        listDict[id] = {'dateAdded': date_added, 'id': id, 'note': note}
     
     versionName = db.execute('''
         SELECT version_info
@@ -89,3 +92,14 @@ def notes(listType, entryID):
     ''', (entryID,)).fetchone()[0]
 
     return render_template('firmware/notes.html', listDict=listDict, versionDetails={'type': listType, 'name': versionName})
+
+def sendNotification(version, type, reddit):
+    webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
+    embed = DiscordEmbed(title=version, description=f"[Link](https://starlink.app.mickit.net/firmware/{type})", color=242424)
+    embed.add_embed_field(name='Firmware Type', value=type.capitalize())
+    if reddit: embed.add_embed_field(name='Reddit', value=f"[Thread]({reddit})")
+    else: embed.add_embed_field(name='Reddit Thread', value="Not Provided")
+    embed.set_thumbnail(url=url_for('index', _external=True)[:-1] + url_for('static', filename=f'types/{type}.png'))
+    embed.set_timestamp()
+    webhook.add_embed(embed)
+    response = webhook.execute()
