@@ -56,7 +56,7 @@
         </tr>
         {% for id, details in listDict.items() %}
         <tr>
-          <td>{{ details['dateAdded'] }}</td>
+          <td>{{ details['dateAdded'] }}<p hidden>{{ details['id'] }}</p></td>
           <td>{{ details['note'] }}</td>
           <td><a type="button" class="btn btn-danger" href="#" data-bs-toggle="modal" data-bs-target="#removeNoteModal-{{id}}">Remove</a></td>
         </tr>

@@ -51,19 +51,19 @@
           <td><p hidden>9999-12-31</p></td>
           <form method="post" id="addVersionForm">
             <td><input type="text" class="form-control" id="version" name="version" maxLength="50" required></td>
-            <td><input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500" required></td>
+            <td><input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500"></td>
             <td><button type="submit" class="btn btn-primary float-start" name="btn" value="addVersion">Add</button></td>
           </form>
         </tr>
         {% for id, details in listDict.items() %}
         <tr>
-          <td>{{ details['dateAdded'] }}</td>
+          <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
           <td>{{ details['version'] }}</td>
           <td>
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="40px"></a></td>
             {% else %}
-              <p>There is no Reddit thread</p>
+              <p>Not Provided</p>
             {% endif %}
           <td>
             <div class="float-start">
