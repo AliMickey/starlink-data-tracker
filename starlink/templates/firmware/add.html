@@ -1,0 +1,42 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Starlink Firmware ~ Add{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="col-5 text-center">
+    <p class="fs-2">Add a New Firmware Version</p>
+    <form method="POST" id="addVersionForm">
+      <div class="row mb-3">
+        <label for="username" class="col-sm-2 col-form-label">Version</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="version" name="version" maxLength="50" required>
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Reddit Thread</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500">
+        </div>
+      </div>
+      <div class="row mb-3">
+        <label for="password" class="col-sm-2 col-form-label">Type</label>
+        <div class="col-sm-10">
+          <select class="form-select" id="listType" name="listType" required>Choose Lists:
+            <option value="0">Dishy</option>
+            <option value="1">Router</option>
+            <option value="2">Mobile App</option>
+            <option value="3">Web UI</option>
+            <option value="4">Hardware</option>
+          </select>
+          </div>
+      </div>
+      <button type="submit" class="btn btn-primary" name="btn" value="addVersion">Add</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+{% endblock %}

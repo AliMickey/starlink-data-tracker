@@ -1,0 +1,65 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Starlink Firmware ~ Info{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="col-9">
+    <div class="row mb-3">
+      <h2 class="pb-2 border-bottom">Information</h2>
+      <p>This website facilitates Starlink firmware tracking. This is a crowdsourced project and could be incorrect.</p>
+      <p>Feel free to add new firmware versions, please do not vandalize.</p>
+      <p>This website was based off this <a class="text-decoration-none" href="https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic/edit#gid=383580049" target="_blank">spreadsheet</a></p>
+    </div>
+
+    <div class="row mb-3 pt-3">
+        <h2 class="pb-2 border-bottom">Contact</h2>
+        <p>For any inquiries (feedback, bugs, incorrect information), contact us on Discord with 'Micky#6815' or send an email to 'help[at]mickit.net'</p>
+    </div>
+    
+    <div class="row mb-3 pt-3">
+      <h2 class="pb-2 border-bottom">User Location Maps</h2>
+      <a class="text-decoration-none" href="https://www.google.com/maps/d/viewer?mid=13Ny9oD8XRlsSYAwSRhM67vg7MePmTBxB&ll=0.9693652147468512%2C0&z=2" target="_blank">Global</a>
+      <a class="text-decoration-none" href="https://www.google.com/maps/d/viewer?mid=1zt7O7hekWMX7mmM8Rq879ChgJVdrqtDA&ll=-33.55628162571385%2C151.09047584005216&z=9" target="_blank">Australia</a>
+    </div>
+
+    <div class="row mb-3 pt-3">
+      <h2 class="pb-2 border-bottom">Useful Links</h2>
+      <div class="row p-2 row-cols-1 row-cols-lg-2">
+        <div class="feature col">
+          <div class="feature-icon">
+            <img src="{{ url_for('static', filename='links/reddit.png') }}" width="75px">
+          </div>
+          <h2><a class="text-decoration-none" href="https://www.reddit.com/r/Starlink" target="_blank">Starlink Subreddit</h2></a>
+          <p>r/Starlink is for news, images/videos and discussions related to Starlink, the SpaceX satellite internet constellation</p>
+        </div>
+        <div class="feature col">
+          <div class="feature-icon">
+            <img src="{{ url_for('static', filename='links/discord.png') }}" width="75px">
+          </div>
+          <h2><a class="text-decoration-none" href="https://discord.gg/Rr2u4ystEe" target="_blank">Starlink Discord</a></h2>
+          <p>Use this Discord server as a place to chat about Starlink news as a secondary resource to the subreddit.</p>
+        </div>
+      </div>
+      
+      <div class="row p-2 row-cols-1 row-cols-lg-2">
+        <div class="feature col">
+          <div class="feature-icon">
+            <img src="{{ url_for('static', filename='links/starlink-sx.png') }}" width="75px">
+          </div>
+          <h2><a class="text-decoration-none" href="https://starlink.sx" target="_blank">Satellite Map</a></h2>
+          <p>This tool was created to help view Starlink coverage over any place on Earth</p>
+        </div>
+        <div class="feature col">
+          <div class="feature-icon">
+            <img src="{{ url_for('static', filename='links/starlink-status.png') }}" width="75px">
+          </div>
+          <h2><a class="text-decoration-none" href="https://starlinkstatus.space/" target="_blank">Starlink Status (Very buggy currently)</a></h2>
+          <p>Community based Starlink Statistics around the World</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

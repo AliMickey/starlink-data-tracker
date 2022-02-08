@@ -6,20 +6,39 @@
 {% endblock %}
 
 {% block content %}
-  <div class="row text-center d-grid gap-4 position-absolute top-50 start-50 translate-middle">
-    <h1 class="header">Starlink Firmware Tracking</h1>
-    <img class="rounded mx-auto d-block w-75" src="{{ url_for('static', filename='dishy_space.jpg') }}" alt="Logo">
+  <div class="col-7 text-center">
+    <p class="fs-1 fw-bold">Starlink Firmware Track</p>
+    <img class="rounded mx-auto d-block w-50" src="{{ url_for('static', filename='dishy_space.png') }}" alt="Logo">
     <br><br>
-    <br><br>
-    <div class="row mb-3">
-        <h2>Information</h2>
-        <p>This website was made to make tracking Starlink firmware revisions easier. This is a crowdsourced project and could be incorrect.</p>
-        <p>Feel free to edit to add new firmware versions. Please do not vandalize.</p>
-        <p>This website was based off this <a class="text-decoration-none" href="https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic/edit#gid=383580049" target="_blank">spreadsheet</a></p>
-    </div>
-    <div class="row mb-3">
-        <h2>Contact</h2>
-        <p>For any inquiries, contact me on Discord with 'Micky#6815'</p>
-    </div>
+    <p class="fs-4"> Recent Dishy (Antenna) Firmware</p>
+    <table class="table table-striped table-bordered" id="dataTable">
+      <thead>
+        <tr>
+          <th>Added (UTC)</th>
+          <th>Version</th>
+          <th>Discussion</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for id, details in listDict.items() %}
+        <tr>
+          <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
+          <td>{{ details['version'] }}</td>
+          <td>
+            {% if details['reddit'] %}
+              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="30px"></a></td>
+            {% else %}
+              Not Provided
+            {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <footer class="footer fixed-bottom border-top text-center mt-auto py-3">
+      <span class="text-muted">
+          This site is NOT affiliated with Starlink or SpaceX. View the source code for this website on <a class="text-decoration-none" href="https://github.com/AliMickey/starlink-firmware-track" target="_blank">GitHub</a>
+      </span>
+    </footer>
   </div>
 {% endblock %}
