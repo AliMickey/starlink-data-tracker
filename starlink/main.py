@@ -22,7 +22,7 @@ def info():
 # View to download database schema/data
 @bp.route('/database')
 def database():
-    return send_file("static/links/databaseBackup.sql", as_attachment=True)
+    return send_file("static/databaseBackup.sql", as_attachment=True)
 
 # 404 page not found error
 @bp.app_errorhandler(404)
