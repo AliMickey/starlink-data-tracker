@@ -90,7 +90,7 @@ def getFirmwareData(listType, range=-1):
 def sendNotification(version, type, reddit):
     webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
     hostDomain = url_for('index', _external=True)
-    embed = DiscordEmbed(title=version, description=f"[Link]({hostDomain}+{type})", color=242424)
+    embed = DiscordEmbed(title=version, description=f"[Link]({hostDomain}firmware/{type})", color=242424)
     embed.add_embed_field(name='Firmware Type', value=type.capitalize())
     if reddit: embed.add_embed_field(name='Reddit', value=f"[Thread]({reddit})")
     else: embed.add_embed_field(name='Reddit Thread', value="Not Provided")
