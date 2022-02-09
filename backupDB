@@ -1,2 +1,2 @@
-* * * * * root sqlite3 /app/instance/starlink.db ".dump firmware" > "/app/starlink/static/databaseBackup.sql"
+0 * * * * root sqlite3 /app/instance/starlink.db ".dump firmware" > "/app/starlink/static/databaseBackup.sql"
 # Dump database into file
