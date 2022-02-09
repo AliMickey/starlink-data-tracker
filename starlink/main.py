@@ -1,8 +1,6 @@
 from flask import (
-    Blueprint, render_template, send_file, url_for, current_app
+    Blueprint, render_template, send_file
 )
-from threading import Thread
-import schedule, time
 
 # App imports
 from starlink.firmware import getFirmwareData
