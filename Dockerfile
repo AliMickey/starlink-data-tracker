@@ -13,4 +13,4 @@ RUN chmod 0600 /etc/cron.d/backupDB
 
 EXPOSE 80
 
-ENTRYPOINT ["sh","./gunicorn.sh"]
+ENTRYPOINT ["sh","./start.sh"]
