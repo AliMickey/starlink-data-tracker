@@ -23,7 +23,7 @@
         {% for id, details in listDict.items() %}
         <tr>
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
-          <td>{{ details['version'] }}</td>
+          <td><tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt></td>
           <td>
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="30px"></a></td>
