@@ -1,14 +1,14 @@
 {% extends 'builders/base.html' %}
 
-{% block title %}Starlink Firmware{% endblock %}
+{% block title %}Starlink Versions{% endblock %}
 
 {% block scriptsHead %}
 {% endblock %}
 
 {% block content %}
   <div class="col-7 text-center">
-    <p class="fs-1 fw-bold">Starlink Firmware Track</p>
-    <img class="rounded mx-auto d-block w-50" src="{{ url_for('static', filename='dishy_space.png') }}" alt="Logo">
+    <p class="fs-1 fw-bold">Starlink Versions</p>
+    <img class="rounded mx-auto d-block w-50" src="{{ url_for('static', filename='dishy_space.jpg') }}" alt="Logo">
     <br><br>
     <p class="fs-4"> Recent Dishy (Antenna) Firmware</p>
     <table class="table table-striped table-bordered" id="dataTable">
@@ -23,7 +23,7 @@
         {% for id, details in listDict.items() %}
         <tr>
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
-          <td>{{ details['version'] }}</td>
+          <td><tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt></td>
           <td>
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="30px"></a></td>
