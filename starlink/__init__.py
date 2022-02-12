@@ -1,6 +1,9 @@
 import os
 from flask import Flask
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 def create_app(test_config=None):
     # Create and configure the app
     app = Flask(__name__, instance_relative_config=True)
@@ -30,5 +33,11 @@ def create_app(test_config=None):
     from . import main
     app.register_blueprint(main.bp)
     app.add_url_rule('/', endpoint='index')
+
+    limiter = Limiter(key_func=get_remote_address)
+    limiter.init_app(app)
+    limiter.limit("2/second")(firmware.bp)
+    limiter.limit("2/second")(auth.bp)
+    limiter.limit("2/second")(main.bp)
     
     return app
