@@ -1,3 +1,4 @@
 Flask
 gunicorn
 discord_webhook
+Flask-Limiter
