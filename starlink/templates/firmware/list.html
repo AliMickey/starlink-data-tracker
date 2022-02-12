@@ -62,9 +62,28 @@
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="30px"></a></td>
             {% else %}
-              Not Provided
+              <a type="button" class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addRedditThread-{{id}}">Add</a>
             {% endif %}
         </tr>
+        <div class="modal fade" id="addRedditThread-{{id}}" tabindex="-1" aria-labelledby="AddRedditThread" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                  <h5 class="modal-title">Add a link to the relevant Reddit thread.</h5>
+              </div>
+              <form method="POST" id="addRedditThread">
+                <div class="modal-body">  
+                    <input type="hidden" name="id" value={{id}}></input>
+                    <input class="form-control" id="redditThread" name="redditThread"></input>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                  <button type="submit" class="btn btn-primary" name="btn" value="addRedditThread">Add</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
         {% endfor %}
       </tbody>
     </table>

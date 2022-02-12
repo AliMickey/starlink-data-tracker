@@ -2,7 +2,8 @@ from flask import (
     Blueprint, flash, redirect, render_template, request, abort, url_for, current_app
 )
 from discord_webhook import DiscordWebhook, DiscordEmbed
-from datetime import date, datetime
+import re
+from datetime import datetime
 
 # App imports
 from starlink.db import get_db
@@ -11,8 +12,22 @@ from starlink.auth import login_required
 bp = Blueprint('firmware', __name__, url_prefix='/firmware')
 
 # View to show all firmware versions for a specific hardware/software type
-@bp.route('/<string:listType>', methods = ['GET'])
+@bp.route('/<string:listType>', methods = ['GET', 'POST'])
 def list(listType):
+    if request.method == 'POST':
+        db = get_db()
+        if request.form["btn"] == "addRedditThread":
+            redditThread = request.form['redditThread']
+            versionID = request.form['id']
+            p = re.compile("https://www.reddit.com/r/Starlink|https://reddit.com/r/Starlink")
+            if re.search(p, redditThread):
+                db.execute('UPDATE firmware SET reddit_thread = ? WHERE id = ?', (redditThread, versionID))
+                db.commit()
+                flash("Reddit Thread updated successfully", "success")
+            else:
+                flash("Reddit link must be valid. (Only from r/Starlink)", "warning")
+            return redirect(request.referrer)
+
     if listType in ['dishy', 'router', 'app', 'web', 'hardware']: # Return the view only if listType is valid
         listDict = getFirmwareData(listType)
         return render_template('firmware/list.html', listType=listType, listDict=listDict)
@@ -48,21 +63,37 @@ def listAdmin(listType):
     listDict = getFirmwareData(listType)
     return render_template('firmware/listAdmin.html', listType=listType, listDict=listDict)
 
-
 # View to add a new firmware version
 @bp.route('/add', methods = ['GET', 'POST'])
 def add():
     db = get_db()
+    error = None
     if request.method == 'POST':
         listTypes = {'0': 'dishy', '1': 'router', '2': 'app', '3': 'web', '4': 'hardware'}
         listType = request.form['listType']
         version = request.form['version']
         redditThread = request.form['redditThread']
         listType=listTypes[listType]
-        db.execute('INSERT INTO firmware (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.utcnow(), listType, version, redditThread))
-        db.commit()
-        sendNotification(version, listType, redditThread)
-        return redirect(url_for('firmware.list', listType=listType))
+
+        # Validation checks
+        dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM firmware WHERE type = ? AND version_info = ? LIMIT 1)', (listType, version)).fetchone()[0]
+        if redditThread:
+            p = re.compile("https://www.reddit.com/r/Starlink|https://reddit.com/r/Starlink")
+            if not re.search(p, redditThread):
+                error = "Reddit link must be valid. (Only from r/Starlink)"
+        
+        if dbCheck == 1:
+            error = "This version already exists."
+
+        if error:
+            flash(error, "warning")
+            return redirect(request.referrer)   
+
+        else:
+            db.execute('INSERT INTO firmware (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.utcnow(), listType, version, redditThread))
+            db.commit()
+            sendNotification(version, listType, redditThread)
+            return redirect(url_for('firmware.list', listType=listType))
 
     return render_template('firmware/add.html')
 
@@ -84,7 +115,6 @@ def getFirmwareData(listType, range=-1):
         listDict[id] = {'dateAdded': convDate, 'dateTimeAdded': date_added, 'id': id, 'version': version, 'reddit': reddit}
 
     return listDict
-
 
 # Function to send a notification to Starlink Discord channel
 def sendNotification(version, type, reddit):

@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, send_file
+    Blueprint, render_template, send_file, current_app
 )
 
 # App imports
