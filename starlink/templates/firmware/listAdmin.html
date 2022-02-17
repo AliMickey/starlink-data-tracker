@@ -3,7 +3,7 @@
 {% block title %}Starlink Firmware{% endblock %}
 
 {% block scriptsHead %}
-  <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">    
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}"> 
   <script>
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
@@ -90,6 +90,6 @@
 {% endblock %}
 
 {% block scriptsBody %}
-  <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+  <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
 {% endblock %}

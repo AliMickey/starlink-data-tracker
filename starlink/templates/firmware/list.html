@@ -3,7 +3,7 @@
 {% block title %}Starlink Firmware ~ List{% endblock %}
 
 {% block scriptsHead %}
-  <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">    
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}"> 
   <script>
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
@@ -35,7 +35,7 @@
 
 {% block content %}
   <div class="col-8 text-center">
-    <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
+    <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
     {% if g.user %}
       <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
     {% endif %}
@@ -60,7 +60,7 @@
           </td>
           <td>
             {% if details['reddit'] %}
-              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='links/reddit.png') }}" width="30px"></a></td>
+              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a></td>
             {% else %}
               <a type="button" class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addRedditThread-{{id}}">Add</a>
             {% endif %}
@@ -91,6 +91,6 @@
 {% endblock %}
 
 {% block scriptsBody %}
-  <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-  <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+  <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
 {% endblock %}
