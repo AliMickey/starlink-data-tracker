@@ -2,7 +2,7 @@
 ## Description
 Website to make tracking Starlink firmware revisions easier. This is a crowdsourced project and could be incorrect.
 
-[Live Version](https://starlink.app.mickit.net)
+[Live Version](https://starlinkversions.com)
 
 ## Motivation
 The existing spreadsheet solution was cumbersome and very messy.
