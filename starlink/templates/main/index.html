@@ -3,12 +3,13 @@
 {% block title %}Starlink Versions{% endblock %}
 
 {% block scriptsHead %}
+  <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
 {% endblock %}
 
 {% block content %}
-  <div class="col-7 text-center">
+  <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Versions</p>
-    <img class="rounded mx-auto d-block w-50" src="{{ url_for('static', filename='img/dishy_space.jpg') }}" alt="Logo">
+    <img class="rounded mx-auto d-block w-25" src="{{ url_for('static', filename='img/dishy_space.jpg') }}" alt="Logo">
     <br><br>
     <p class="fs-4"> Recent Dishy (Antenna) Firmware</p>
     <table class="table table-striped table-bordered" id="dataTable">
@@ -23,13 +24,21 @@
         {% for id, details in listDict.items() %}
         <tr>
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
-          <td><tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt></td>
           <td>
-            {% if details['reddit'] %}
-              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a></td>
+            {% if request.MOBILE == True %}
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
+                  <tt>{{ details['version'][:8] }}</tt>
+                </button>
             {% else %}
-              Not Provided
-            {% endif %}
+              <tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt>
+              <a class="float-end" onclick="myFunction('{{details['version']}}')" role="button" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Copied to clipboard"><img src="{{ url_for('static', filename='img/copy.png') }}" alt="Copy Icon"></a>
+            {% endif %} 
+          </td>
+          {% if details['reddit'] %}
+            <td><a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a></td>
+          {% else %}
+            Not Provided
+          {% endif %}
         </tr>
         {% endfor %}
       </tbody>
@@ -41,4 +50,32 @@
       </span>
     </footer>
   </div>
+{% endblock %}
+
+{% block scriptsBody %}
+  <script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
+  <script>
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+      return new bootstrap.Popover(popoverTriggerEl)
+    })
+    var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
+      trigger: 'focus'
+    })
+  </script>
+  <script>
+    function myFunction(text) {
+      var dummy = document.createElement("textarea");
+      document.body.appendChild(dummy);
+      dummy.value = text;
+      dummy.select();
+      document.execCommand("copy");
+      document.body.removeChild(dummy);
+    } 
+  </script>
 {% endblock %}

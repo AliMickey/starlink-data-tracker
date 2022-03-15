@@ -3,7 +3,8 @@
 {% block title %}Starlink Firmware ~ List{% endblock %}
 
 {% block scriptsHead %}
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}"> 
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
+  <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
   <script>
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
@@ -34,7 +35,7 @@
 {% endblock %}
 
 {% block content %}
-  <div class="col-8 text-center">
+  <div class="col-11 text-center">
     <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
     {% if g.user %}
       <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
@@ -53,7 +54,14 @@
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
           <td>
             {% if listType == "dishy" %}
-              <tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt>
+              {% if request.MOBILE == True %}
+                  <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
+                    <tt>{{ details['version'][:8] }}</tt>
+                  </button>
+              {% else %}
+                <tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt>
+              {% endif %}
+
             {% else %}
               <tt>{{ details['version']}}</tt>
             {% endif %}
@@ -93,4 +101,10 @@
 {% block scriptsBody %}
   <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
   <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
+  <script>
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl)
+    })
+  </script>
 {% endblock %}

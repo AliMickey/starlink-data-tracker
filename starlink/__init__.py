@@ -3,6 +3,7 @@ from flask import Flask
 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_mobility import Mobility
 
 def create_app(test_config=None):
     # Create and configure the app
@@ -34,6 +35,7 @@ def create_app(test_config=None):
     app.register_blueprint(main.bp)
     app.add_url_rule('/', endpoint='index')
 
+    Mobility(app)
     limiter = Limiter(key_func=get_remote_address)
     limiter.init_app(app)
     limiter.limit("2/second")(firmware.bp)
