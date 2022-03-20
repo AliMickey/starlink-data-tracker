@@ -34,11 +34,13 @@
               <a class="float-end" onclick="myFunction('{{details['version']}}')" role="button" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Copied to clipboard"><img src="{{ url_for('static', filename='img/copy.png') }}" alt="Copy Icon"></a>
             {% endif %} 
           </td>
-          {% if details['reddit'] %}
-            <td><a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a></td>
-          {% else %}
-            Not Provided
-          {% endif %}
+          <td>
+            {% if details['reddit'] %}
+              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a>
+            {% else %}
+              <p>N/A</p>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
