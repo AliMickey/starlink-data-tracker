@@ -27,10 +27,10 @@
           <td>
             {% if request.MOBILE == True %}
                 <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                  <tt>{{ details['version'][:8] }}</tt>
+                  <span class="font-monospace">{{ details['version'][:8] }}</span>
                 </button>
             {% else %}
-              <tt><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</tt>
+              <span class="font-monospace"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
               <a class="float-end" onclick="myFunction('{{details['version']}}')" role="button" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Copied to clipboard"><img src="{{ url_for('static', filename='img/copy.png') }}" alt="Copy Icon"></a>
             {% endif %} 
           </td>
@@ -38,7 +38,7 @@
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a>
             {% else %}
-              <p>N/A</p>
+              <span>N/A</span>
             {% endif %}
           </td>
         </tr>
