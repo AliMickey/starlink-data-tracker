@@ -20,7 +20,7 @@ async def on_message(message):
         messageData = str(message.content)
         if re.search('https://www.speedtest.net/result', messageData): # If url is valid
             if re.search('\d', messageData): # If url contains any digits
-                r = requests.post(url = "https://starlinkversions.com/speedtest/add", data = {'bot': True, 'url': messageData})
+                r = requests.post(url = "https://starlinkversions.com/speedtests/add", data = {'bot': True, 'url': messageData})
                 await channel.send(r.text)
 
 bot.run(discordToken)
