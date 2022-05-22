@@ -9,7 +9,19 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Versions</p>
-    <img class="rounded mx-auto d-block w-25" src="{{ url_for('static', filename='img/dishy_space.jpg') }}" alt="Logo">
+    <div id="homeGallery" class="carousel slide rounded mx-auto d-block w-25" data-bs-ride="carousel">
+      <div class="carousel-inner">
+        <div class="carousel-item active">
+          <img src="{{ url_for('static', filename='img/home-gallery-1.jpg') }}" class="d-block w-100">
+        </div>
+        <div class="carousel-item">
+          <img src="{{ url_for('static', filename='img/home-gallery-2.jpg') }}" class="d-block w-100">
+        </div>
+        <div class="carousel-item">
+          <img src="{{ url_for('static', filename='img/home-gallery-3.jpg') }}" class="d-block w-100">
+        </div>
+      </div>
+    </div>
     <br><br>
     <p class="fs-4"> Recent Dishy (Antenna) Firmware</p>
     <table class="table table-striped table-bordered" id="dataTable">

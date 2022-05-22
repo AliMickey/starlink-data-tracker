@@ -97,6 +97,7 @@ def add():
 
     return render_template('firmware/add.html')
 
+
 # Function to get db data for firmware type
 def getFirmwareData(listType, range=-1):
     db = get_db()

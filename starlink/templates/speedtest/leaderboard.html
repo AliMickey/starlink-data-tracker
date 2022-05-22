@@ -1,0 +1,45 @@
+{% extends 'builders/base-speed.html' %}
+
+{% block title %}Starlink Speedtests{% endblock %}
+
+{% block scriptsHead %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
+{% endblock %}
+
+{% block content %}
+  <div class="col-11 text-center">
+    <p class="fs-1 fw-bold">Starlink Speedtests</p>
+    <p class="fs-3">Leaderboard</p>
+    <br><br>
+    
+    {% for metric, unit in {'latency': 'ms', 'download': 'Mbps', 'upload': 'Mbps'}.items() %}
+      <p class="fs-2">{{ metric.capitalize() }}</p>
+      <div class="row row-cols-1 row-cols-md-3 g-4"> 
+        {% for index in [1,0,2] %}
+          <div class="col">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title fs-3">{{ statDict[metric][index][metric] }} {{ unit }}</h5>
+                <div class="row">
+                  <div class="col">
+                    <p class="card-text"><img src="{{ url_for('static', filename='img/speedtest/leaderboard-' + (index + 1)|string + '.png') }}" width="110"></p>
+                  </div>
+                  <div class="col">
+                    <p class="card-text"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ statDict[metric][index]['country'].upper() }}.svg" width="30"> {{ statDict[metric][index]['country'].upper() }}</p>
+                    <br>
+                    <p class="card-text"><a href="{{ statDict[metric][index]['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a> URL</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      <br><br><br>
+    {% endfor %}
+      
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+{% endblock %}

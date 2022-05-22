@@ -1,0 +1,170 @@
+{% extends 'builders/base-speed.html' %}
+
+{% block title %}Starlink Speedtests{% endblock %}
+
+{% block scriptsHead %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
+  <script>
+    $(document).ready(function() {
+        var table = $('#dataTable').DataTable({
+            "searching": true,
+            "ordering": true,
+            "order": [0, "dsc"],
+            "paging":  false,
+            "stateSave": false,
+        });
+        $('#tableSearch').keyup(function(){ 
+            var input = $(this).val();
+            // Hide all rows
+            $('#dataTable tbody tr').hide();
+            // Show each row that contains the input
+            var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
+            if(len > 0){
+            $('#dataTable tbody td:contains("' + input + '")').each(function(){
+                $(this).closest('tr').show();
+            });
+            };
+        });
+    });
+  </script> 
+{% endblock %}
+
+{% block content %}
+  <div class="col-11 text-center">
+    <p class="fs-1 fw-bold">Starlink Speedtests</p>
+    <div class="mx-auto col-1">
+      <form method="POST" id="selectPeriodForm">
+        <select class="form-select form-select-sm" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
+          <option value="day">Day</option>
+          <option value="week">Week</option>
+          <option value="month">Month</option>
+          <option value="year">Year</option>
+          <option value="all" selected>All</option>
+        </select>
+      </form>
+    </div>
+
+    <br><br>
+    
+    {% for period in ['day', 'week', 'month', 'year', 'all'] %}
+      <div id="stats-{{period}}" {% if period != "all" %}hidden{% endif %}>
+        <p class="fs-5">Total Results: {{ statDict[period]['count'] }}</p>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+          <div class="col">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title fs-3">Latency (ms)</h5>
+                <div class="row">
+                  <div class="col">
+                    <p class="card-text"></p>
+                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['latencyAvg'] }}</p>
+                    <p class="card-text"></p>
+                  </div>
+                  <div class="col">
+                    <p class="card-text fs-5">Max: {{ statDict[period]['latencyMax'] }}</p>
+                    <p class="card-text fs-5">Min: {{ statDict[period]['latencyMin'] }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title fs-3">Download (Mbps)</h5>
+                <div class="row">
+                  <div class="col">
+                    <p class="card-text"></p>
+                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['downloadAvg'] }}</p>
+                    <p class="card-text"></p>
+                  </div>
+                  <div class="col">
+                    <p class="card-text fs-5">Max: {{ statDict[period]['downloadMax'] }}</p>
+                    <p class="card-text fs-5">Min: {{ statDict[period]['downloadMin'] }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card shadow">
+              <div class="card-body">
+                <h5 class="card-title fs-3">Upload (Mbps)</h5>
+                <div class="row">
+                  <div class="col">
+                    <p class="card-text"></p>
+                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['uploadAvg'] }}</p>
+                    <p class="card-text"></p>
+                  </div>
+                  <div class="col">
+                    <p class="card-text fs-5">Max: {{ statDict[period]['uploadMax'] }}</p>
+                    <p class="card-text fs-5">Min: {{ statDict[period]['uploadMin'] }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <br><br><br>
+
+    <p class="fs-4">Recently Submitted Speedtests</p>
+    <table class="table table-striped table-bordered" id="dataTable">
+      <thead>
+        <tr>
+          <th>Measured (UTC)</th>
+          <th>Country</th>
+          <th>Latency (ms)</th>
+          <th>Download (mbps)</th>
+          <th>Upload (mbps)</th>
+          <th>URL</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for id, details in listDict.items() %}
+          <tr>
+            <td>
+              <span>{{ details['dateRun'] }}</span>
+            </td>
+            <td>
+              <span><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</span>
+            </td>
+            <td>
+              <span>{{ details['latency'] }}</span>
+            </td>
+            <td>
+              <span>{{ details['download'] }}</span>
+            </td>
+            <td>
+              <span>{{ details['upload'] }}</span>
+            </td>
+            <td>
+              <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <footer class="footer  border-top text-center mt-auto py-3">
+      <span class="text-muted">
+          This site is NOT affiliated with Starlink or SpaceX. View the source code for this website on <a class="text-decoration-none" href="https://github.com/AliMickey/starlink-firmware-track" target="_blank">GitHub</a>
+      </span>
+    </footer>
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+  <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
+  <script>
+    function changeStatPeriod(currentPeriod, selectedPeriod) {
+      const currentStatDiv = document.getElementById("stats-" + currentPeriod);
+      currentStatDiv.hidden = true
+      const selectedStatDiv = document.getElementById("stats-" + selectedPeriod);
+      selectedStatDiv.hidden = false
+    }
+  </script>
+{% endblock %}

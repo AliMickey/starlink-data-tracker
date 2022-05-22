@@ -16,24 +16,15 @@
             <div class="row">
                 <nav class="navbar navbar-expand navbar-light bg-light">
                     <ul class="navbar-nav mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('main.index') }}">Home</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Firmware</a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='dishy') }}">Dishy</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='router') }}">Router</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='app') }}">Mobile App</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='web') }}">Web UI</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='hardware') }}">Hardware</a></li>
-                            </ul>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('firmware.add') }}">Add</a></li>
-                        </li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('speedtest.index') }}">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.leaderboard') }}">Leaderboard</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.add') }}">Add</a></li>
                     </ul>          
                     <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                         {% if g.user %}
                             <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a></li>
                         {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.index') }}">Speed</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.index') }}">Firmware</a></li>
                         <li class="nav-item"><a class="nav-link" href="{{ url_for('main.info') }}">Info</a></li>
                     </ul>
                 </nav>

@@ -1,0 +1,26 @@
+{% extends 'builders/base-speed.html' %}
+
+{% block title %}Starlink Speedtests ~ Add{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="col-8 text-center">
+    <p class="fs-2">Add a New Speedtest</p>
+    <p class="fs-6">Please feel free to add a new speedtest result.<br>Please do NOT cherry pick your results. Ensure to add any/all results to reduce bias.</p>
+    <br>
+    <form method="POST" id="addSpeedTestForm">
+      <div class="row mb-3">
+        <label for="username" class="col-sm-2 col-form-label">URL</label>
+        <div class="col-sm-10">
+          <input type="text" class="form-control" id="url" name="url" maxLength="50" required>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" name="btn" value="addSpeedtest">Add</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+{% endblock %}

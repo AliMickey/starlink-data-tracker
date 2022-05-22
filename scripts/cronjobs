@@ -1,0 +1,2 @@
+0 * * * * root /app/scripts/backupDB.sh
+# Run database backup script

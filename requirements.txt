@@ -3,3 +3,7 @@ gunicorn
 discord_webhook
 Flask-Limiter
 Flask-Mobility
+discord.py
+python-dotenv
+schedule
+beautifulsoup4

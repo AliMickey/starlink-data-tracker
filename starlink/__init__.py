@@ -25,11 +25,15 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)
 
+    from . import auth
+    app.register_blueprint(auth.bp)
+
     from . import firmware
     app.register_blueprint(firmware.bp)
 
-    from . import auth
-    app.register_blueprint(auth.bp)
+    from . import speedtest
+    app.register_blueprint(speedtest.bp)
+    app.before_first_request(speedtest.schedInitJobs)
 
     from . import main
     app.register_blueprint(main.bp)
@@ -38,8 +42,9 @@ def create_app(test_config=None):
     Mobility(app)
     limiter = Limiter(key_func=get_remote_address)
     limiter.init_app(app)
-    limiter.limit("2/second")(firmware.bp)
     limiter.limit("2/second")(auth.bp)
+    limiter.limit("2/second")(firmware.bp)
+    limiter.limit("2/second")(speedtest.bp)
     limiter.limit("2/second")(main.bp)
     
     return app

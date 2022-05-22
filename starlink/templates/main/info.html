@@ -1,6 +1,6 @@
-{% extends 'builders/base.html' %}
+{% extends 'builders/base-speed.html' %}
 
-{% block title %}Starlink Firmware ~ Info{% endblock %}
+{% block title %}Starlink Speedtests ~ Info{% endblock %}
 
 {% block scriptsHead %}
 {% endblock %}
@@ -8,18 +8,27 @@
 {% block content %}
   <div class="col-9">
     <div class="row mb-3">
-      <h2 class="pb-2 border-bottom">Information</h2>
-      <p>This website collects information on versions of Starlink firmware, software, and hardware revisions. Starlink does not provide this information themselves, this is crowdsourced data. Any information here is not authoritative and could be incorrect.</p>
-      <p>Feel free to add new firmware versions. Please do not vandalize.</p>
-      <p>View website analytics using <a class="text-decoration-none" href="https://analytics.mickit.net/share/D2CSSpvn/Starlink%20Versions" target="_blank">umami</a>.</p>
+      <p class="fs-2 pb-2 border-bottom">Information</p>
+      <p>This website collects information on various Starlink services. Starlink does not provide this information themselves, this is crowdsourced data.<br>Any information here is not authoritative and could be incorrect.</p>
+      <p>View website analytics using <a class="text-decoration-none" href="https://analytics.mickit.net/share/oh0IDhhy/Starlink%20Speeds" target="_blank">Umami</a>.</p>
       <p>Access a user location install map <a class="text-decoration-none" href="https://www.google.com/maps/d/viewer?mid=13Ny9oD8XRlsSYAwSRhM67vg7MePmTBxB&ll=0.9693652147468512%2C0&z=2" target="_blank">here</a>.</p>
       <p>Download the database backup by clicking <a class="text-decoration-none" href="{{ url_for('main.database') }}" target="_blank">here</a>.</p>
+    
+      <p class="fs-4 pb-2">Firmware</p>
+      <p>Firmware, software, and hardware versions are collected for historical purpose.</p>
+      <p>Feel free to add new firmware versions. Please do not vandalize.</p>
+
+      <p class="fs-4 pb-2">Speedtests</p>
+      <p>Speedtest results are collected via the online form as well as through the Starlink Discord.</p>
+      <p>Feel free to add new speedtest results.</p>
     </div>
 
     <div class="row mb-3 pt-3">
-        <h2 class="pb-2 border-bottom">Contact</h2>
-        <p>This app contains data submitted by many users. The original <a class="text-decoration-none" href="https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic/edit#gid=383580049" target="_blank">spreadsheet</a> was maintained by Nelson Minar, the web application is by Micky.</p>
+        <p class="fs-2 pb-2 border-bottom">Contact</p>
         <p>For any inquiries (feedback, bugs, incorrect information), contact us on Discord with 'Micky#6815' or send an email to 'help@starlinkversions.com'</p>
+        <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
+        <a class="nav-link" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a>
+        <a class="nav-link" href="https://buymeacoffee.com/alimickey" target="_blank">Buy Me A Coffee</a>
     </div>
 
     <div class="row mb-3 pt-3">
@@ -51,10 +60,10 @@
         </div>
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/starlink-status.png') }}" width="75px">
+            <img src="{{ url_for('static', filename='img/starlink-logo.png') }}" width="75px">
           </div>
-          <h2><a class="text-decoration-none" href="https://starlinkstatus.space/" target="_blank">Starlink Status</a></h2>
-          <p>Community based Starlink Statistics around the World.</p>
+          <h2><a class="text-decoration-none" href="https://starlink.com/map" target="_blank">Starlink Availability Map</a></h2>
+          <p>Official availability map provided by Starlink.</p>
         </div>
       </div>
     </div>

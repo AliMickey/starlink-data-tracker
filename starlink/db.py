@@ -16,18 +16,29 @@ def close_db(e=None):
     if db is not None:
         db.close()
 
-def init_db():
+def init_db(backup=False):
     db = get_db()
-    with current_app.open_resource('schema.sql') as f:
+    dbName = 'schema.sql'
+    if backup:
+        dbName = 'databaseBackup.sql'
+    with current_app.open_resource('schema/' + dbName) as f:
         db.executescript(f.read().decode('utf8'))
 
+# Clear the existing data and create new tables
 @click.command('init-db')
 @with_appcontext
 def init_db_command():
-    """Clear the existing data and create new tables."""
     init_db()
     click.echo('Initialized the database.')
+
+# Commit latest data to database
+@click.command('import-db')
+@with_appcontext
+def import_db_command():
+    init_db(backup=True)
+    click.echo('Imported the database.')
     
 def init_app(app):
     app.teardown_appcontext(close_db)
     app.cli.add_command(init_db_command)
+    app.cli.add_command(import_db_command)
