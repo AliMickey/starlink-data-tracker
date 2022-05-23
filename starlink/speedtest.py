@@ -67,6 +67,7 @@ def leaderboard():
     latency = db.execute('''
         SELECT latency, url, country, date_run
         FROM speedtests
+        WHERE latency > 0
         ORDER BY latency asc LIMIT 3
         ''').fetchall()
     download = db.execute('''
