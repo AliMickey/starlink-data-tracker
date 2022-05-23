@@ -36,7 +36,7 @@
 
 {% block content %}
   <div class="col-11 text-center">
-    <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
+    <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/firmware/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
     {% if g.user %}
       <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
     {% endif %}
