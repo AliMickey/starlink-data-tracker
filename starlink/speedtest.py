@@ -73,11 +73,13 @@ def leaderboard():
     download = db.execute('''
         SELECT download, url, country, date_run
         FROM speedtests
+        WHERE download < 600000
         ORDER BY download DESC LIMIT 3
         ''').fetchall()
     upload = db.execute('''
         SELECT upload, url, country, date_run
         FROM speedtests
+        WHERER upload < 100000
         ORDER BY upload DESC LIMIT 3
         ''').fetchall()
 
