@@ -79,7 +79,7 @@ def leaderboard():
     upload = db.execute('''
         SELECT upload, url, country, date_run
         FROM speedtests
-        WHERER upload < 100000
+        WHERE upload < 100000
         ORDER BY upload DESC LIMIT 3
         ''').fetchall()
 
