@@ -67,19 +67,16 @@ def leaderboard():
     latency = db.execute('''
         SELECT latency, url, country, date_run
         FROM speedtests
-        WHERE latency > 0
         ORDER BY latency asc LIMIT 3
         ''').fetchall()
     download = db.execute('''
         SELECT download, url, country, date_run
         FROM speedtests
-        WHERE download < 600000
         ORDER BY download DESC LIMIT 3
         ''').fetchall()
     upload = db.execute('''
         SELECT upload, url, country, date_run
         FROM speedtests
-        WHERE upload < 100000
         ORDER BY upload DESC LIMIT 3
         ''').fetchall()
 
@@ -119,12 +116,15 @@ def add():
                         result = re.search('({"result").*}}*', script.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                                (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
-                            db.commit()
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600 or int(data['upload']) >= 100: # If test results are within a valid for Starlink
+                                error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
+                            else:
+                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
+                                db.commit()
                         else:
                             error = "Speedtest was not run on Starlink"
-                        break # Doesn't stop the for loop.
+                        break # Doesn't stop the for loop for some reason.
             else:
                 error = "Speedtest result already exists"
         else:
