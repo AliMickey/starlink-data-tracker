@@ -116,7 +116,7 @@ def add():
                         result = re.search('({"result").*}}*', script.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600 or int(data['upload']) >= 100: # If test results are within a valid for Starlink
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 100000: # If test results are not within a valid for Starlink
                                 error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
                             else:
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
