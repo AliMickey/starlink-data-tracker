@@ -116,19 +116,19 @@ def add():
                         result = re.search('({"result").*}}*', script.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 100000: # If test results are not within a valid for Starlink
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid for Starlink
                                 error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
                             else:
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
                                 db.commit()
                         else:
-                            error = "Speedtest was not run on Starlink"
+                            error = "Speedtest was not run on Starlink."
                         break # Doesn't stop the for loop for some reason.
             else:
-                error = "Speedtest result already exists"
+                error = "Speedtest result already exists."
         else:
-            error = "Error, invalid URL"
+            error = "URL must be in `https://www.speedtest.net/result/` format."
 
         if error is None:
             if request.form.get('bot'):
