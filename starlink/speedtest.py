@@ -12,6 +12,10 @@ from starlink.db import get_db
 
 bp = Blueprint('speedtest', __name__, url_prefix='/speedtests')
 
+requestHeaders = {
+        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36',
+    }
+
 # View to show the index page of speedtest results
 @bp.route('/', methods = ['GET', 'POST'])
 def index():
@@ -107,8 +111,8 @@ def add():
             if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
                     url = url.replace(".png", "")
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
-            if dbCheck != 1: # If speedtest result does not exist in db
-                response = requests.get(url)
+            if dbCheck == 0: # If speedtest result does not exist in db
+                response = requests.get(url, timeout=5, headers=requestHeaders)
                 page_html = BeautifulSoup(response.text, 'html.parser')
                 scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))
                 for script in scripts:
