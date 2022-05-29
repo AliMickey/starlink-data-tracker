@@ -112,27 +112,31 @@ def add():
                     url = url.replace(".png", "")
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
-                response = requests.get(url, timeout=5, headers=requestHeaders)
-                page_html = BeautifulSoup(response.text, 'html.parser')
-                scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))
-                for script in scripts:
-                    if "window.OOKLA.INIT_DATA" in script.get_text():
-                        result = re.search('({"result").*}}*', script.get_text())       
-                        data = json.loads(result.group())['result']
-                        if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid for Starlink
-                                error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
+                try:
+                    response = requests.get(url, timeout=5, headers=requestHeaders)
+                    page_html = BeautifulSoup(response.text, 'html.parser')
+                    scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))
+                    for script in scripts:
+                        if "window.OOKLA.INIT_DATA" in script.get_text():
+                            result = re.search('({"result").*}}*', script.get_text())       
+                            data = json.loads(result.group())['result']
+                            if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
+                                if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid for Starlink
+                                    error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
+                                else:
+                                    db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                                        (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
+                                    db.commit()
                             else:
-                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
-                                db.commit()
-                        else:
-                            error = "Speedtest was not run on Starlink."
-                        break # Doesn't stop the for loop for some reason.
+                                error = "Speedtest was not run on Starlink."
+                            break # Doesn't stop the for loop for some reason.
+                except Exception as e:
+                    error = "Speedtest could not be added. Ensure the format is correct and is sent as a standalone message."
+                    print(e)
             else:
                 error = "Speedtest result already exists."
         else:
-            error = "URL must be in `https://www.speedtest.net/result/` format."
+            error = "URL must be in `https://www.speedtest.net/result/` format as a standalone message."
 
         if error is None:
             if request.form.get('bot'):
