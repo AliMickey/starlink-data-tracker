@@ -115,21 +115,26 @@ def add():
                 try:
                     response = requests.get(url, timeout=5, headers=requestHeaders)
                     page_html = BeautifulSoup(response.text, 'html.parser')
-                    scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))
+                    scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))[::-1] # Reverse list to improve speed because data script is at the end of <head>
+                    dataScript = None
                     for script in scripts:
                         if "window.OOKLA.INIT_DATA" in script.get_text():
-                            result = re.search('({"result").*}}*', script.get_text())       
-                            data = json.loads(result.group())['result']
-                            if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                                if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid for Starlink
-                                    error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
-                                else:
-                                    db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
-                                        (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
-                                    db.commit()
+                            dataScript = script
+                            break
+                    if dataScript:
+                        result = re.search('({"result").*}}*', dataScript.get_text())       
+                        data = json.loads(result.group())['result']
+                        if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid for Starlink
+                                error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
                             else:
-                                error = "Speedtest was not run on Starlink."
-                            break # Doesn't stop the for loop for some reason.
+                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', 
+                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload'])))
+                                db.commit()
+                        else:
+                            error = "Speedtest was not run on Starlink."
+                    else:
+                        error = "Speedtest result could not be found. Ensure the URL is correct."
                 except Exception as e:
                     error = "Speedtest could not be added."
                     print(e)
@@ -192,7 +197,7 @@ def schedCalcStats():
 
 # Function to start schedule thread
 def schedInitJobs():
-    schedule.every().second.do(schedCalcStats)
+    schedule.every(10).minutes.do(schedCalcStats)
     thread = Thread(target=schedPendingRunner)
     thread.start()
 
@@ -200,4 +205,4 @@ def schedInitJobs():
 def schedPendingRunner():
     while True:
         schedule.run_pending()
-        sleep(10)
+        sleep(60)
