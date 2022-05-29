@@ -107,7 +107,7 @@ def add():
 
     if request.method == 'POST':
         url = request.form['url']
-        if re.search('https://www.speedtest.net/result', url): # If url is valid
+        if re.search('^https:\/\/www.speedtest.net\/result\/.*$', url): # If url is valid
             if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
                     url = url.replace(".png", "")
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
@@ -131,7 +131,7 @@ def add():
                                 error = "Speedtest was not run on Starlink."
                             break # Doesn't stop the for loop for some reason.
                 except Exception as e:
-                    error = "Speedtest could not be added. Ensure the format is correct and is sent as a standalone message."
+                    error = "Speedtest could not be added."
                     print(e)
             else:
                 error = "Speedtest result already exists."
