@@ -125,7 +125,7 @@ def sendNotification(version, type, reddit):
     embed.add_embed_field(name='Firmware Type', value=type.capitalize())
     if reddit: embed.add_embed_field(name='Reddit', value=f"[Thread]({reddit})")
     else: embed.add_embed_field(name='Reddit Thread', value="Not Provided")
-    embed.set_thumbnail(url=hostDomain[:-1] + url_for('static', filename=f'img/thumbnails/{type}.png'))
+    embed.set_thumbnail(url=hostDomain[:-1] + url_for('static', filename=f'img/firmware/thumbnails/{type}.png'))
     embed.set_timestamp()
     webhook.add_embed(embed)
     response = webhook.execute()
