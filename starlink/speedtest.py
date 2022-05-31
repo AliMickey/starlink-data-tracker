@@ -2,7 +2,7 @@ from flask import (
     Blueprint, render_template, request, flash
 )
 import re, schedule, requests, json, sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Thread
 from bs4 import BeautifulSoup
 from time import sleep
@@ -162,10 +162,15 @@ def add():
 # Function to calculate period stats while in thread
 def schedCalcStats():
     dateNow = datetime.utcnow()
-    datePastDay = dateNow.replace(day=dateNow.day - 1)
-    datePastWeek = dateNow.replace(day=dateNow.day - 7)
-    datePastMonth = dateNow.replace(month=dateNow.month - 1)
-    datePastYear = dateNow.replace(year=dateNow.year - 1)
+    datePastDay = dateNow - timedelta(days=1)
+    datePastWeek = dateNow - timedelta(days=7)
+    datePastMonth = dateNow - timedelta(weeks=4)
+    datePastYear = dateNow - timedelta(weeks=52)
+
+    # datePastDay = dateNow.replace(day=dateNow.day - 1)
+    # datePastWeek = dateNow.replace(day=dateNow.day - 7)
+    # datePastMonth = dateNow.replace(month=dateNow.month - 1) 
+    # datePastYear = dateNow.replace(year=dateNow.year - 1)
     dateAll = "1970-01-01"
 
     db = sqlite3.connect('instance/starlink.db')
