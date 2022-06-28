@@ -13,14 +13,15 @@ async def on_ready():
     await bot.change_presence(activity=discord.Activity(name="Speedtests", type=3))
     print('Success')
 
+# Function to listen to #speedtests channel in the Starlink Discord
 @bot.event
 async def on_message(message):
     if message.channel.id == speedtestChannelID:
-        channel = bot.get_channel(message.channel.id)
+        #channel = bot.get_channel(message.channel.id) # Use if replying to message is not desired
         messageData = str(message.content)
         if re.search('https://www.speedtest.net/result', messageData): # If url is valid
             if re.search('\d', messageData): # If url contains any digits
-                r = requests.post(url = "https://starlinkversions.com/speedtests/add", data = {'bot': True, 'url': messageData})
-                await channel.send(r.text)
-
+                r = requests.post(url = "https://starlinkversions.com/speedtests/add", data = {'bot': True, 'url': messageData}) # Submit POST with bot identifier
+                await message.reply(r.text)
+                
 bot.run(discordToken)
