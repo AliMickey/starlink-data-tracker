@@ -21,7 +21,8 @@ The existing spreadsheet solution was cumbersome and very messy.
 6. Edit the config file with your keys `starlink/instance/config.py`
 7. Set Flask environment `export FLASK_APP=starlink`
 8. Initialise a new database `flask init-db`
-9. Run the app `flask run`
+9. Import the most recent dataset `flask import-db`
+10. Run the app `flask run`
 
 ## Notes
-The `schema.sql` file contains the initial dataset that was used when the website initially went public.
+The `databaseBackup.sql` file is archived here for development purposes.
