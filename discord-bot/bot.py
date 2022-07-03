@@ -19,9 +19,10 @@ async def on_message(message):
     if message.channel.id == speedtestChannelID:
         #channel = bot.get_channel(message.channel.id) # Use if replying to message is not desired
         messageData = str(message.content)
-        if re.search('https://www.speedtest.net/result', messageData): # If url is valid
+        if re.search('https://www.speedtest.net', messageData): # If url is valid
             if re.search('\d', messageData): # If url contains any digits
                 r = requests.post(url = "https://starlinkversions.com/speedtests/add", data = {'bot': True, 'url': messageData}) # Submit POST with bot identifier
+                #r = requests.post(url = "http://127.0.0.1:5000/speedtests/add", data = {'bot': True, 'url': messageData}) # Development
                 await message.reply(r.text)
                 
 bot.run(discordToken)
