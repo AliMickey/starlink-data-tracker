@@ -5,6 +5,7 @@ __pycache__/
 
 instance/config.py
 instance/starlink.db
+static/other/databaseBackup.sql
 
 .pytest_cache/
 .coverage
