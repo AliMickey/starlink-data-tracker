@@ -4,6 +4,8 @@
 
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
+  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
+  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet'/>
   <script>
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
@@ -32,6 +34,7 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
+    <p class="fs-3">{{regionName}}</p>
     <div class="mx-auto col-2">
       <form method="POST" id="selectPeriodForm">
         <select class="form-select form-select-sm" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
@@ -109,45 +112,53 @@
     {% endfor %}
 
     <br><br><br>
+    <div class="row">
+      <div class="col">
+        <p class="fs-4">Recently Submitted Speedtests</p>
+        <table class="table table-striped table-bordered" id="dataTable">
+          <thead>
+            <tr>
+              <th>Measured (UTC)</th>
+              <th>Country</th>
+              <th>Latency (ms)</th>
+              <th>Download (mbps)</th>
+              <th>Upload (mbps)</th>
+              <th>URL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for id, details in listDict.items() %}
+              <tr>
+                <td>
+                  <span>{{ details['dateRun'] }}</span>
+                </td>
+                <td>
+                  <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
+                </td>
+                <td>
+                  <span>{{ details['latency'] }}</span>
+                </td>
+                <td>
+                  <span>{{ details['download'] }}</span>
+                </td>
+                <td>
+                  <span>{{ details['upload'] }}</span>
+                </td>
+                <td>
+                  <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <div id="map" style="height: 650px;"></div>
+      </div>
+    </div>
 
-    <p class="fs-4">Recently Submitted Speedtests</p>
-    <table class="table table-striped table-bordered" id="dataTable">
-      <thead>
-        <tr>
-          <th>Measured (UTC)</th>
-          <th>Country</th>
-          <th>Latency (ms)</th>
-          <th>Download (mbps)</th>
-          <th>Upload (mbps)</th>
-          <th>URL</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for id, details in listDict.items() %}
-          <tr>
-            <td>
-              <span>{{ details['dateRun'] }}</span>
-            </td>
-            <td>
-              <span><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</span>
-            </td>
-            <td>
-              <span>{{ details['latency'] }}</span>
-            </td>
-            <td>
-              <span>{{ details['download'] }}</span>
-            </td>
-            <td>
-              <span>{{ details['upload'] }}</span>
-            </td>
-            <td>
-              <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-
+    <br>
+    
     <footer class="footer  border-top text-center mt-auto py-3">
       <span class="text-muted">
           This site is NOT affiliated with Starlink or SpaceX. View the source code for this website on <a class="text-decoration-none" href="https://github.com/AliMickey/starlink-firmware-track" target="_blank">GitHub</a>
@@ -166,5 +177,169 @@
       const selectedStatDiv = document.getElementById("stats-" + selectedPeriod);
       selectedStatDiv.hidden = false
     }
+  </script>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibWlja3kyMDAwIiwiYSI6ImNsNTI2enZ3ZTBjb28zYnFxOWJzZmVkMmcifQ.hVmtJr0Cjir1Ai-m3_C5Nw';
+    let hoveredStateId = null;
+    const zoomThreshold = 2;
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/light-v10',
+      minZoom: 0.9,
+      zoom: 0.9,
+      center: [21.514, 40.112]
+    });
+    map.addControl(new mapboxgl.NavigationControl());
+    map.addControl(new mapboxgl.FullscreenControl());
+    
+    // Layer sources
+    map.on('load', function() {
+      map.addSource('countries', {
+        'type': 'vector',
+        'url': "mapbox://mapbox.country-boundaries-v1",
+        });
+
+      map.addSource('continents', {
+        'type': 'geojson',
+        'data': "{{ url_for('static', filename='other/continents.geojson') }}",
+        'generateId': true
+      });
+
+      // Layer colour fills
+      map.addLayer({
+        'id': 'countries-fills',
+        'type': 'fill',
+        'source': 'countries',
+        'source-layer': 'country_boundaries',
+        'minzoom': zoomThreshold,
+        'layout': {},
+        'paint': {
+          'fill-color': '#627BC1',
+          'fill-opacity': [
+            'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              0.1,
+              0.5   
+          ]
+        },
+        filter: [
+          'all',
+          ['match', ['get', 'worldview'], ['all', 'US'], true, false],
+          ["!=", "true", ["get", "disputed"]],
+        ]
+        });
+
+      map.addLayer({
+        'id': 'continents-fills',
+        'type': 'fill',
+        'source': 'continents',
+        'maxzoom': zoomThreshold,
+        'layout': {},
+        'paint': {
+          'fill-color': '#C2A863',
+          'fill-opacity': [
+            'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              0.1,
+              0.7
+          ]
+        }
+      });
+      
+      // Layer borders
+      map.addLayer({
+        'id': 'countries-borders',
+        'type': 'line',
+        'source': 'countries',
+        'source-layer': 'country_boundaries',
+        'layout': {},
+        'paint': {
+          'line-color': '#627BC1',
+          'line-width': 2
+        }
+      });
+
+      map.addLayer({
+        'id': 'continents-borders',
+        'type': 'line',
+        'source': 'continents',
+        'layout': {},
+        'paint': {
+          'line-color': '#627BC1',
+          'line-width': 3
+        }
+      });
+      
+      // On move listener for layers
+      map.on('mousemove', 'countries-fills', (e) => {
+        if (e.features.length > 0) {
+          if (hoveredStateId !== null) {
+            map.setFeatureState(
+              { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+              { hover: false }
+            );
+          }
+          hoveredStateId = e.features[0].id;
+          map.setFeatureState(
+            { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+            { hover: true }
+          )
+        }
+      });
+
+      map.on('mousemove', 'continents-fills', (e) => {
+        if (e.features.length > 0) {
+          if (hoveredStateId !== null) {
+            map.setFeatureState(
+              { source: 'continents', id: hoveredStateId },
+              { hover: false }
+            )
+          }
+          hoveredStateId = e.features[0].id;
+          map.setFeatureState(
+            { source: 'continents', id: hoveredStateId },
+            { hover: true }
+          );
+        }
+      });
+      
+      // On mouse leave listener for layers
+      map.on('mouseleave', 'countries-fills', () => {
+        if (hoveredStateId !== null) {
+          map.setFeatureState(
+            { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId},
+            { hover: false }
+          );
+        }
+        hoveredStateId = null;
+      });
+
+      map.on('mouseleave', 'continents-fills', () => {
+        if (hoveredStateId !== null) {
+          map.setFeatureState(
+            { source: 'continents', id: hoveredStateId},
+            { hover: false }
+          );
+        }
+        hoveredStateId = null;
+      });
+      
+      // Click listener for layers
+      map.on("click", 'countries-fills', function(e) {
+        var features = map.queryRenderedFeatures(e.point, { layers: ["countries-fills"] });
+        if (features.length) {
+          url = "{{ url_for('speedtest.index') }}" + features[0].properties.iso_3166_1.toLowerCase()
+          location.href = url
+        }
+      });
+
+      map.on("click", 'continents-fills', function(e) {
+        var features = map.queryRenderedFeatures(e.point, { layers: ["continents-fills"] });
+        if (features.length) {
+          url = "{{ url_for('speedtest.index') }}" + features[0].properties.name.toLowerCase()
+          location.href = url
+        }
+      });
+    });
   </script>
 {% endblock %}

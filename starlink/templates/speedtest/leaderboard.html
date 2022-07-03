@@ -25,7 +25,7 @@
                     <p class="card-text"><img src="{{ url_for('static', filename='img/speedtest/leaderboard-' + (index + 1)|string + '.png') }}" width="110"></p>
                   </div>
                   <div class="col">
-                    <p class="card-text"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ statDict[metric][index]['country'].upper() }}.svg" width="30"> {{ statDict[metric][index]['country'].upper() }}</p>
+                    <p class="card-text"><a href="{{ url_for('speedtest.index', region=statDict[metric][index]['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ statDict[metric][index]['country'].upper() }}.svg" width="30"> {{ statDict[metric][index]['country'].upper() }}</a></p>
                     <br>
                     <p class="card-text"><a href="{{ statDict[metric][index]['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a> URL</p>
                   </div>
