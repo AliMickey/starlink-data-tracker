@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, send_file
+    Blueprint, render_template, send_file, make_response, request
 )
 
 # App imports
@@ -12,14 +12,17 @@ bp = Blueprint('main', __name__)
 def index():
     # Get firmware data for the past 5 dishy entries
     listDict = getFirmwareData(listType="dishy", range=5)
-    return render_template('firmware/index.html', listDict=listDict)
+    if not request.cookies.get('welcome-message-viewed'):
+        res = make_response(render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie='false'))
+        res.set_cookie('welcome-message-viewed', 'true', max_age=None)
+        return res
 
+    return render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie=request.cookies.get('welcome-message-viewed'))
 
 # View to download database schema/data
 @bp.route('/database')
 def database():
-    return send_file("static/databaseBackup.sql", as_attachment=True)
-
+    return send_file("static/other/databaseBackup.sql", as_attachment=True)
 
 # View for firmware info page
 @bp.route('/info')

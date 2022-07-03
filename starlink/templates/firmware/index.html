@@ -3,24 +3,19 @@
 {% block title %}Starlink Versions{% endblock %}
 
 {% block scriptsHead %}
-  <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
 {% endblock %}
 
 {% block content %}
-  <div class="col-11 text-center">
+  <div class="col-11 text-center"> 
     <p class="fs-1 fw-bold">Starlink Versions</p>
-    <div id="homeGallery" class="carousel slide rounded mx-auto d-block w-25" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img src="{{ url_for('static', filename='img/home-gallery-1.jpg') }}" class="d-block w-100">
-        </div>
-        <div class="carousel-item">
-          <img src="{{ url_for('static', filename='img/home-gallery-2.jpg') }}" class="d-block w-100">
-        </div>
-        <div class="carousel-item">
-          <img src="{{ url_for('static', filename='img/home-gallery-3.jpg') }}" class="d-block w-100">
-        </div>
-      </div>
+    {% if welcomeMessageCookie == 'false' %}
+    <div class="alert alert-primary" role="alert">
+      <p class="fs-5">Check out our new <a href="{{ url_for('speedtest.index') }}">speedtests</a> tracker (accessible via the 'Speed' navbar button)</p>
+      <p class="fs-5">Please consider <a href="{{ url_for('main.info') }}#contact">donating</a> to support this website and future development.</p>
+    </div>
+    {% endif %}
+    <div class="mx-auto d-block w-25">
+      <img src="{{ url_for('static', filename='img/home-gallery-{}.jpg'.format(range(1, 3) | random )) }}" class="d-block w-100">
     </div>
     <br><br>
     <p class="fs-4"> Recent Dishy (Antenna) Firmware</p>
@@ -43,7 +38,6 @@
                 </button>
             {% else %}
               <span class="font-monospace"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
-              <a class="float-end" onclick="myFunction('{{details['version']}}')" role="button" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Copied to clipboard"><img src="{{ url_for('static', filename='img/copy.png') }}" alt="Copy Icon"></a>
             {% endif %} 
           </td>
           <td>
@@ -67,29 +61,4 @@
 {% endblock %}
 
 {% block scriptsBody %}
-  <script>
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
-  </script>
-  <script>
-    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
-    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
-      return new bootstrap.Popover(popoverTriggerEl)
-    })
-    var popover = new bootstrap.Popover(document.querySelector('.popover-dismiss'), {
-      trigger: 'focus'
-    })
-  </script>
-  <script>
-    function myFunction(text) {
-      var dummy = document.createElement("textarea");
-      document.body.appendChild(dummy);
-      dummy.value = text;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
-    } 
-  </script>
 {% endblock %}

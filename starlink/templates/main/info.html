@@ -1,4 +1,4 @@
-{% extends 'builders/base-speed.html' %}
+{% extends 'builders/base.html' %}
 
 {% block title %}Starlink Speedtests ~ Info{% endblock %}
 
@@ -6,7 +6,7 @@
 {% endblock %}
 
 {% block content %}
-  <div class="col-9">
+  <div class="col-9" id="information">
     <div class="row mb-3">
       <p class="fs-2 pb-2 border-bottom">Information</p>
       <p>This website collects information on various Starlink services. Starlink does not provide this information themselves, this is crowdsourced data.<br>Any information here is not authoritative and could be incorrect.</p>
@@ -24,15 +24,15 @@
       <p>Feel free to add new speedtest results.</p>
     </div>
 
-    <div class="row mb-3 pt-3">
-        <p class="fs-2 pb-2 border-bottom">Contact</p>
+    <div class="row mb-3 pt-3" id="contact">
+        <p class="fs-2 pb-2 border-bottom" >Contact</p>
         <p>For any inquiries (feedback, bugs, incorrect information), contact us on Discord with 'Micky#6815' or send an email to 'help@starlinkversions.com'</p>
         <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
         <a class="nav-link" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a>
         <a class="nav-link" href="https://buymeacoffee.com/alimickey" target="_blank">Buy Me A Coffee</a>
     </div>
 
-    <div class="row mb-3 pt-3">
+    <div class="row mb-3 pt-3" id="links">
       <h2 class="pb-2 border-bottom">Useful Links</h2>
       <div class="row p-2 row-cols-1 row-cols-lg-2">
         <div class="feature col">
