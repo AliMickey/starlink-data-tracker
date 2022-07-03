@@ -18,10 +18,10 @@ def close_db(e=None):
 
 def init_db(backup=False):
     db = get_db()
-    dbName = 'schema.sql'
+    schemaName = 'schema.sql'
     if backup:
-        dbName = 'databaseBackup.sql'
-    with current_app.open_resource('schema/' + dbName) as f:
+        schemaName = 'databaseBackup.sql'
+    with current_app.open_resource('schema/' + schemaName) as f:
         db.executescript(f.read().decode('utf8'))
 
 # Clear the existing data and create new tables
