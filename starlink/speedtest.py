@@ -176,9 +176,9 @@ def add():
                             if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid range (5ms latency, 600/50mbps D/U) for Starlink (may change in the future)
                                 error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
                             else:
-                                source = "web"
+                                source = "website-official"
                                 if request.form.get('bot'):
-                                    source = "discord-bot"
+                                    source = "discord-starlink"
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload']), source))
                                 db.commit()

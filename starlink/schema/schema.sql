@@ -12,6 +12,7 @@ CREATE TABLE users (
 CREATE TABLE firmware (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   date_added TEXT NOT NULL,
+  source TEXT,
   type TEXT NOT NULL,
   version_info TEXT NOT NULL,
   reddit_thread TEXT
@@ -21,13 +22,13 @@ CREATE TABLE speedtests (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   date_added TEXT NOT NULL,
   date_run TEXT NOT NULL,
+  source TEXT,
   url TEXT NOT NULL,
   country TEXT,
   server TEXT,
   latency DECIMAL,
   download DECIMAL,
   upload DECIMAL
-  --source TEXT
 );
 
 CREATE TABLE speedtest_stats (
