@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, flash, redirect, url_for
+    Blueprint, current_app, render_template, request, flash, redirect, url_for
 )
 import re, schedule, requests, json, sqlite3, awoc, pycountry
 from datetime import datetime, timedelta
@@ -28,7 +28,8 @@ def index(region):
     listDict = {}
     statDict = {}
     region = region.lower()
-    
+    mapboxKey = current_app.config['MAPBOX_KEY']
+
     # Latest entry dict
     # Validator to only process if provided region is valid
     if region == "global": # Get latest rows for every country
@@ -107,7 +108,7 @@ def index(region):
         flash("There are no speedtest results for the specific country.", "warning")
         return redirect(url_for('speedtest.index'))
 
-    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict)
+    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey)
 
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])
