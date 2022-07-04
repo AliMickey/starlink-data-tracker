@@ -29,7 +29,6 @@ def index(region):
     statDict = {}
     region = region.lower()
     mapboxKey = current_app.config['MAPBOX_KEY']
-    schedStatCalculationBuilder()
 
     # Latest entry dict
     # Validator to only process if provided region is valid
