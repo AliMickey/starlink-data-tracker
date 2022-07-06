@@ -29,6 +29,7 @@ def index(region):
     statDict = {}
     region = region.lower()
     mapboxKey = current_app.config['MAPBOX_KEY']
+    regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
 
     # Latest entry dict
     # Validator to only process if provided region is valid
@@ -108,7 +109,7 @@ def index(region):
         flash("There are no speedtest results for the specific country.", "warning")
         return redirect(url_for('speedtest.index'))
 
-    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey)
+    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey, regionBbox=regionBbox)
 
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])

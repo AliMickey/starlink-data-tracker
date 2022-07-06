@@ -269,7 +269,16 @@
           'line-width': 3
         }
       });
-      
+      map.fitBounds([
+        ["{{ regionBbox['sw']['lon'] }}", "{{ regionBbox['sw']['lat'] }}"],
+        ["{{ regionBbox['ne']['lon'] }}", "{{ regionBbox['ne']['lat'] }}"]
+      ]);
+
+      // Get cursor coordinates for development
+      // map.on('mousemove', (e) => {
+      //   console.log(e.lngLat)
+      // });
+
       // On move listener for layers
       map.on('mousemove', 'countries-fills', (e) => {
         if (e.features.length > 0) {
