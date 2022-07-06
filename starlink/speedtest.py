@@ -152,14 +152,23 @@ def leaderboard():
 def add():
     db = get_db()
     error = None
-
     if request.method == 'POST':
+        print(request.form)
         url = request.form['url']
+        source = request.form.get('source')
+    
+        # Set source to appropiate value
+        if source and source not in ['website-official', 'discord-starlink', 'script-official']:
+            source = "other"
+
+        # Convert nto clean url
         if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
                     url = url.replace(".png", "")
         if re.search('my-result', url):
                     url = url.replace("my-result", "result")
-        if re.search('^https://www.speedtest.net/result/.\S*$', url): # If url is valid
+
+        # Continue if url is valid with base domain
+        if re.search('^https://www.speedtest.net/result/.\S*$', url): 
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
                 try:
@@ -175,12 +184,9 @@ def add():
                         result = re.search('({"result").*}}*', dataScript.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 50000: # If test results are not within a valid range (5ms latency, 600/50mbps D/U) for Starlink (may change in the future)
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 55000: # If test results are not within a valid range (5ms latency, 600/50mbps D/U) for Starlink (may change in the future)
                                 error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
-                            else:
-                                source = "website-official"
-                                if request.form.get('bot'):
-                                    source = "discord-starlink"
+                            else:                      
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload']), source))
                                 db.commit()
@@ -197,15 +203,16 @@ def add():
             error = "URL must be in `https://www.speedtest.net/result/` format as a standalone message."
 
         if error is None:
-            if request.form.get('bot'):
-                return "Speedtest added successfully. Thanks!\nView it at https://starlinkversions.com/speedtests"     
-            else:
+            if source == "website-official":
                 flash("Speedtest added successfully.", "success")
-        else:
-            if request.form.get('bot'):
-                return error
             else:
+                return "Speedtest added successfully. Thanks!\nView it at https://starlinkversions.com/speedtests"     
+        else:
+            if source == "website-official":
                 flash(error, "danger")
+            else:
+                return error
+
     return render_template('speedtest/add.html')
 
 
