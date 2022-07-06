@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, send_file, make_response, request
+    Blueprint, render_template, send_file, make_response, request, current_app
 )
 
 # App imports
@@ -22,7 +22,8 @@ def index():
 # View to download database schema/data
 @bp.route('/database')
 def database():
-    return send_file("static/other/databaseBackup.sql", as_attachment=True)
+    return send_file(current_app.root_path + "/static/other/databaseBackup.sql", as_attachment=True)
+    #return send_file("static/other/databaseBackup.sql", as_attachment=True)
 
 # View for firmware info page
 @bp.route('/info')
