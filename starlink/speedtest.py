@@ -153,7 +153,6 @@ def add():
     db = get_db()
     error = None
     if request.method == 'POST':
-        print(request.form)
         url = request.form['url']
         source = request.form.get('source')
     

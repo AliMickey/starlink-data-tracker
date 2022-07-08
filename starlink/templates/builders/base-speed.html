@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -47,21 +47,17 @@
             <div class="row justify-content-center py-5">
                 {% block content %}{% endblock %}
             </div>
-            
-            <div class="modal fade" id="donateModal" tabindex="-1" aria-labelledby="DonateModal" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Donate</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">  
-                            <a class="nav-link" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a>
-                            <a class="nav-link" href="https://buymeacoffee.com/alimickey" target="_blank">Buy Me A Coffee</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+            <script>
+                kofiWidgetOverlay.draw('alimicky', {
+                    'type': 'floating-chat',
+                    'floating-chat.donateButton.text': '',
+                    'floating-chat.donateButton.background-color': '#f45d22',
+                    'floating-chat.donateButton.text-color': '#fff'
+                });
+            </script>
+
         </div>
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
         {% block scriptsBody %} {% endblock %}
