@@ -23,7 +23,6 @@ regionData = awoc.AWOC()
 @bp.route('/', methods = ['GET'], defaults={'region': 'global'})
 @bp.route('/<string:region>')
 def index(region):
-    schedSpeedtestCalcBuilder()
     db = get_db()
     listDict = {}
     statDict = {}
