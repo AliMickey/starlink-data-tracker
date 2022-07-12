@@ -22,6 +22,9 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    from . import scheduler
+    app.before_first_request(scheduler.schedInitJobs)
+
     from . import db
     db.init_app(app)
 
@@ -33,7 +36,6 @@ def create_app(test_config=None):
 
     from . import speedtest
     app.register_blueprint(speedtest.bp)
-    app.before_first_request(speedtest.schedInitJobs)
 
     from . import main
     app.register_blueprint(main.bp)

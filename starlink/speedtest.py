@@ -1,11 +1,10 @@
+from threading import stack_size
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for
 )
-import re, schedule, requests, json, sqlite3, awoc, pycountry
+import re, requests, json, sqlite3, awoc, pycountry
 from datetime import datetime, timedelta
-from threading import Thread
 from bs4 import BeautifulSoup
-from time import sleep
 
 # App imports
 from starlink.db import get_db
@@ -21,20 +20,20 @@ continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceani
 regionData = awoc.AWOC()
 
 # View to show the index page of speedtest results
-@bp.route('/', methods = ['GET', 'POST'], defaults={'region': 'global'})
+@bp.route('/', methods = ['GET'], defaults={'region': 'global'})
 @bp.route('/<string:region>')
 def index(region):
+    schedSpeedtestCalcBuilder()
     db = get_db()
     listDict = {}
     statDict = {}
     region = region.lower()
     mapboxKey = current_app.config['MAPBOX_KEY']
-    regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
 
     # Latest entry dict
     # Validator to only process if provided region is valid
     if region == "global": # Get latest rows for every country
-        regionName = region.capitalize()
+        regionName = region.capitalize() #Prettify region name
         listDB = db.execute('''
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
@@ -42,8 +41,9 @@ def index(region):
             DESC LIMIT 10
             ''').fetchall()
 
-    elif region in continents: # Get latest rows for countries within continent
-        regionName = region.replace('_', ' ').title()
+    # Get latest rows for countries within continent
+    elif region in continents: 
+        regionName = region.replace('_', ' ').title() # Prettify region name
         sqlWhereQuery = ""
         countries = regionData.get_countries_data_of(regionName)
         for country in countries:
@@ -58,21 +58,23 @@ def index(region):
             DESC LIMIT 10
             ''').fetchall()       
     
-    elif len(region) == 2: # Get latest rows for specific country
-        regionName = pycountry.countries.get(alpha_2=region).name
-        listDB = db.execute('''
-            SELECT id, url, datetime(date_run), country, latency, download, upload
-            FROM speedtests
-            WHERE country = ?
-            ORDER BY date_run
-            DESC LIMIT 10
-            ''', (region,)).fetchall()
+    else: # Get latest rows for specific country
+        regionCheck = pycountry.countries.get(alpha_2=region)  
+        if regionCheck:
+            regionName = regionCheck.name # Get region name from country code
+            listDB = db.execute('''
+                SELECT id, url, datetime(date_run), country, latency, download, upload
+                FROM speedtests
+                WHERE country = ?
+                ORDER BY date_run
+                DESC LIMIT 10
+                ''', (region,)).fetchall()
 
-    # Return invalid region error
-    else:
-        flash("Supplied region code is incorrect.", "warning")
-        return redirect(url_for('speedtest.index'))
-    
+        # Return invalid region error
+        else:
+            flash("Supplied region code is incorrect.", "warning")
+            return redirect(url_for('speedtest.index'))
+        
     for row in listDB:
         id, url, date_run, country, latency, download, upload = row
         convDate = datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
@@ -84,30 +86,27 @@ def index(region):
         FROM speedtest_stats
         WHERE region = ?
         ''', (region,)).fetchone()
-    
-    if statDB:
-        for period in speedtestPeriods:
-            if statDB[f'{period}_count'] > 0:
-                count = statDB[f'{period}_count']
-                latencyAvg = f'{statDB[f"{period}_latency_avg"]:.0f}'
-                latencyMax = f'{statDB[f"{period}_latency_max"]:.0f}'
-                latencyMin = f'{statDB[f"{period}_latency_min"]:.0f}'
-                downloadAvg = f'{statDB[f"{period}_download_avg"]/1000:.2f}'
-                downloadMax = f'{statDB[f"{period}_download_max"]/1000:.2f}'
-                downloadMin = f'{statDB[f"{period}_download_min"]/1000:.2f}'
-                uploadAvg = f'{statDB[f"{period}_upload_avg"]/1000:.2f}'
-                uploadMax = f'{statDB[f"{period}_upload_max"]/1000:.2f}'
-                uploadMin = f'{statDB[f"{period}_upload_min"]/1000:.2f}'
-            else:
-                count = latencyAvg = latencyMax = latencyMin = downloadAvg = downloadMax = downloadMin = uploadAvg = uploadMax = uploadMin = "No Data"
+
+    for period in speedtestPeriods:
+        if statDB and statDB[f'{period}_count'] > 0:
+            count = statDB[f'{period}_count']
+            latencyAvg = f'{statDB[f"{period}_latency_avg"]:.0f}'
+            latencyMax = f'{statDB[f"{period}_latency_max"]:.0f}'
+            latencyMin = f'{statDB[f"{period}_latency_min"]:.0f}'
+            downloadAvg = f'{statDB[f"{period}_download_avg"]/1000:.2f}'
+            downloadMax = f'{statDB[f"{period}_download_max"]/1000:.2f}'
+            downloadMin = f'{statDB[f"{period}_download_min"]/1000:.2f}'
+            uploadAvg = f'{statDB[f"{period}_upload_avg"]/1000:.2f}'
+            uploadMax = f'{statDB[f"{period}_upload_max"]/1000:.2f}'
+            uploadMin = f'{statDB[f"{period}_upload_min"]/1000:.2f}'
+        else:
+            count = latencyAvg = latencyMax = latencyMin = downloadAvg = downloadMax = downloadMin = uploadAvg = uploadMax = uploadMin = "No Data"
             
-            statDict[period] = {'count': count, 
-                'latencyAvg': latencyAvg, 'latencyMax': latencyMax, 'latencyMin': latencyMin, 
-                'downloadAvg': downloadAvg, 'downloadMax': downloadMax, 'downloadMin': downloadMin,
-                'uploadAvg': uploadAvg, 'uploadMax': uploadMax, 'uploadMin': uploadMin}
-    else:
-        flash("There are no speedtest results for the specific country.", "warning")
-        return redirect(url_for('speedtest.index'))
+        statDict[period] = {'count': count, 
+            'latencyAvg': latencyAvg, 'latencyMax': latencyMax, 'latencyMin': latencyMin, 
+            'downloadAvg': downloadAvg, 'downloadMax': downloadMax, 'downloadMin': downloadMin,
+            'uploadAvg': uploadAvg, 'uploadMax': uploadMax, 'uploadMin': uploadMin}
+        regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
 
     return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey, regionBbox=regionBbox)
 
@@ -160,7 +159,7 @@ def add():
         if source and source not in ['website-official', 'discord-starlink', 'script-official']:
             source = "other"
 
-        # Convert nto clean url
+        # Convert into clean url
         if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
                     url = url.replace(".png", "")
         if re.search('my-result', url):
@@ -183,8 +182,8 @@ def add():
                         result = re.search('({"result").*}}*', dataScript.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['upload']) >= 55000: # If test results are not within a valid range (5ms latency, 600/50mbps D/U) for Starlink (may change in the future)
-                                error = "Speedtest contains potentially inaccurate results. Contact Tech Support for help."
+                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 1000 or int(data['upload']) >= 55000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
+                                error = "Speedtest contains potentially inaccurate results. Please try again."
                             else:                      
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload']), source))
@@ -205,7 +204,7 @@ def add():
             if source == "website-official":
                 flash("Speedtest added successfully.", "success")
             else:
-                return "Speedtest added successfully. Thanks!\nView it at https://starlinkversions.com/speedtests"     
+                return "Speedtest added successfully, thanks!\nhttps://starlinkversions.com/speedtests"     
         else:
             if source == "website-official":
                 flash(error, "danger")
@@ -216,17 +215,17 @@ def add():
 
 
 # Function to calculate periodic statistics while in thread
-def schedStatCalculationBuilder():
+def schedSpeedtestCalcBuilder():
     db = sqlite3.connect('instance/starlink.db')
     dbCountries = [row[0] for row in db.execute('SELECT DISTINCT country FROM speedtests').fetchall()] # Get a list of countries and convert into array
     db.close()
 
     # Global statistic calculation
-    schedStatCalculate("global")
+    schedSpeedtestCalc("global")
 
     # Country statistic calculation
     for country in dbCountries:
-        schedStatCalculate(country, f' AND country in ("{country}")')
+        schedSpeedtestCalc(country, f' AND country in ("{country}")')
 
     # Collated region statistic calculation
     for continent in continents:
@@ -238,10 +237,10 @@ def schedStatCalculationBuilder():
             if countryCode in dbCountries:
                 sqlWhereString += f'"{countryCode}", '
         sqlWhereString = sqlWhereString[:-2] # Trim off trailing comma
-        schedStatCalculate(continent, f' AND country in ({sqlWhereString})')
+        schedSpeedtestCalc(continent, f' AND country in ({sqlWhereString})')
       
 # Common function to calculate periodic statistic for given region
-def schedStatCalculate(region, sqlWhereString=""):
+def schedSpeedtestCalc(region, sqlWhereString=""):
     dateTimeNow = datetime.utcnow()
     datePastDay = dateTimeNow - timedelta(days=1)
     datePastWeek = dateTimeNow - timedelta(days=7)
@@ -281,23 +280,11 @@ def schedStatCalculate(region, sqlWhereString=""):
 
         # Store updated stats
         db.execute(f'''
-            UPDATE speedtest_stats SET {period}_count = ?,
+            UPDATE speedtest_stats SET date_calculated = ?, {period}_count = ?,
             {period}_latency_avg = ?, {period}_latency_max = ?, {period}_latency_min = ?,
             {period}_download_avg = ?, {period}_download_max = ?, {period}_download_min = ?,
             {period}_upload_avg = ?, {period}_upload_max = ?, {period}_upload_min = ?
             WHERE region = ?
-            ''', (speedtestCount, latency[0], latency[1], latency[2], download[0], download[1], download[2], upload[0], upload[1], upload[2], region))
+            ''', (dateTimeNow, speedtestCount, latency[0], latency[1], latency[2], download[0], download[1], download[2], upload[0], upload[1], upload[2], region))
         db.commit()
     db.close()
-
-# Function to start schedule thread
-def schedInitJobs():
-    schedule.every(10).minutes.do(schedStatCalculationBuilder)
-    thread = Thread(target=schedPendingRunner)
-    thread.start()
-
-# Function to keep scheduler running
-def schedPendingRunner():
-    while True:
-        schedule.run_pending()
-        sleep(60)
