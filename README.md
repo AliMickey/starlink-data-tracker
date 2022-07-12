@@ -1,16 +1,27 @@
-# Starlink Firmware Track
+# Starlink Data Tracker
 ## Description
-Website to make tracking Starlink firmware revisions easier. This is a crowdsourced project and could be incorrect.
+Community maintained database for Starlink data.
 
-[Live Version](https://starlinkversions.com)
+[Live](https://starlinkversions.com)
+
+
+## Features
+### Firmware
+As new firmware revisions are constantly released to the public, it made sense to maintain an updated list. This allows us to compare and curate notes for each revision.
+
+### Speedtests
+Tracking the performance of any ISP is important, we make use of Speedtest.net's services to store results from users. Data is captured via the website form, the official [Discord](https://discord.gg/Rr2u4ystEe) channel, and through the all-in-one script (in development).
+
 
 ## Motivation
-The existing spreadsheet solution was cumbersome and very messy.
+The existing [spreadsheet](https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic) solution was cumbersome and very messy.
+
 
 ## Technologies Used
 [Flask](https://flask.palletsprojects.com),
 [Bootstrap](https://getbootstrap.com),
 [Docker](https://www.docker.com),
+
 
 ## Build from source
 1. Clone the repository
