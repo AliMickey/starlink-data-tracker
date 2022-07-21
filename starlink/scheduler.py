@@ -1,11 +1,11 @@
 import schedule
 from threading import Thread
 from time import sleep
-from starlink.speedtest import schedSpeedtestCalcBuilder
-
+from starlink.speedtests import schedSpeedtestCalcBuilder
 
 # Function to start schedule thread
 def schedInitJobs():
+    schedSpeedtestCalcBuilder() # Populate with initial stats
     schedule.every(10).minutes.do(schedSpeedtestCalcBuilder)
     thread = Thread(target=schedPendingRunner)
     thread.start()
