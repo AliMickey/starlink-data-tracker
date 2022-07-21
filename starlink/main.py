@@ -1,33 +1,27 @@
 from flask import (
-    Blueprint, render_template, send_file, make_response, request, current_app
+    Blueprint, render_template, send_file, current_app
 )
 
+import requests
+
 # App imports
-from starlink.firmware import getFirmwareData
+from starlink.notifications import sendEmail
 
 bp = Blueprint('main', __name__)
 
-# Main view for website information
 @bp.route('/')
 def index():
-    # Get firmware data for the past 5 dishy entries
-    listDict = getFirmwareData(listType="dishy", range=5)
-    if not request.cookies.get('welcome-message-viewed'):
-        res = make_response(render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie='false'))
-        res.set_cookie('welcome-message-viewed', 'true', max_age=None)
-        return res
-
-    return render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie=request.cookies.get('welcome-message-viewed'))
+    return render_template('main/index.html')
 
 # View to download database schema/data
 @bp.route('/database')
 def database():
     return send_file(current_app.root_path + "/static/other/databaseBackup.sql", as_attachment=True)
-    #return send_file("static/other/databaseBackup.sql", as_attachment=True)
 
 # View for firmware info page
 @bp.route('/info')
 def info():
+    #x = requests.post('http://0.0.0.0:8080/new-firmware?firmware=test')
     return render_template('main/info.html')
 
 # 404 page not found error

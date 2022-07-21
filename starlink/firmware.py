@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, abort, url_for, current_app
+    Blueprint, flash, redirect, render_template, make_response, request, abort, url_for, current_app
 )
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import re
@@ -10,6 +10,18 @@ from starlink.db import get_db
 from starlink.auth import login_required
 
 bp = Blueprint('firmware', __name__, url_prefix='/firmware')
+
+# Dashboard for firmware page
+@bp.route('/')
+def index():
+    # Get firmware data for the past 5 dishy entries
+    listDict = getFirmwareData(listType="dishy", range=5)
+    if not request.cookies.get('welcome-message-viewed'):
+        res = make_response(render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie='false'))
+        res.set_cookie('welcome-message-viewed', 'true', max_age=None)
+        return res
+
+    return render_template('firmware/index.html', listDict=listDict, welcomeMessageCookie=request.cookies.get('welcome-message-viewed'))
 
 # View to show all firmware versions for a specific hardware/software type
 @bp.route('/<string:listType>', methods = ['GET', 'POST'])
