@@ -1,6 +1,7 @@
 {% extends 'builders/base.html' %}
 
 {% block title %}Starlink Firmware - Admin{% endblock %}
+{% set dataType = "firmware" %}
 
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}"> 

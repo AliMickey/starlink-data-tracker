@@ -1,12 +1,26 @@
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users_password_reset;
 DROP TABLE IF EXISTS firmware;
 DROP TABLE IF EXISTS speedtests;
 DROP TABLE IF EXISTS speedtest_stats;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  email TEXT UNIQUE NOT NULL,
+  username TEXT,
+  password TEXT NOT NULL,
+  totp TEXT,
+  role TEXT,
+  time_zone TEXT
+);
+
+CREATE TABLE users_password_reset (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  reset_key TEXT UNIQUE NOT NULL,
+  date_time TEXT NOT NULL,
+  activated BOOLEAN NOT NULL,
+  user_id INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE firmware (

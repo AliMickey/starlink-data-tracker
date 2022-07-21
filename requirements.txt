@@ -7,6 +7,7 @@ schedule
 beautifulsoup4
 pycountry
 a-world-of-countries
+alt-profanity-check
 
 # Discord Bot
 discord.py
