@@ -1,17 +1,17 @@
 {% extends 'builders/base.html' %}
 
-{% block title %}Starlink Versions{% endblock %}
+{% block title %}Starlink Firmware{% endblock %}
+{% set dataType = "firmware" %}
 
 {% block scriptsHead %}
 {% endblock %}
 
 {% block content %}
   <div class="col-11 text-center"> 
-    <p class="fs-1 fw-bold">Starlink Versions</p>
+    <p class="fs-1 fw-bold">Starlink Firmware</p>
     {% if welcomeMessageCookie == 'false' %}
     <div class="alert alert-primary" role="alert">
       <p class="fs-5">Check out our new <a href="{{ url_for('speedtest.index') }}">speedtests</a> tracker (accessible via the 'Speed' navbar button)</p>
-      <p class="fs-5">Please consider <a href="{{ url_for('main.info') }}#contact">donating</a> to support this website and future development.</p>
     </div>
     {% endif %}
     <div class="mx-auto d-block w-25">
@@ -37,12 +37,12 @@
                   <span class="font-monospace">{{ details['version'][:8] }}</span>
                 </button>
             {% else %}
-              <span class="font-monospace"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
+              <span class="font-monospace user-select-all"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
             {% endif %} 
           </td>
           <td>
             {% if details['reddit'] %}
-              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a>
+              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/logos/reddit.png') }}" width="30px"></a>
             {% else %}
               <span>N/A</span>
             {% endif %}
@@ -51,12 +51,6 @@
         {% endfor %}
       </tbody>
     </table>
-
-    <footer class="footer  border-top text-center mt-auto py-3">
-      <span class="text-muted">
-          This site is NOT affiliated with Starlink or SpaceX. View the source code for this website on <a class="text-decoration-none" href="https://github.com/AliMickey/starlink-firmware-track" target="_blank">GitHub</a>
-      </span>
-    </footer>
   </div>
 {% endblock %}
 

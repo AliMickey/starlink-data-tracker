@@ -1,6 +1,7 @@
 {% extends 'builders/base.html' %}
 
 {% block title %}Starlink Firmware - {{listType|capitalize}}{% endblock %}
+{% set dataType = "firmware" %}
 
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
@@ -37,7 +38,7 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/firmware/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
-    {% if g.user %}
+    {% if g.user and g.user['role'] == 'admin' %}
       <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
     {% endif %}
     <table class="table table-striped table-bordered" id="dataTable">
@@ -59,16 +60,16 @@
                     <span class="font-monospace">{{ details['version'][:8] }}</span>
                   </button>
               {% else %}
-              <span class="font-monospace"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
+              <span class="font-monospace user-select-all"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
               {% endif %}
 
             {% else %}
-              <span class="font-monospace">{{ details['version']}}</span>
+              <span class="font-monospace user-select-all">{{ details['version']}}</span>
             {% endif %}
           </td>
           <td>
             {% if details['reddit'] %}
-              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/reddit.png') }}" width="30px"></a></td>
+              <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/logos/reddit.png') }}" width="30px"></a></td>
             {% else %}
               <a type="button" class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addRedditThread-{{id}}">Add</a>
             {% endif %}

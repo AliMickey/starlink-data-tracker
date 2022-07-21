@@ -1,0 +1,38 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Starlink Data Tracker{% endblock %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="col-11 text-center">
+    <p class="fs-1 fw-bold">Starlink Data Tracker</p>
+    <p class="fs-3">Community maintained database for Starlink data</p>
+    <div class="row row-cols-1 row-cols-md-3">
+      <div class="col">
+        <div class="card">       
+          <img src="{{ url_for('static', filename='img/main/firmware.jpg') }}" class="card-img" alt="firmware">
+          <div class="card-footer"><p class="fs-5">Firmware</p></div>
+          <a href="{{ url_for('firmware.index') }}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/main/speedtests.jpg') }}" class="card-img" alt="speedtests">
+          <div class="card-footer"><p class="fs-5">Speedtests</p></div>
+          <a href="{{ url_for('speedtest.index') }}" class="stretched-link"></a>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/main/outages.jpg') }}" class="card-img" alt="outages">
+          <div class="card-footer"><p class="fs-5 text-muted">Outages (Under Development)</p></div>
+          <a href="#" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    <br>
+    {% include 'builders/footer.html' %}
+  </div>
+{% endblock %}

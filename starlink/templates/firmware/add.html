@@ -1,41 +1,38 @@
 {% extends 'builders/base.html' %}
 
 {% block title %}Starlink Firmware - Add{% endblock %}
+{% set dataType = "firmware" %}
 
 {% block scriptsHead %}
 {% endblock %}
 
 {% block content %}
-  <div class="col-8 text-center">
+  <div class="col-4">
     <p class="fs-2">Add a New Firmware Version</p>
-    <p class="fs-6">Please feel free to add a new firmware version if it has not been seen before.<br>Changes will go live immediately, be sure you mean it!</p>
+    <p class="fs-6">Please check that the firmware version has not been submitted already.<br>Changes will go live immediately, be sure you mean it!</p>
     <br>
     <form method="POST" id="addVersionForm">
-      <div class="row mb-3">
-        <label for="username" class="col-sm-2 col-form-label">Version</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="version" name="version" maxLength="50" required>
-        </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="version" name="version" maxLength="50" placeholder="Version" required>
+        <label for="version">Version</label>
       </div>
-      <div class="row mb-3">
-        <label for="password" class="col-sm-2 col-form-label">Reddit Thread</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500">
-        </div>
+      <div class="form-floating mb-3">
+        <input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500" placeholder="https://reddit.com/r/starlink/">
+        <label for="redditThread">Reddit Thread</label>
       </div>
-      <div class="row mb-3">
+      <div class="form-floating mb-3">
+        <select class="form-select" id="listType" name="listType" required>
+          <option value="0">Dishy</option>
+          <option value="1">Router</option>
+          <option value="2">Mobile App</option>
+          <option value="3">Web UI</option>
+          <option value="4">Hardware</option>
+        </select>
         <label for="password" class="col-sm-2 col-form-label">Type</label>
-        <div class="col-sm-10">
-          <select class="form-select" id="listType" name="listType" required>Choose Lists:
-            <option value="0">Dishy</option>
-            <option value="1">Router</option>
-            <option value="2">Mobile App</option>
-            <option value="3">Web UI</option>
-            <option value="4">Hardware</option>
-          </select>
-          </div>
       </div>
-      <button type="submit" class="btn btn-primary" name="btn" value="addVersion">Add</button>
+      <div class="mb-3">
+        <button type="submit" class="btn btn-primary" name="btn" value="addVersion">Submit</button>
+      </div>
     </form>
   </div>
 {% endblock %}

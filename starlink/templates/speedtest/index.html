@@ -1,11 +1,13 @@
-{% extends 'builders/base-speed.html' %}
+{% extends 'builders/base.html' %}
 
 {% block title %}Starlink Speedtests{% endblock %}
+{% set dataType = "speedtests" %}
 
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
-  <script src='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js'></script>
-  <link href='https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css' rel='stylesheet'/>
+  <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/mapbox-gl.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/mapbox-gl.css') }}"/>
   <script>
     $(document).ready(function() {
         var table = $('#dataTable').DataTable({
@@ -34,87 +36,118 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
-    <p class="fs-3">{{regionName}}</p>
+    <p class="fs-3">{{ regionName }}</p>
     <div class="mx-auto col-3">
-      <form method="POST" id="selectPeriodForm">
-        <select class="form-select form-select-sm" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
+      <div class="form-floating">
+        <select class="form-select" id="periodSelect" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
           <option value="day">Day</option>
           <option value="week">Week</option>
           <option value="month">Month</option>
           <option value="year">Year</option>
           <option value="all" selected>All</option>
         </select>
-      </form>
+        <label for="periodSelect">Type</label>
+      </div>
     </div>
-
     <br><br>
-    
-    {% for period in ['day', 'week', 'month', 'year', 'all'] %}
-      <div id="stats-{{period}}" {% if period != "all" %}hidden{% endif %}>
-        <p class="fs-5">Total Results: {{ statDict[period]['count'] }}</p>
+    <div class="row">
+      <div class="col">
         <div class="row row-cols-1 row-cols-md-3 g-4">
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-3">Latency (ms)</h5>
-                <div class="row">
-                  <div class="col">
-                    <p class="card-text"></p>
-                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['latencyAvg'] }}</p>
-                    <p class="card-text"></p>
-                  </div>
-                  <div class="col">
-                    <p class="card-text fs-5">Max: {{ statDict[period]['latencyMax'] }}</p>
-                    <p class="card-text fs-5">Min: {{ statDict[period]['latencyMin'] }}</p>
-                  </div>
+                <h5 class="card-title fs-2">Latency (ms)</h5>
+                <div class="col mb-3">
+                  <canvas id="statsLatencyChart" height="200"></canvas>
                 </div>
+                {% for period in ['day', 'week', 'month', 'year', 'all'] %}
+                  <div class="row" id="statsLatencyText-{{period}}" {% if period != "all" %}hidden{% endif %}>
+                    <div class="row">
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['latencyMin'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4">{{ statDict[period]['latencyAvg'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['latencyMax'] }}</p>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
               </div>
             </div>
           </div>
+
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-3">Download (Mbps)</h5>
-                <div class="row">
-                  <div class="col">
-                    <p class="card-text"></p>
-                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['downloadAvg'] }}</p>
-                    <p class="card-text"></p>
-                  </div>
-                  <div class="col">
-                    <p class="card-text fs-5">Max: {{ statDict[period]['downloadMax'] }}</p>
-                    <p class="card-text fs-5">Min: {{ statDict[period]['downloadMin'] }}</p>
-                  </div>
+                <h5 class="card-title fs-2">Download (mbps)</h5>
+                <div class="col mb-3">
+                  <canvas id="statsDownloadChart" height="200"></canvas>
                 </div>
+                {% for period in ['day', 'week', 'month', 'year', 'all'] %}
+                  <div class="row" id="statsDownloadText-{{period}}" {% if period != "all" %}hidden{% endif %}>
+                    <div class="row">
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['downloadMin'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4">{{ statDict[period]['downloadAvg'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['downloadMax'] }}</p>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
               </div>
             </div>
           </div>
+
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-3">Upload (Mbps)</h5>
-                <div class="row">
-                  <div class="col">
-                    <p class="card-text"></p>
-                    <p class="card-text fs-4 fw-bold">Average: {{ statDict[period]['uploadAvg'] }}</p>
-                    <p class="card-text"></p>
-                  </div>
-                  <div class="col">
-                    <p class="card-text fs-5">Max: {{ statDict[period]['uploadMax'] }}</p>
-                    <p class="card-text fs-5">Min: {{ statDict[period]['uploadMin'] }}</p>
-                  </div>
+                <h5 class="card-title fs-2">Upload (mbps)</h5>
+                <div class="col mb-3">
+                  <canvas id="statsUploadChart" height="200"></canvas>
                 </div>
+                {% for period in ['day', 'week', 'month', 'year', 'all'] %}
+                  <div class="row" id="statsUploadText-{{period}}" {% if period != "all" %}hidden{% endif %}>
+                    <div class="row">
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['uploadMin'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4">{{ statDict[period]['uploadAvg'] }}</p>
+                      </div>
+                      <div class="col">
+                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5">{{ statDict[period]['uploadMax'] }}</p>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
               </div>
             </div>
-          </div>
+          </div>             
         </div>
       </div>
-    {% endfor %}
+    </div>
 
-    <br><br><br>
+    <br><br>
+
     <div class="row">
       <div class="col">
-        <p class="fs-4">Recently Submitted Speedtests</p>
+        <p class="fs-4">Recently Submitted</p>
         <table class="table table-striped table-bordered" id="dataTable">
           <thead>
             <tr>
@@ -152,18 +185,12 @@
           </tbody>
         </table>
       </div>
+
       <div class="col">
         <div id="map" style="height: 650px;"></div>
       </div>
+      
     </div>
-
-    <br>
-    
-    <footer class="footer  border-top text-center mt-auto py-3">
-      <span class="text-muted">
-          This site is NOT affiliated with Starlink or SpaceX. View the source code for this website on <a class="text-decoration-none" href="https://github.com/AliMickey/starlink-firmware-track" target="_blank">GitHub</a>
-      </span>
-    </footer>
   </div>
 {% endblock %}
 
@@ -172,12 +199,98 @@
   <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
   <script>
     function changeStatPeriod(currentPeriod, selectedPeriod) {
-      const currentStatDiv = document.getElementById("stats-" + currentPeriod);
-      currentStatDiv.hidden = true
-      const selectedStatDiv = document.getElementById("stats-" + selectedPeriod);
-      selectedStatDiv.hidden = false
+      ["Latency", "Download", "Upload"].forEach(hideShow)
+      function hideShow(item, index, arr) {
+        console.log("stats" + item + "Text" + currentPeriod)
+        const currentStatDiv = document.getElementById("stats" + item + "Text-" + currentPeriod);
+        currentStatDiv.hidden = true
+        const selectedStatDiv = document.getElementById("stats" + item + "Text-" + selectedPeriod);
+        selectedStatDiv.hidden = false
+      }
     }
+  </script>  
+
+  <script>
+    const ctxStatsLatencyChart = document.getElementById('statsLatencyChart');
+    const statsLatencyChart = new Chart(ctxStatsLatencyChart, {
+      type: 'bar',
+      data: {
+        labels: ['Day', 'Week', 'Month', 'Year'],
+        datasets: [
+          {
+            label: 'Latency (ms)',
+            backgroundColor: ['rgba(255, 227, 31, 0.7)'],
+            borderColor: ['rgba(255, 227, 31, 1)'],
+            data: ["{{statDict['day']['latencyAvg']}}", "{{statDict['week']['latencyAvg']}}", "{{statDict['month']['latencyAvg']}}", "{{statDict['year']['latencyAvg']}}"]
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
   </script>
+
+  <script>
+    const ctxStatsDownloadChart = document.getElementById('statsDownloadChart');
+    const statsDownloadChart = new Chart(ctxStatsDownloadChart, {
+      type: 'bar',
+      data: {
+        labels: ['Day', 'Week', 'Month', 'Year'],
+        datasets: [
+          {
+            label: 'Download (mbps)',
+            backgroundColor: ['rgba(11, 172, 255, 0.7)'],
+            borderColor: ['rgba(11, 172, 255, 1)'],
+            data: ["{{statDict['day']['downloadAvg']}}", "{{statDict['week']['downloadAvg']}}", "{{statDict['month']['downloadAvg']}}", "{{statDict['year']['downloadAvg']}}"]
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins:{
+          legend: {
+            display: false
+          }
+        }
+      }
+    });
+  </script>
+
+  <script>
+    const ctxStatsUploadChart = document.getElementById('statsUploadChart');
+    const statsUploadChart = new Chart(ctxStatsUploadChart, {
+      type: 'bar',
+      data: {
+        labels: ['Day', 'Week', 'Month', 'Year'],
+        datasets: [
+          {
+            label: '',
+            backgroundColor: ['rgba(191, 113, 255, 0.7)'],
+            borderColor: ['rgba(191, 113, 255, 1)'],
+            data: ["{{statDict['day']['uploadAvg']}}", "{{statDict['week']['uploadAvg']}}", "{{statDict['month']['uploadAvg']}}", "{{statDict['year']['uploadAvg']}}"]
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins:{
+          legend: {
+            display: false
+          }
+        }
+      },
+    });
+  </script>  
+  
   <script>
     mapboxgl.accessToken = "{{ mapboxKey }}";
     let hoveredStateId = null;
@@ -337,7 +450,8 @@
       map.on("click", 'countries-fills', function(e) {
         var features = map.queryRenderedFeatures(e.point, { layers: ["countries-fills"] });
         if (features.length) {
-          url = "{{ url_for('speedtest.index') }}" + features[0].properties.iso_3166_1.toLowerCase()
+          // Url must be built seperately as jinja set at render time
+          url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.iso_3166_1.toLowerCase()
           location.href = url
         }
       });
@@ -345,7 +459,8 @@
       map.on("click", 'continents-fills', function(e) {
         var features = map.queryRenderedFeatures(e.point, { layers: ["continents-fills"] });
         if (features.length) {
-          url = "{{ url_for('speedtest.index') }}" + features[0].properties.name.toLowerCase()
+          // Url must be built seperately as jinja set at render time
+          url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.name.toLowerCase()
           location.href = url
         }
       });
