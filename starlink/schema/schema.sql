@@ -41,7 +41,10 @@ CREATE TABLE speedtests (
   latency DECIMAL,
   download DECIMAL,
   upload DECIMAL,
-  source TEXT
+  source TEXT,
+  distance INTEGER,
+  user_id INTEGER,
+  FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
 CREATE TABLE speedtest_stats (
