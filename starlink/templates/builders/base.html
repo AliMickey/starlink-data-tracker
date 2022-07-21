@@ -9,7 +9,7 @@
         <meta property="og:type" content="object"/>
         <meta property="og:title" content="Community maintained database for Starlink data"/>
         <meta property="og:description" content="Firmware, Speedtests"/>
-        <meta property="og:url" content="https://starlinkversions.com"/>
+        <meta property="og:url" content="https://starlinktrack.com"/>
         <meta property="og:image" content="{{ url_for('static', filename='img/home-gallery-1.jpg') }}"/>
         <meta property="og:image:alt" content="Frontpage image with dishy"/>
         <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">  
@@ -52,16 +52,6 @@
                 {% block content %}{% endblock %}
             </div>
         </div>
-
-        <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
-        <script>
-            kofiWidgetOverlay.draw('alimicky', {
-                'type': 'floating-chat',
-                'floating-chat.donateButton.text': '',
-                'floating-chat.donateButton.background-color': '#f45d22',
-                'floating-chat.donateButton.text-color': '#fff'
-            });
-        </script>
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
         {% block scriptsBody %} {% endblock %}
     </body>

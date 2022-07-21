@@ -137,7 +137,7 @@ def forgotPassword():
                     (str(resetKey), userID, datetime.utcnow(), False))
                 db.commit()
 
-            sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinkversions.com/auth/reset-password/{resetKey}")
+            sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
         
         # Generic message to prevent brute email validity checks
         error = "If the provided email exists, you will soon receive an email with instructions. Please check your spam folder."
