@@ -1,3 +1,6 @@
 DATABASE = "starlink.db"
 SECRET_KEY = ""
 DISCORD_WEBHOOK = ""
+MAPBOX_KEY = ""
+HCAPCTHA_KEY = ""
+MIGADU_KEY = ""
