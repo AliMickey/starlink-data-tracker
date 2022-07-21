@@ -204,7 +204,7 @@ def add():
             if source == "website-official":
                 flash("Speedtest added successfully.", "success")
             else:
-                return "Speedtest added successfully, thanks!\nhttps://starlinkversions.com/speedtests"     
+                return "Speedtest added successfully, thanks!"     
         else:
             if source == "website-official":
                 flash(error, "danger")
