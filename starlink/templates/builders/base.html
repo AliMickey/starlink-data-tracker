@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <title>{% block title %}{% endblock %}</title>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="format-detection" content="telephone=no">
         <meta property="og:site_name" content="Starlink Data Tracker"/>
         <meta property="og:type" content="object"/>
         <meta property="og:title" content="Community maintained database for Starlink data"/>
@@ -10,41 +12,25 @@
         <meta property="og:url" content="https://starlinkversions.com"/>
         <meta property="og:image" content="{{ url_for('static', filename='img/home-gallery-1.jpg') }}"/>
         <meta property="og:image:alt" content="Frontpage image with dishy"/>
-        <meta property="og:image:width" content="1053"/>
-        <meta property="og:image:height" content="984"/>
-        <title>{% block title %}{% endblock %}</title>
         <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">  
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">     
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.min.css') }}">     
         <script src="{{ url_for('static', filename='js/jquery.js') }}"></script>
         <script async defer data-website-id="9a3361d4-b2b2-4914-bab4-4c49f7790dfb" src="https://analytics.mickit.net/umami.js"></script>
-        <meta name="format-detection" content="telephone=no">
         {% block scriptsHead %} {% endblock %}
     </head>
     <body>
         <div class="container-fluid">
             <div class="row">
                 <nav class="navbar navbar-expand navbar-light bg-light">
-                    <ul class="navbar-nav mb-2 mb-lg-0">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="{{ url_for('main.index') }}">Home</a></li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Firmware</a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='dishy') }}">Dishy</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='router') }}">Router</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='app') }}">Mobile App</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='web') }}">Web UI</a></li>
-                                <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='hardware') }}">Hardware</a></li>
-                            </ul>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('firmware.add') }}">Add</a></li>
-                        </li>
-                    </ul>          
-                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                        {% if g.user %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a></li>
-                        {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.index') }}">Speed</a></li>
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.info') }}">Info</a></li>
-                    </ul>
+                    {% if dataType == "firmware" %}
+                        {% include 'builders/navigation/firmware.html' %}
+                    {% elif dataType == "speedtests" %}
+                        {% include 'builders/navigation/speedtests.html' %}
+                    {% else %}
+                        {% include 'builders/navigation/main.html' %}
+                    {% endif %}
+                    {% include 'builders/navigation/auth.html' %}
                 </nav>
             </div>
             
