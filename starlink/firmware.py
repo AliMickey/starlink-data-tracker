@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, make_response, request, abort, url_for, current_app
+    Blueprint, flash, redirect, render_template, make_response, request, abort, url_for, current_app, g
 )
 from discord_webhook import DiscordWebhook, DiscordEmbed
 import re
@@ -52,28 +52,33 @@ def list(listType):
 @login_required
 def listAdmin(listType):
     db = get_db()  
-    if request.method == 'POST':
-        # Update version entry in db
-        if request.form["btn"] == "updateVersion":
-            versionID = request.form['versionID']
-            dateTimeAdded = request.form['dateTimeAdded']
-            version = request.form['version']
-            redditThread = request.form['redditThread']
-            db.execute('UPDATE firmware SET date_added = ?, version_info = ?, reddit_thread = ? WHERE id = ?', (dateTimeAdded, version, redditThread, versionID))
-            db.commit()
-            flash("Version updated successfully", "success")
-            return redirect(request.referrer)
+    if g.user['role'] == "admin":
+        if request.method == 'POST':
+            # Update version entry in db
+            if request.form["btn"] == "updateVersion":
+                versionID = request.form['versionID']
+                dateTimeAdded = request.form['dateTimeAdded']
+                version = request.form['version']
+                redditThread = request.form['redditThread']
+                db.execute('UPDATE firmware SET date_added = ?, version_info = ?, reddit_thread = ? WHERE id = ?', (dateTimeAdded, version, redditThread, versionID))
+                db.commit()
+                flash("Version updated successfully", "success")
+                return redirect(request.referrer)
 
-        # Remove existing version entry from db
-        if request.form["btn"] == "removeVersion":
-            versionID = request.form['versionID']
-            db.execute('DELETE FROM firmware WHERE id = ?', (versionID,))
-            db.commit()
-            flash("Version removed successfully", "success")
-            return redirect(request.referrer)   
+            # Remove existing version entry from db
+            if request.form["btn"] == "removeVersion":
+                versionID = request.form['versionID']
+                db.execute('DELETE FROM firmware WHERE id = ?', (versionID,))
+                db.commit()
+                flash("Version removed successfully", "success")
+                return redirect(request.referrer)   
 
-    listDict = getFirmwareData(listType)
-    return render_template('firmware/listAdmin.html', listType=listType, listDict=listDict)
+        listDict = getFirmwareData(listType)
+        return render_template('firmware/listAdmin.html', listType=listType, listDict=listDict)
+
+    else:
+        flash("Admin privileges required", "warning")
+        return redirect(url_for('firmware.index'))
 
 # View to add a new firmware version
 @bp.route('/add', methods = ['GET', 'POST'])
