@@ -1,4 +1,3 @@
-from threading import stack_size
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for
 )
@@ -21,7 +20,7 @@ regionData = awoc.AWOC()
 
 # View to show the index page of speedtest results
 @bp.route('/', methods = ['GET'], defaults={'region': 'global'})
-@bp.route('/<string:region>')
+@bp.route('/region/<string:region>')
 def index(region):
     db = get_db()
     listDict = {}
@@ -181,8 +180,10 @@ def add():
                         result = re.search('({"result").*}}*', dataScript.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 1000 or int(data['upload']) >= 55000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
-                                error = "Speedtest contains potentially inaccurate results. Please try again."
+                            if int(data['distance']) >= 250:
+                                error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
+                            elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 1000 or int(data['upload']) >= 55000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
+                                error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (< 5ms), Download (600mbps - 1mbps), Upload(55mbps - 0.5mbps)."
                             else:                      
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload']), source))

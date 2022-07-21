@@ -34,8 +34,8 @@ def create_app(test_config=None):
     from . import firmware
     app.register_blueprint(firmware.bp)
 
-    from . import speedtest
-    app.register_blueprint(speedtest.bp)
+    from . import speedtests
+    app.register_blueprint(speedtests.bp)
 
     from . import main
     app.register_blueprint(main.bp)
@@ -46,7 +46,7 @@ def create_app(test_config=None):
     limiter.init_app(app)
     limiter.limit("2/second")(auth.bp)
     limiter.limit("2/second")(firmware.bp)
-    limiter.limit("2/second")(speedtest.bp)
+    limiter.limit("2/second")(speedtests.bp)
     limiter.limit("2/second")(main.bp)
     
     return app
