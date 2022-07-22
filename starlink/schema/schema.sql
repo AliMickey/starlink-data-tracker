@@ -11,7 +11,9 @@ CREATE TABLE users (
   password TEXT NOT NULL,
   totp TEXT,
   role TEXT,
-  time_zone TEXT
+  time_zone TEXT,
+  activated BOOLEAN,
+  discord_id TEXT,
 );
 
 CREATE TABLE users_password_reset (
