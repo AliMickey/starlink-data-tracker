@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, send_file, current_app
+    Blueprint, render_template, send_file, current_app, make_response, request
 )
 
 import requests
@@ -11,7 +11,12 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('main/index.html')
+    if not request.cookies.get('welcome-message-viewed'):
+        res = make_response(render_template('main/index.html', welcomeMessageCookie='false'))
+        res.set_cookie('welcome-message-viewed', 'true', max_age=None)
+        return res
+
+    return render_template('main/index.html', welcomeMessageCookie=request.cookies.get('welcome-message-viewed'))
 
 # View to download database schema/data
 @bp.route('/database')
