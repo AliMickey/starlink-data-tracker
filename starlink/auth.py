@@ -3,7 +3,7 @@ from flask import (
 )
 from werkzeug.security import check_password_hash, generate_password_hash
 import functools, re, uuid, requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from profanity_check import predict
 
 # App imports
@@ -108,9 +108,13 @@ def login():
 @bp.route('/account', methods=('GET', 'POST'))
 def account():
     error = None
+    db = get_db()
+    if request.method == 'POST':
+        print("post")
+    
+    userDetails = db.execute('SELECT id, email, username, time_zone FROM users WHERE id = ?', (g.user['id'],)).fetchone()
 
-    return render_template('auth/account.html')
-
+    return render_template('auth/account.html', userDetails=userDetails)
 
 # View to request a new password link
 @bp.route('/forgot-password', methods=('GET', 'POST'))
@@ -124,23 +128,20 @@ def forgotPassword():
 
         if user:
             userID = user['id']
-            # Check if user has used key or has already requested for a password reset within last 24 hours
-            resetPassDetails = db.execute('SELECT reset_key, datetime(date_time), activated FROM users_password_reset WHERE user_id = ?', (userID,)).fetchone()
-            # Send the same key again
-            if resetPassDetails and checkPasswordResetValidity(resetPassDetails[1], resetPassDetails['activated']):
-                resetKey = resetPassDetails['reset_key']
-
-            else:
+            # Allow only two password reset requests per day
+            datePastDay = datetime.utcnow() - timedelta(days=1)
+            resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.utcnow())).fetchone()            
+            if resetPassCount[0] < 2:
                 # Generate and send a new key
                 resetKey = uuid.uuid4()
                 db.execute('INSERT INTO users_password_reset (reset_key, user_id, date_time, activated) VALUES (?, ?, ?, ?) ', 
                     (str(resetKey), userID, datetime.utcnow(), False))
                 db.commit()
 
-            sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
+                sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
         
         # Generic message to prevent brute email validity checks
-        error = "If the provided email exists, you will soon receive an email with instructions. Please check your spam folder."
+        error = "If the provided email exists, you will soon receive an email with instructions. Please check your spam folder. (You can only change your password twice per day)"
         
         if error:
             flash(error, "success")
@@ -154,6 +155,7 @@ def resetPassword(resetKey):
     db = get_db()          
     resetPassDetails = db.execute('SELECT user_id, datetime(date_time), activated FROM users_password_reset WHERE reset_key = ?', (resetKey,)).fetchone()
     
+    # Check if url key is valid upon initial load
     if request.method == 'GET':
         if resetPassDetails and checkPasswordResetValidity(resetPassDetails[1], resetPassDetails['activated']): 
             return render_template('auth/reset-password.html', resetKey=resetKey)
@@ -207,4 +209,13 @@ def checkPasswordResetValidity(genTime, activated):
     diffSeconds = ((nowDateTime.hour * 60 + nowDateTime.minute) * 60 + nowDateTime.second) - ((generatedDateTime.hour * 60 + generatedDateTime.minute) * 60 + generatedDateTime.second)
     if (activated == 0 and diffSeconds < 86400):
         return True        
+    return False 
+
+# Function to check if account verify key is still valid       
+def checkAccountActivationKeyValidity(userId):
+    db = get_db()
+    activationStatus = db.execute('SELECT activated FROM users WHERE id = ?', (userId,)).fetchone()
+    print(activationStatus)
+    if activationStatus:
+        return True
     return False 
