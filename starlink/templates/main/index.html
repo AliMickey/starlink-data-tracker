@@ -1,6 +1,6 @@
 {% extends 'builders/base.html' %}
 
-{% block title %}Starlink Data Tracker{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block scriptsHead %}
 {% endblock %}
@@ -9,6 +9,11 @@
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Data Tracker</p>
     <p class="fs-3">Community maintained database for Starlink data</p>
+    <!-- {% if welcomeMessageCookie == 'false' %}
+      <div class="alert alert-primary" role="alert">
+        <p class="fs-5"><a style="text-decoration: none" href="#">message</a></p>
+      </div>
+    {% endif %} -->
     <div class="row row-cols-1 row-cols-md-3">
       <div class="col">
         <div class="card">       
