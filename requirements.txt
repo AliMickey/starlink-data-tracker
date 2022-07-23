@@ -6,6 +6,7 @@ Flask-Mobility
 schedule
 beautifulsoup4
 pycountry
+pztz
 a-world-of-countries
 alt-profanity-check
 

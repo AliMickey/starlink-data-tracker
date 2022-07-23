@@ -1,10 +1,65 @@
 {% extends 'builders/base.html' %}
 
-{% block title %}Starlink Data Tracker - Account{% endblock %}
+{% block title %}Account{% endblock %}
 
 {% block content %}
-  <div class="col-4">
+  <div class="col-10">
     <p class="fs-2">Account</p>
-    <p>Not implemented yet. Hang tight!</p>
+
+    <div class="row">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            User settings
+          </div>        
+          <div class="card-body">
+            <form method="POST">
+              <div class="form-floating mb-3">
+                <input class="form-control" type="Email" name="Email" placeholder="Email" value="{{ userDetails['email'] }}" autocomplete="off" disabled>
+                <label for="Email">Email</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input class="form-control" type="username" name="username" placeholder="Username" value="{{ userDetails['username'] }}" autocomplete="off">
+                <label for="username">Username</label>
+              </div>
+              <div class="form-floating mb-3">
+                <select class="form-select" id="timezone" name="timezone">
+                  <option value="{{ userDetails['time_zone'] }}">{{ userDetails['time_zone'] }}</option>
+                  {% for timezone in timezones %}
+                    <option value="{{ timezone }}">{{ timezone }}</option>
+                  {% endfor %}
+                </select>
+                <label for="timezone" class="col-sm-2 col-form-label">Time Zone</label>
+              </div>
+              
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary" name="btn" value="user">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-header">
+            Speedtest Settings
+          </div>   
+          <div class="card-body">
+            <form method="POST">
+              <label for="discordId" class="form-label">Enter your Discord user ID here to link all speedtests submitted via Discord to your account. <a href="https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-" target="_blank" style="text-decoration: none;">Help</a></label>
+              <div class="form-floating mb-3">
+                <input class="form-control" type="discordId" name="discordId" placeholder="Discord ID" value="{{ userDetails['discord_id'] }}" autocomplete="off">
+                <label for="discordId">Discord ID</label>
+              </div>
+              <div class="mb-3">
+                <button type="submit" class="btn btn-primary" name="btn" value="speedtest">Submit</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 {% endblock %}

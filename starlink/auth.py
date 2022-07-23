@@ -2,7 +2,7 @@ from flask import (
     Blueprint, current_app, g, redirect, render_template, request, session, url_for, flash
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-import functools, re, uuid, requests
+import functools, re, uuid, requests, pytz
 from datetime import datetime, timedelta
 from profanity_check import predict
 
@@ -106,15 +106,45 @@ def login():
 
 # View to request a new password link
 @bp.route('/account', methods=('GET', 'POST'))
+@login_required
 def account():
     error = None
     db = get_db()
-    if request.method == 'POST':
-        print("post")
-    
-    userDetails = db.execute('SELECT id, email, username, time_zone FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    userDetails = db.execute('SELECT id, email, username, time_zone, discord_id FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    timezones = pytz.common_timezones
 
-    return render_template('auth/account.html', userDetails=userDetails)
+    if request.method == 'POST':
+        if request.form["btn"] == "user":
+            print(request.form['url_root'])
+            username = request.form['username']
+            timezone = request.form['timezone']
+            userUsernameCheck =  db.execute('SELECT EXISTS (SELECT 1 FROM users WHERE username = ? LIMIT 1)', (username,)).fetchone()[0]
+
+            # Check if submitted username is different and unique
+            if username != userDetails['username']:
+                if userUsernameCheck == 1:
+                    error = "Username is taken"
+            # Check if submitted timezone is a valid format
+            elif timezone not in pytz.all_timezones_set:
+                error = "Invalid timezone provided"
+
+            if error is None:
+                db.execute('UPDATE users SET username = ?, time_zone = ? WHERE id = ?', (username, timezone, g.user['id']))
+                db.commit()
+            
+            else:
+                flash(error, "warning")
+
+        elif request.form["btn"] == "speedtest":
+            discordId = request.form['discordId']
+
+            if error is None:
+                db.execute('UPDATE users SET discord_id = ? WHERE id = ?', (discordId, g.user['id']))
+                db.commit()
+
+        return redirect(url_for('auth.account'))
+
+    return render_template('auth/account.html', userDetails=userDetails, timezones=timezones)
 
 # View to request a new password link
 @bp.route('/forgot-password', methods=('GET', 'POST'))
