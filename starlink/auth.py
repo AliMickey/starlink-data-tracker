@@ -115,7 +115,6 @@ def account():
 
     if request.method == 'POST':
         if request.form["btn"] == "user":
-            print(request.form['url_root'])
             username = request.form['username']
             timezone = request.form['timezone']
             userUsernameCheck =  db.execute('SELECT EXISTS (SELECT 1 FROM users WHERE username = ? LIMIT 1)', (username,)).fetchone()[0]
@@ -126,7 +125,7 @@ def account():
                     error = "Username is taken"
             # Check if submitted timezone is a valid format
             elif timezone not in pytz.all_timezones_set:
-                error = "Invalid timezone provided"
+                error = "Invalid time zone provided"
 
             if error is None:
                 db.execute('UPDATE users SET username = ?, time_zone = ? WHERE id = ?', (username, timezone, g.user['id']))
