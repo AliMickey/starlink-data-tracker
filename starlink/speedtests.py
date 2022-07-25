@@ -98,7 +98,8 @@ def index(region):
             uploadMax = f'{statDB[f"{period}_upload_max"]/1000:.2f}'
             uploadMin = f'{statDB[f"{period}_upload_min"]/1000:.2f}'
         else:
-            count = latencyAvg = latencyMax = latencyMin = downloadAvg = downloadMax = downloadMin = uploadAvg = uploadMax = uploadMin = "No Data"
+            count = 0
+            latencyAvg = latencyMax = latencyMin = downloadAvg = downloadMax = downloadMin = uploadAvg = uploadMax = uploadMin = "No Data"
             
         statDict[period] = {'count': count, 
             'latencyAvg': latencyAvg, 'latencyMax': latencyMax, 'latencyMin': latencyMin, 
