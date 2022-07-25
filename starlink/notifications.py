@@ -22,7 +22,7 @@ def sendEmailThread(recipient, header, message, password):
     try:
         server = smtplib.SMTP_SSL('smtp.migadu.com', 465)
         server.login('admin@starlinktrack.com', password)
-        server.sendmail("admin@starlinktrack.com", [recipient], msg.as_string())
+        server.sendmail("admin@starlinktrack.com", [recipient], msg.as_string() + "\n")
         server.quit()
     except Exception as e:
         print(f"Exception when sending email: {e}")
