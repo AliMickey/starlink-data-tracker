@@ -37,16 +37,16 @@
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
     <p class="fs-3">{{ regionName }}</p>
-    <div class="mx-auto col-3">
+    <div class="mx-auto col-md-2">
       <div class="form-floating">
         <select class="form-select" id="periodSelect" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
-          <option value="day">Day</option>
-          <option value="week">Week</option>
-          <option value="month">Month</option>
-          <option value="year">Year</option>
-          <option value="all" selected>All</option>
+          <option value="day">Day - {{ statDict['day']['count'] }} results</option>
+          <option value="week">Week - {{ statDict['week']['count'] }} results</option>
+          <option value="month">Month - {{ statDict['month']['count'] }} results</option>
+          <option value="year">Year - {{ statDict['year']['count'] }} results</option>
+          <option value="all" selected>All - {{ statDict['all']['count'] }} results</option>
         </select>
-        <label for="periodSelect">Type</label>
+        <label for="periodSelect">Period</label>
       </div>
     </div>
     <br><br>
@@ -56,23 +56,24 @@
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-2">Latency (ms)</h5>
+                <p class="card-title fs-1 fw-bold mb-0">Latency</p>
+                <p class="card-title fs-6 m-0">milliseconds</p>
                 <div class="col mb-3">
                   <canvas id="statsLatencyChart" height="200"></canvas>
                 </div>
                 {% for period in ['day', 'week', 'month', 'year', 'all'] %}
                   <div class="row" id="statsLatencyText-{{period}}" {% if period != "all" %}hidden{% endif %}>
-                    <div class="row">
+                    <div class="row row-cols-3">
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Minimum</p>
                         <p class="card-text fs-5">{{ statDict[period]['latencyMin'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4 fw-bold text-nowrap">Average</p>
                         <p class="card-text fs-4">{{ statDict[period]['latencyAvg'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Maximum</p>
                         <p class="card-text fs-5">{{ statDict[period]['latencyMax'] }}</p>
                       </div>
                     </div>
@@ -85,23 +86,24 @@
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-2">Download (mbps)</h5>
+                <p class="card-title fs-1 fw-bold mb-0">Download</p>
+                <p class="card-title fs-6 m-0">megabits/second</p>
                 <div class="col mb-3">
                   <canvas id="statsDownloadChart" height="200"></canvas>
                 </div>
                 {% for period in ['day', 'week', 'month', 'year', 'all'] %}
                   <div class="row" id="statsDownloadText-{{period}}" {% if period != "all" %}hidden{% endif %}>
-                    <div class="row">
+                    <div class="row row-cols-3">
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Minimum</p>
                         <p class="card-text fs-5">{{ statDict[period]['downloadMin'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4 fw-bold text-nowrap">Average</p>
                         <p class="card-text fs-4">{{ statDict[period]['downloadAvg'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Maximum</p>
                         <p class="card-text fs-5">{{ statDict[period]['downloadMax'] }}</p>
                       </div>
                     </div>
@@ -114,23 +116,24 @@
           <div class="col">
             <div class="card shadow">
               <div class="card-body">
-                <h5 class="card-title fs-2">Upload (mbps)</h5>
+                <p class="card-title fs-1 fw-bold mb-0">Upload</p>
+                <p class="card-title fs-6 m-0">megabits/second</p>
                 <div class="col mb-3">
                   <canvas id="statsUploadChart" height="200"></canvas>
                 </div>
                 {% for period in ['day', 'week', 'month', 'year', 'all'] %}
                   <div class="row" id="statsUploadText-{{period}}" {% if period != "all" %}hidden{% endif %}>
-                    <div class="row">
+                    <div class="row row-cols-3">
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Minimum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Minimum</p>
                         <p class="card-text fs-5">{{ statDict[period]['uploadMin'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-4 fw-bold">Average</p>
+                        <p class="card-text fs-4 fw-bold text-nowrap">Average</p>
                         <p class="card-text fs-4">{{ statDict[period]['uploadAvg'] }}</p>
                       </div>
                       <div class="col">
-                        <p class="card-text fs-5 fw-bold">Maximum</p>
+                        <p class="card-text fs-5 fw-bold text-nowrap">Maximum</p>
                         <p class="card-text fs-5">{{ statDict[period]['uploadMax'] }}</p>
                       </div>
                     </div>
@@ -187,7 +190,7 @@
       </div>
 
       <div class="col">
-        <div id="map" style="height: 650px;"></div>
+        <!-- <div id="map" style="height: 650px;"></div> -->
       </div>
       
     </div>
