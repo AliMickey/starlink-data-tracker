@@ -2,8 +2,6 @@ from flask import (
     Blueprint, render_template, send_file, current_app, make_response, request
 )
 
-import requests
-
 # App imports
 from starlink.notifications import sendEmail
 

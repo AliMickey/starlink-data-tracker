@@ -1,4 +1,6 @@
-from flask import (current_app)
+from flask import (
+    current_app
+)
 
 import smtplib
 from threading import Thread
