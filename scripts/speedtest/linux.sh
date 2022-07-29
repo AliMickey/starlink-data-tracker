@@ -1,3 +1,4 @@
 #!/bin/bash
-speedtestUrl=$(./speedtest -f json  | jq -r '.result.url')
-curl -X POST --form "source=script-official" --form "url=$speedtestUrl" https://starlinkversions.com/speedtests/add
+speedtestUrl=$(./speedtest -f json | jq -r '.result.url')
+apiKey=$()
+curl -X POST --form "api-key=$apiKey" --form "url=$speedtestUrl" https://starlinktrack.com/speedtests/add
