@@ -181,6 +181,7 @@ def leaderboard():
 def add():
     db = get_db()
     error = None
+    source = ""
 
     if request.method == 'POST':
         url = request.form['url']
@@ -253,7 +254,7 @@ def add():
                 return "Speedtest added successfully, thanks!"     
         else:
             if source == "website-official":
-                flash(error, "danger")
+                flash(error, "warning")
             else:
                 return error
 
