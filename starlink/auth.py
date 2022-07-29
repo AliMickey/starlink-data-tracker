@@ -47,10 +47,10 @@ def register():
         emailRegex = '''(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'''
         
         # Captcha verification
-        hcapcthaSecret = current_app.config['HCAPCTHA_KEY']
-        response = requests.post(url = "https://hcaptcha.com/siteverify", data = {'secret': hcapcthaSecret, 'response': captcha}).json()
+        hcaptchaSecret = current_app.config['HCAPTCHA_KEY']
+        hcaptchaResponse = requests.post(url = "https://hcaptcha.com/siteverify", data = {'secret': hcaptchaSecret, 'response': captcha}).json()
         
-        if not response['success']:
+        if not hcaptchaResponse['success']:
             error = "Invalid captcha. Please try again"     
         elif not email: 
             error = "Email address is required"
@@ -62,12 +62,14 @@ def register():
             error = "Username is required"
         elif userUsernameCheck == 1:
             error = "Username is already taken"
+        elif len(username) >= 10:
+            error = "Username must be a maximum of 10 characters"
         elif predict([username]) == 1:
             error = "Username contains profanity"
         elif not password or not passwordRepeat:
             error = "Password is required"
         elif len(password) < 8:
-            error = "Password must be a minimum of 8 digits"
+            error = "Password must be a minimum of 8 characters"
         elif password != passwordRepeat:
             error = "Passwords do not match"
 
@@ -111,10 +113,11 @@ def account():
     error = None
     db = get_db()
     userDetails = db.execute('SELECT id, email, username, time_zone, discord_id FROM users WHERE id = ?', (g.user['id'],)).fetchone()
+    userApiKeys = db.execute('SELECT key, name, use_counter FROM users_api_keys WHERE user_id = ?', (g.user['id'],)).fetchall()
     timezones = pytz.common_timezones
 
     if request.method == 'POST':
-        if request.form["btn"] == "user":
+        if request.form["btn"] == "user": # General user account settings
             username = request.form['username']
             timezone = request.form['timezone']
             userUsernameCheck =  db.execute('SELECT EXISTS (SELECT 1 FROM users WHERE username = ? LIMIT 1)', (username,)).fetchone()[0]
@@ -130,28 +133,50 @@ def account():
             if error is None:
                 db.execute('UPDATE users SET username = ?, time_zone = ? WHERE id = ?', (username, timezone, g.user['id']))
                 db.commit()
-            
-            else:
-                flash(error, "warning")
 
-        elif request.form["btn"] == "speedtest":
+        elif request.form["btn"] == "speedtest": # Speedtest related account settings
             discordId = request.form['discordId']
 
             if error is None:
                 db.execute('UPDATE users SET discord_id = ? WHERE id = ?', (discordId, g.user['id']))
                 db.commit()
 
+        elif request.form["btn"] == "api-key-new": # Add a new api key for user
+            apiKeyName = request.form['apiKeyNewName']
+
+            if len(userApiKeys) == 3:
+                error = "API Key limit reached"
+            elif not apiKeyName:
+                error = "An API key name is required"
+            
+            if error is None:
+                apiKey = str(uuid.uuid1())
+                db.execute('INSERT INTO users_api_keys (key, date_time, source, name, use_counter, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
+                        (apiKey, datetime.utcnow(), 'script-official', apiKeyName, 0, g.user['id']))
+                db.commit()
+
+        elif request.form["btn"] == "api-key-delete": # Delete specified api key for user
+            apiKey = request.form['apiKey']
+            for key in userApiKeys: # Validation to check if specified api key is owned by user
+                if apiKey == key['key']:
+                    db.execute('DELETE FROM users_api_keys WHERE key = ?', (apiKey,))
+                    db.commit()
+                    break
+
+        if error:
+            flash(error, "warning")
         return redirect(url_for('auth.account'))
 
-    return render_template('auth/account.html', userDetails=userDetails, timezones=timezones)
+    return render_template('auth/account.html', userDetails=userDetails, userApiKeys=userApiKeys, timezones=timezones)
 
 # View to request a new password link
 @bp.route('/forgot-password', methods=('GET', 'POST'))
 def forgotPassword():
     error = None
+
     if request.method == 'POST':
         email = request.form['email']
-        db = get_db()   
+        db = get_db()
         # Get user id for email if exists
         user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
 

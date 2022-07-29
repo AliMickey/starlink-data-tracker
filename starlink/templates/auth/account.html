@@ -8,7 +8,7 @@
 
     <div class="row">
       <div class="col">
-        <div class="card shadow">
+        <div class="card shadow mb-3">
           <div class="card-header">
             User settings
           </div>        
@@ -38,10 +38,35 @@
             </form>
           </div>
         </div>
+
+        <div class="card shadow mb-3">
+          <div class="card-header">
+            API Keys
+          </div>
+          <div class="card-body">
+              {% for apiKey in userApiKeys %}
+                <form method="POST">
+                  <div class="input-group form-floating mb-3">
+                    <input class="form-control font-monospace" type="text" name="apiKey" placeholder="Key" value="{{ apiKey['key'] }}" autocomplete="off" readonly>
+                    <label for="apiKey">{{ apiKey['name'] }}</label>
+                    <button type="submit" class="btn btn-danger" name="btn" value="api-key-delete">Delete</button>
+                  </div>
+                </form>
+              {% endfor %}
+
+            <form method="POST">
+              <div class="input-group form-floating mb-3">
+                <input class="form-control" type="text" name="apiKeyNewName" placeholder="Name" autocomplete="off" required>
+                <label for="apiKeyNewName">Name</label>
+                <button type="submit" class="btn btn-primary" name="btn" value="api-key-new">Add</button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       <div class="col">
-        <div class="card shadow">
+        <div class="card shadow mb-3">
           <div class="card-header">
             Speedtest Settings
           </div>   
@@ -49,7 +74,7 @@
             <form method="POST">
               <label for="discordId" class="form-label">Enter your Discord user ID here to link all speedtests submitted via Discord to your account. <a href="https://support.discord.com/hc/en-us/articles/206346498-Where-can-I-find-my-User-Server-Message-ID-" target="_blank" style="text-decoration: none;">Help</a></label>
               <div class="form-floating mb-3">
-                <input class="form-control" type="discordId" name="discordId" placeholder="Discord ID" value="{{ userDetails['discord_id'] }}" autocomplete="off">
+                <input class="form-control" type="text" name="discordId" placeholder="Discord ID" value="{{ userDetails['discord_id'] }}" autocomplete="off">
                 <label for="discordId">Discord ID</label>
               </div>
               <div class="mb-3">
