@@ -10,25 +10,26 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mapbox-gl.css') }}"/>
   <script>
     $(document).ready(function() {
-        var table = $('#dataTable').DataTable({
-            "searching": true,
-            "ordering": true,
-            "order": [0, "dsc"],
-            "paging":  false,
-            "stateSave": false,
-        });
-        $('#tableSearch').keyup(function(){ 
-            var input = $(this).val();
-            // Hide all rows
-            $('#dataTable tbody tr').hide();
-            // Show each row that contains the input
-            var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
-            if(len > 0){
-            $('#dataTable tbody td:contains("' + input + '")').each(function(){
-                $(this).closest('tr').show();
-            });
-            };
-        });
+      var table = $('#dataTable').DataTable({
+          "searching": true,
+          "ordering": true,
+          "order": [0, "dsc"],
+          "paging":  false,
+          "stateSave": false,
+      });
+
+      $('#tableSearch').keyup(function(){ 
+        var input = $(this).val();
+        // Hide all rows
+        $('#dataTable tbody tr').hide();
+        // Show each row that contains the input
+        var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
+        if (len > 0){
+          $('#dataTable tbody td:contains("' + input + '")').each(function(){
+              $(this).closest('tr').show();
+          });
+        };
+      });
     });
   </script> 
 {% endblock %}
