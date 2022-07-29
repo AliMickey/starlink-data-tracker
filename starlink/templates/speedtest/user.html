@@ -1,0 +1,88 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Speedtests{% endblock %}
+{% set dataType = "speedtests" %}
+
+{% block scriptsHead %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
+  <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+  <script>
+    $(document).ready(function() {
+        var table = $('#dataTable').DataTable({
+            "searching": true,
+            "ordering": true,
+            "order": [0, "dsc"],
+            "paging":  false,
+            "stateSave": false,
+        });
+        $('#tableSearch').keyup(function(){ 
+            var input = $(this).val();
+            // Hide all rows
+            $('#dataTable tbody tr').hide();
+            // Show each row that contains the input
+            var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
+            if(len > 0){
+            $('#dataTable tbody td:contains("' + input + '")').each(function(){
+                $(this).closest('tr').show();
+            });
+            };
+        });
+    });
+  </script> 
+{% endblock %}
+
+{% block content %}
+  <div class="col-11 text-center">
+    <p class="fs-1 fw-bold">Starlink Speedtests</p>
+    <p class="fs-3">{{ regionName }}</p>
+
+    <br><br>
+
+    <div class="row">
+      <div class="col">
+        <p class="fs-4">Recently Submitted</p>
+        <table class="table table-striped table-bordered" id="dataTable">
+          <thead>
+            <tr>
+              <th>Measured (UTC)</th>
+              <th>Country</th>
+              <th>Latency (ms)</th>
+              <th>Download (mbps)</th>
+              <th>Upload (mbps)</th>
+              <th>URL</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for id, details in listDict.items() %}
+              <tr>
+                <td>
+                  <span>{{ details['dateRun'] }}</span>
+                </td>
+                <td>
+                  <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
+                </td>
+                <td>
+                  <span>{{ details['latency'] }}</span>
+                </td>
+                <td>
+                  <span>{{ details['download'] }}</span>
+                </td>
+                <td>
+                  <span>{{ details['upload'] }}</span>
+                </td>
+                <td>
+                  <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>      
+    </div>
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+  <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
+{% endblock %}
