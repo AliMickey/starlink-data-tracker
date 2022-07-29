@@ -2,7 +2,7 @@
 ## Description
 Community maintained database for Starlink data.
 
-https://starlinkversions.com
+https://starlinktrack.com
 
 ## Features
 ### Firmware
