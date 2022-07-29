@@ -55,6 +55,7 @@ def listAdmin(listType):
                 dateTimeAdded = request.form['dateTimeAdded']
                 version = request.form['version']
                 redditThread = request.form['redditThread']
+
                 db.execute('UPDATE firmware SET date_added = ?, version_info = ?, reddit_thread = ? WHERE id = ?', (dateTimeAdded, version, redditThread, versionID))
                 db.commit()
                 flash("Version updated successfully", "success")
@@ -119,8 +120,8 @@ def getFirmwareData(listType, range=-1):
         FROM firmware
         WHERE type = ?
         ORDER BY date_added
-        DESC LIMIT ?      
-    ''', [listType, range]).fetchall()
+        DESC LIMIT ?
+    ''', (listType, range)).fetchall()
 
     for row in rowData:
         id, date_added, version, reddit = row
