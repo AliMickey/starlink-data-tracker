@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, current_app, render_template, request, flash, redirect, url_for
+    Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
 import re, requests, json, sqlite3, awoc, pycountry
 from datetime import datetime, timedelta
@@ -109,6 +109,37 @@ def index(region):
 
     return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey, regionBbox=regionBbox)
 
+# View to show the index page of speedtest results
+# Under development
+@bp.route('/user/<string:username>', methods = ['GET'])
+def user(username):
+    db = get_db()
+    error = None
+    listDict = {}
+
+    userId = db.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+
+    if userId:
+        listDB = db.execute('''
+            SELECT id, url, datetime(date_run), country, latency, download, upload
+            FROM speedtests
+            WHERE user_id = ?
+            ORDER BY date_run
+            DESC LIMIT 10
+            ''', (userId)).fetchall()
+
+        for row in listDB:
+            id, url, date_run, country, latency, download, upload = row
+            convDate = datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
+            listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download/1000:.1f}', 'upload': f'{upload/1000:.1f}'}
+    
+    else:
+        flash("User not found", "warning")
+        return redirect(url_for('speedtest.index'))
+
+
+    return render_template('speedtest/user.html', listDict=listDict)
+
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])
 def leaderboard():
@@ -150,13 +181,10 @@ def leaderboard():
 def add():
     db = get_db()
     error = None
+
     if request.method == 'POST':
         url = request.form['url']
-        source = request.form.get('source')
-    
-        # Set source to appropiate value
-        if source and source not in ['website-official', 'discord-starlink', 'script-official']:
-            source = "other"
+        apiKey = request.form.get('api-key')
 
         # Convert into clean url
         if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
@@ -165,7 +193,7 @@ def add():
                     url = url.replace("my-result", "result")
 
         # Continue if url is valid with base domain
-        if re.search('^https://www.speedtest.net/result/.\S*$', url): 
+        if re.search('^https://www.speedtest.net/result/.\S*$', url):
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
                 try:
@@ -181,13 +209,30 @@ def add():
                         result = re.search('({"result").*}}*', dataScript.get_text())       
                         data = json.loads(result.group())['result']
                         if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['distance']) >= 500:
+                            if int(data['distance']) >= 500: # If test conducted has a distance greater than 500 miles between server and Starlink POP
                                 error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
                             elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 1000 or int(data['upload']) >= 55000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
-                                error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (< 5ms), Download (600mbps - 1mbps), Upload(55mbps - 0.5mbps)."
+                                error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 1mbps), Upload(55mbps - 0.5mbps)."
                             else:
-                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['sponsor_name'], int(data['latency']), int(data['download']), int(data['upload']), source))
+                                if apiKey:
+                                    apiDetails = db.execute(f'SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
+                                    if apiDetails: # If the supplied api key is valid
+                                        userId = apiDetails['user_id']
+                                        source = apiDetails['source']
+                                        db.execute('UPDATE users_api_keys SET use_counter = ? WHERE key = ?', (apiDetails['use_counter'] + 1, apiKey))
+                                        db.commit()
+                                    else:
+                                        error = "API key is not valid"
+                                else:
+                                    if g.user: # Authenticated user on website
+                                        userId = g.user['id']
+                                        source = 'website-official'
+                                    else: # Either website form or external POST (source is classified as website as external POST without an API key is rare)
+                                        userId = None
+                                        source = 'website-official'
+                                 
+                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                                 db.commit()
                         else:
                             error = "Speedtest was not run on Starlink."
@@ -265,19 +310,19 @@ def schedSpeedtestCalc(region, sqlWhereString=""):
             FROM speedtests
             WHERE date_run BETWEEN ? AND ?
             {sqlWhereString}
-            ''',(periodDateTime, dateTimeNow)).fetchone()
+            ''', (periodDateTime, dateTimeNow)).fetchone()
         download = db.execute(f'''
             SELECT avg(download), max(download), min(download)
             FROM speedtests
             WHERE date_run BETWEEN ? AND ?
             {sqlWhereString}
-            ''',(periodDateTime, dateTimeNow)).fetchone()
+            ''', (periodDateTime, dateTimeNow)).fetchone()
         upload = db.execute(f'''
             SELECT avg(upload), max(upload), min(upload)
             FROM speedtests
             WHERE date_run BETWEEN ? AND ?
             {sqlWhereString}
-            ''',(periodDateTime, dateTimeNow)).fetchone()
+            ''', (periodDateTime, dateTimeNow)).fetchone()
 
         # Store updated stats
         db.execute(f'''
