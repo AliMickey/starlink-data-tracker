@@ -216,10 +216,16 @@ def add():
                                 error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 1mbps), Upload(55mbps - 0.5mbps)."
                             else:
                                 if apiKey:
-                                    apiDetails = db.execute(f'SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
+                                    apiDetails = db.execute('SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
                                     if apiDetails: # If the supplied api key is valid
                                         userId = apiDetails['user_id']
                                         source = apiDetails['source']
+                                        if source == 'discord-starlink': # If form was submitted by discord bot, lookup user id for discord id.
+                                            discordUserId = request.form['discord-user-id']
+                                            userIdCheck = db.execute('SELECT id FROM users WHERE discord_id = ?', (discordUserId,)).fetchone()
+                                            if userIdCheck: # Set user id if user has set a discord id in account settings
+                                                userId = int(userIdCheck['id'])
+
                                         db.execute('UPDATE users_api_keys SET use_counter = ? WHERE key = ?', (apiDetails['use_counter'] + 1, apiKey))
                                         db.commit()
                                     else:

@@ -24,7 +24,7 @@ async def on_message(message):
         messageData = str(message.content)
         if re.search('https://www.speedtest.net', messageData): # If url is valid
             if re.search('\d', messageData): # If url contains any digits
-                r = requests.post(url = "https://starlinktrack.com/speedtests/add", data = {'api-key': apiKey, 'url': messageData}) # Submit POST with bot identifier
+                r = requests.post(url = "https://starlinktrack.com/speedtests/add", data = {'api-key': apiKey, 'discord-user-id': message.author.id, 'url': messageData}) # Submit POST with bot identifier
                 #r = requests.post(url = "http://127.0.0.1:5000/speedtests/add", data = {'bot': True, 'url': messageData}) # Development
                 await message.reply(r.text)
 
