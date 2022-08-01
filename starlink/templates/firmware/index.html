@@ -11,7 +11,7 @@
     <p class="fs-1 fw-bold">Starlink Firmware</p>
     <div class="row">
       <div class="col mb-0 mb-md-5">
-        <p class="fs-4">Dishy</p>
+        <p class="fs-4"><a class="text-decoration-none" href="{{ url_for('firmware.list', listType='dishy') }}" target="_blank">Dishy</a></p>
         <table class="table table-striped table-bordered" id="dataTable">
           <thead>
             <tr>
@@ -49,7 +49,7 @@
 
     <div class="row">
       <div class="col">
-        <p class="fs-4">Router</p>
+        <p class="fs-4"><a class="text-decoration-none" href="{{ url_for('firmware.list', listType='router') }}" target="_blank">Router</a></p>
         <table class="table table-striped table-bordered" id="dataTable">
           <thead>
             <tr>
@@ -85,7 +85,7 @@
       </div>
 
       <div class="col">
-        <p class="fs-4">Mobile App</p>
+        <p class="fs-4"><a class="text-decoration-none" href="{{ url_for('firmware.list', listType='app') }}" target="_blank">Mobile App</a></p>
         <table class="table table-striped table-bordered" id="dataTable">
           <thead>
             <tr>
