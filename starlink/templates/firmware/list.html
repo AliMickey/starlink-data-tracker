@@ -37,7 +37,8 @@
 
 {% block content %}
   <div class="col-11 text-center">
-    <p class="fs-1 fw-bold">{{ listType|capitalize }} Firmware List <img src="{{ url_for('static', filename='img/firmware/thumbnails/'+listType|lower+'.png') }}" width="125px"></p>
+    <p class="fs-1 fw-bold">Starlink Firmware</p>
+    <p class="fs-3">{{ listType|capitalize }} <img src="{{ url_for('static', filename='img/firmware/thumbnails/'+listType|lower+'.png') }}" width="50px"></p>
     {% if g.user and g.user['role'] == 'admin' %}
       <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
     {% endif %}
@@ -55,26 +56,31 @@
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
           <td>
             {% if listType == "dishy" %}
-              {% if request.MOBILE == True %}
-                  <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                    <span class="font-monospace">{{ details['version'][:8] }}</span>
-                  </button>
-              {% else %}
-              <span class="font-monospace user-select-all"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
-              {% endif %}
-
+              {% set versionTrimLength = 8 %}
+            {% elif listType == "router" or listType == "app" %}
+              {% set versionTrimLength = 9 %}
+            {% elif listType == "web" %}
+              {% set versionTrimLength = 6 %}
             {% else %}
-              <span class="font-monospace user-select-all">{{ details['version']}}</span>
+              {% set versionTrimLength = 0 %}
+            {% endif %}
+
+            {% if request.MOBILE == True %}
+                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
+                  <span class="font-monospace">{{ details['version'][:versionTrimLength] }}</span>
+                </button>
+            {% else %}
+            <span class="font-monospace user-select-all"><b>{{ details['version'][:versionTrimLength] }}</b>{{ details['version'][versionTrimLength:] }}</span>
             {% endif %}
           </td>
           <td>
             {% if details['reddit'] %}
               <a href="{{ details['reddit'] }}" target="_blank"><img src="{{ url_for('static', filename='img/logos/reddit.png') }}" width="30px"></a></td>
             {% else %}
-              <a type="button" class="btn btn-primary" href="#" data-bs-toggle="modal" data-bs-target="#addRedditThread-{{id}}">Add</a>
+              <a type="button" class="btn btn-primary btn-sm" href="#" data-bs-toggle="modal" data-bs-target="#addRedditThread-{{ id }}">Add</a>
             {% endif %}
         </tr>
-        <div class="modal fade" id="addRedditThread-{{id}}" tabindex="-1" aria-labelledby="AddRedditThread" aria-hidden="true">
+        <div class="modal fade" id="addRedditThread-{{ id }}" tabindex="-1" aria-labelledby="AddRedditThread" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
@@ -82,7 +88,7 @@
               </div>
               <form method="POST" id="addRedditThread">
                 <div class="modal-body">  
-                    <input type="hidden" name="id" value={{id}}></input>
+                    <input type="hidden" name="id" value="{{ id }}"></input>
                     <input class="form-control" id="redditThread" name="redditThread"></input>
                 </div>
                 <div class="modal-footer">

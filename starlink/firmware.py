@@ -15,8 +15,11 @@ bp = Blueprint('firmware', __name__, url_prefix='/firmware')
 @bp.route('/')
 def index():
     # Get firmware data for the past 5 dishy entries
-    listDict = getFirmwareData(listType="dishy", range=5)
-    return render_template('firmware/index.html', listDict=listDict)
+    dishyListDict = getFirmwareData(listType="dishy", range=6)
+    routerListDict = getFirmwareData(listType="router", range=4)
+    appListDict = getFirmwareData(listType="app", range=4)
+
+    return render_template('firmware/index.html', dishyListDict=dishyListDict, routerListDict=routerListDict, appListDict=appListDict)
 
 # View to show all firmware versions for a specific hardware/software type
 @bp.route('/<string:listType>', methods = ['GET', 'POST'])
