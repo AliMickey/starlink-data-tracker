@@ -186,6 +186,28 @@ def add():
     if request.method == 'POST':
         url = request.form['url']
         apiKey = request.form.get('api-key')
+        if apiKey:
+            apiDetails = db.execute('SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
+            if apiDetails: # If the supplied api key is valid
+                userId = apiDetails['user_id']
+                source = apiDetails['source']
+                if source == 'discord-starlink': # If form was submitted by discord bot, lookup user id for discord id.
+                    discordUserId = request.form['discord-user-id']
+                    userIdCheck = db.execute('SELECT id FROM users WHERE discord_id = ?', (discordUserId,)).fetchone()
+                    if userIdCheck: # Set user id if user has set a discord id in account settings
+                        userId = int(userIdCheck['id'])
+
+                db.execute('UPDATE users_api_keys SET use_counter = ? WHERE key = ?', (apiDetails['use_counter'] + 1, apiKey))
+                db.commit()
+            else:
+                error = "API key is not valid"
+        else:
+            if g.user: # Authenticated user on website
+                userId = g.user['id']
+                source = "website-official"
+            else: # Either website form or external POST (source is classified as website as external POST without an API key is rare)
+                userId = None
+                source = "website-official"
 
         # Convert into clean url
         if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
@@ -214,30 +236,7 @@ def add():
                                 error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
                             elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 1000 or int(data['upload']) >= 55000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
                                 error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 1mbps), Upload(55mbps - 0.5mbps)."
-                            else:
-                                if apiKey:
-                                    apiDetails = db.execute('SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
-                                    if apiDetails: # If the supplied api key is valid
-                                        userId = apiDetails['user_id']
-                                        source = apiDetails['source']
-                                        if source == 'discord-starlink': # If form was submitted by discord bot, lookup user id for discord id.
-                                            discordUserId = request.form['discord-user-id']
-                                            userIdCheck = db.execute('SELECT id FROM users WHERE discord_id = ?', (discordUserId,)).fetchone()
-                                            if userIdCheck: # Set user id if user has set a discord id in account settings
-                                                userId = int(userIdCheck['id'])
-
-                                        db.execute('UPDATE users_api_keys SET use_counter = ? WHERE key = ?', (apiDetails['use_counter'] + 1, apiKey))
-                                        db.commit()
-                                    else:
-                                        error = "API key is not valid"
-                                else:
-                                    if g.user: # Authenticated user on website
-                                        userId = g.user['id']
-                                        source = 'website-official'
-                                    else: # Either website form or external POST (source is classified as website as external POST without an API key is rare)
-                                        userId = None
-                                        source = 'website-official'
-                                 
+                            else: # Add speedtest                                 
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
                                     (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                                 db.commit()
