@@ -15,7 +15,7 @@ bp = Blueprint('firmware', __name__, url_prefix='/firmware')
 @bp.route('/')
 def index():
     # Get firmware data for the past 5 dishy entries
-    dishyListDict = getFirmwareData(listType="dishy", range=6)
+    dishyListDict = getFirmwareData(listType="dishy", range=5)
     routerListDict = getFirmwareData(listType="router", range=4)
     appListDict = getFirmwareData(listType="app", range=4)
 
