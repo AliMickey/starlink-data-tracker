@@ -6,9 +6,9 @@
 {% endblock %}
 
 {% block content %}
-  <div class="col-9" id="information">
-    <div class="row mb-3">
-      <p class="fs-2 mb-3 border-bottom">Information</p>
+  <div class="col-9">
+    <div class="row mb-3" id="information">
+      <p class="fs-2 border-bottom">Information</p>
       <p>This website collects information on various Starlink services. Starlink does not provide this information themselves, this is crowdsourced data.<br>Any information here is not authoritative and could be incorrect.</p>
       
       <div class="card-group mb-3">
@@ -42,27 +42,31 @@
         </div>
       </div>
 
-      <p class="fs-4 mb-3">Firmware</p>
-      <p>Firmware, software, and hardware versions are collected for historical purpose.</p>
-      <p>Feel free to add new firmware versions. Please do not vandalize.</p>
+      <div class="mb-3">
+        <p class="fs-4">Firmware</p>
+        <p>Firmware, software, and hardware versions are collected for historical purpose.</p>
+        <p>Feel free to add new firmware versions. Please do not vandalize.</p>
+      </div>
 
-      <p class="fs-4 mb-3">Speedtests</p>
-      <p>Speedtest results are collected via the online form, the Starlink Discord and the provided scripts.</p>
-      <p>Feel free to add new speedtest results.</p>
+      <div class="mb-3">
+        <p class="fs-4">Speedtests</p>
+        <p>Speedtest results are collected via the online form, the Starlink Discord and the provided scripts.</p>
+        <p>Reliably distinguishing service types (residential, business, etc.) is not possible, as such statistics represent the overall Starlink network.</p>
+        <p>Feel free to add new speedtest results.</p>
+      </div>
+    </div>
+    
+    <div class="row mb-3" id="contact">
+      <p class="fs-2 border-bottom" >Contact</p>
+      <p>For any inquiries (feedback, bugs, incorrect information), contact us on Discord with 'Micky#6815' or send an email to 'admin@starlinktrack.com'</p>
+      <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
+      <p><a class="text-decoration-none" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a></p>
+      <p><a class="text-decoration-none" href="https://ko-fi.com/alimicky" target="_blank">Ko-Fi</a></p>
     </div>
 
-    <div class="row mb-3 pt-3" id="contact">
-        <p class="fs-2 pb-2 border-bottom" >Contact</p>
-        <p>For any inquiries (feedback, bugs, incorrect information), contact us on Discord with 'Micky#6815' or send an email to 'admin@starlinktrack.com'</p>
-        <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
-        <a class="nav-link" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a>
-        <a class="nav-link" href="https://ko-fi.com/alimicky" target="_blank">Ko-Fi</a>
-
-    </div>
-
-    <div class="row mb-3 pt-3" id="links">
-      <h2 class="pb-2 border-bottom">Useful Links</h2>
-      <div class="row p-2 row-cols-1 row-cols-lg-2">
+    <div class="row mb-3" id="links">
+      <p class="fs-2 border-bottom">Useful Links</p>
+      <div class="row p-2 row-cols-1 row-cols-md-2">
         <div class="feature col">
           <div class="feature-icon">
             <img src="{{ url_for('static', filename='img/logos/reddit.png') }}" width="75px">
