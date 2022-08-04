@@ -84,33 +84,45 @@ def listAdmin(listType):
 def add():
     db = get_db()
     error = None
+
     if request.method == 'POST':
-        listTypes = {'0': 'dishy', '1': 'router', '2': 'app', '3': 'web', '4': 'hardware'}
+        listDetails = {'dishy': '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}(.uterm.release)$',
+                        'router': '^(\d{4}[.]\d{2}[.]\d{1,2}[.](mr)\d+(-prod))$', 
+                        'app': '^\d{4}[.]\d{2}[.]\d{1}$',
+                        'web': '^\d{1}[.]\d{1}[.]\d{1,2}$',
+                        'hardware': ''}
+
         listType = request.form['listType']
         version = request.form['version']
         redditThread = request.form['redditThread']
-        listType=listTypes[listType]
 
         # Validation checks
-        dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM firmware WHERE type = ? AND version_info = ? LIMIT 1)', (listType, version)).fetchone()[0]
-        if redditThread:
-            p = re.compile("https://www.reddit.com/r/Starlink|https://reddit.com/r/Starlink")
-            if not re.search(p, redditThread):
-                error = "Reddit link must be valid. (Only from r/Starlink)"
-        
-        if dbCheck == 1:
-            error = "This version already exists."
+        if listType in listDetails:
+            dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM firmware WHERE type = ? AND version_info = ? LIMIT 1)', (listType, version)).fetchone()[0]
+            listRegex = re.compile(listDetails[listType])
+            if dbCheck == 1:
+                error = "This version already exists"
 
-        if error:
-            flash(error, "warning")
-            return redirect(request.referrer)   
-
+            elif not re.search(listRegex, version):
+                error = "Version format is not correct"
+            
+            elif redditThread:
+                redditURI = re.compile("https://www.reddit.com/r/Starlink|https://reddit.com/r/Starlink")
+                if not re.search(redditURI, redditThread):
+                    error = "Reddit link must be valid. (Only from r/Starlink)"
         else:
+            error = "Invalid list type"
+
+        if error is None:
             db.execute('INSERT INTO firmware (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.utcnow(), listType, version, redditThread))
             db.commit()
             sendNotification(version, listType, redditThread)
             return redirect(url_for('firmware.list', listType=listType))
 
+        else:
+            flash(error, "warning")
+            return redirect(url_for('firmware.add'))
+            
     return render_template('firmware/add.html')
 
 
