@@ -104,7 +104,7 @@ def add():
                 error = "This version already exists"
 
             elif not re.search(listRegex, version):
-                error = "Version format is not correct"
+                error = "Version format is not correct, refer to existing entries for the correct format"
             
             elif redditThread:
                 redditURI = re.compile("https://www.reddit.com/r/Starlink|https://reddit.com/r/Starlink")
