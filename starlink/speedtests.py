@@ -137,8 +137,7 @@ def user(username):
         flash("User not found", "warning")
         return redirect(url_for('speedtest.index'))
 
-
-    return render_template('speedtest/user.html', listDict=listDict)
+    return render_template('speedtest/user.html', username=username, listDict=listDict)
 
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])

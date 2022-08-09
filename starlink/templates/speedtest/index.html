@@ -191,9 +191,11 @@
       </div>
 
       <div class="col">
-        <div id="map" style="height: 650px;"></div>
+        <div class="col-1">
+          <img id="map-hover" src="{{ url_for('static', filename='img/speedtest/placeholder-map.png') }}">
+        </div>
+        <div id="map" style="height: 650px;" hidden></div>
       </div>
-      
     </div>
   </div>
 {% endblock %}
@@ -205,7 +207,6 @@
     function changeStatPeriod(currentPeriod, selectedPeriod) {
       ["Latency", "Download", "Upload"].forEach(hideShow)
       function hideShow(item, index, arr) {
-        console.log("stats" + item + "Text" + currentPeriod)
         const currentStatDiv = document.getElementById("stats" + item + "Text-" + currentPeriod);
         currentStatDiv.hidden = true
         const selectedStatDiv = document.getElementById("stats" + item + "Text-" + selectedPeriod);
@@ -294,180 +295,188 @@
       },
     });
   </script>  
-  
+
   <script>
-    mapboxgl.accessToken = "{{ mapboxKey }}";
-    let hoveredStateId = null;
-    const zoomThreshold = 2;
-    var map = new mapboxgl.Map({
-      container: 'map',
-      style: 'mapbox://styles/mapbox/light-v10',
-      minZoom: 0.9,
-      zoom: 0.9,
-      center: [21.514, 40.112]
-    });
-    map.addControl(new mapboxgl.NavigationControl());
-    map.addControl(new mapboxgl.FullscreenControl());
-    
-    // Layer sources
-    map.on('load', function() {
-      map.addSource('countries', {
-        'type': 'vector',
-        'url': "mapbox://mapbox.country-boundaries-v1",
+    $('#map-hover').click(
+      function() {
+        const mapHoverDiv = document.getElementById("map-hover");
+        mapHoverDiv.hidden = true
+        const mapDiv = document.getElementById("map");
+        mapDiv.hidden = false
+        mapboxgl.accessToken = "{{ mapboxKey }}";
+        let hoveredStateId = null;
+        const zoomThreshold = 2;
+        var map = new mapboxgl.Map({
+          container: 'map',
+          style: 'mapbox://styles/mapbox/light-v10',
+          minZoom: 0.9,
+          zoom: 0.9,
+          center: [21.514, 40.112]
         });
+        map.addControl(new mapboxgl.NavigationControl());
+        map.addControl(new mapboxgl.FullscreenControl());
+        
+        // Layer sources
+        map.on('load', function() {
+          map.addSource('countries', {
+            'type': 'vector',
+            'url': "mapbox://mapbox.country-boundaries-v1",
+            });
 
-      map.addSource('continents', {
-        'type': 'geojson',
-        'data': "{{ url_for('static', filename='other/continents.geojson') }}",
-        'generateId': true
-      });
+          map.addSource('continents', {
+            'type': 'geojson',
+            'data': "{{ url_for('static', filename='other/continents.geojson') }}",
+            'generateId': true
+          });
 
-      // Layer colour fills
-      map.addLayer({
-        'id': 'countries-fills',
-        'type': 'fill',
-        'source': 'countries',
-        'source-layer': 'country_boundaries',
-        'minzoom': zoomThreshold,
-        'layout': {},
-        'paint': {
-          'fill-color': '#627BC1',
-          'fill-opacity': [
-            'case',
-              ['boolean', ['feature-state', 'hover'], false],
-              0.1,
-              0.5   
-          ]
-        },
-        filter: [
-          'all',
-          ['match', ['get', 'worldview'], ['all', 'US'], true, false],
-          ["!=", "true", ["get", "disputed"]],
-        ]
+          // Layer colour fills
+          map.addLayer({
+            'id': 'countries-fills',
+            'type': 'fill',
+            'source': 'countries',
+            'source-layer': 'country_boundaries',
+            'minzoom': zoomThreshold,
+            'layout': {},
+            'paint': {
+              'fill-color': '#627BC1',
+              'fill-opacity': [
+                'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.1,
+                  0.5   
+              ]
+            },
+            filter: [
+              'all',
+              ['match', ['get', 'worldview'], ['all', 'US'], true, false],
+              ["!=", "true", ["get", "disputed"]],
+            ]
+            });
+
+          map.addLayer({
+            'id': 'continents-fills',
+            'type': 'fill',
+            'source': 'continents',
+            'maxzoom': zoomThreshold,
+            'layout': {},
+            'paint': {
+              'fill-color': '#C2A863',
+              'fill-opacity': [
+                'case',
+                  ['boolean', ['feature-state', 'hover'], false],
+                  0.1,
+                  0.7
+              ]
+            }
+          });
+          
+          // Layer borders
+          map.addLayer({
+            'id': 'countries-borders',
+            'type': 'line',
+            'source': 'countries',
+            'source-layer': 'country_boundaries',
+            'layout': {},
+            'paint': {
+              'line-color': '#627BC1',
+              'line-width': 2
+            }
+          });
+
+          map.addLayer({
+            'id': 'continents-borders',
+            'type': 'line',
+            'source': 'continents',
+            'layout': {},
+            'paint': {
+              'line-color': '#627BC1',
+              'line-width': 3
+            }
+          });
+          map.fitBounds([
+            ["{{ regionBbox['sw']['lon'] }}", "{{ regionBbox['sw']['lat'] }}"],
+            ["{{ regionBbox['ne']['lon'] }}", "{{ regionBbox['ne']['lat'] }}"]
+          ]);
+
+          // Get cursor coordinates for development
+          // map.on('mousemove', (e) => {
+          //   console.log(e.lngLat)
+          // });
+
+          // On move listener for layers
+          map.on('mousemove', 'countries-fills', (e) => {
+            if (e.features.length > 0) {
+              if (hoveredStateId !== null) {
+                map.setFeatureState(
+                  { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+                  { hover: false }
+                );
+              }
+              hoveredStateId = e.features[0].id;
+              map.setFeatureState(
+                { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+                { hover: true }
+              )
+            }
+          });
+
+          map.on('mousemove', 'continents-fills', (e) => {
+            if (e.features.length > 0) {
+              if (hoveredStateId !== null) {
+                map.setFeatureState(
+                  { source: 'continents', id: hoveredStateId },
+                  { hover: false }
+                )
+              }
+              hoveredStateId = e.features[0].id;
+              map.setFeatureState(
+                { source: 'continents', id: hoveredStateId },
+                { hover: true }
+              );
+            }
+          });
+          
+          // On mouse leave listener for layers
+          map.on('mouseleave', 'countries-fills', () => {
+            if (hoveredStateId !== null) {
+              map.setFeatureState(
+                { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId},
+                { hover: false }
+              );
+            }
+            hoveredStateId = null;
+          });
+
+          map.on('mouseleave', 'continents-fills', () => {
+            if (hoveredStateId !== null) {
+              map.setFeatureState(
+                { source: 'continents', id: hoveredStateId},
+                { hover: false }
+              );
+            }
+            hoveredStateId = null;
+          });
+          
+          // Click listener for layers
+          map.on("click", 'countries-fills', function(e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ["countries-fills"] });
+            if (features.length) {
+              // Url must be built seperately as jinja set at render time
+              url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.iso_3166_1.toLowerCase()
+              location.href = url
+            }
+          });
+
+          map.on("click", 'continents-fills', function(e) {
+            var features = map.queryRenderedFeatures(e.point, { layers: ["continents-fills"] });
+            if (features.length) {
+              // Url must be built seperately as jinja set at render time
+              url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.name.toLowerCase()
+              location.href = url
+            }
+          });
         });
-
-      map.addLayer({
-        'id': 'continents-fills',
-        'type': 'fill',
-        'source': 'continents',
-        'maxzoom': zoomThreshold,
-        'layout': {},
-        'paint': {
-          'fill-color': '#C2A863',
-          'fill-opacity': [
-            'case',
-              ['boolean', ['feature-state', 'hover'], false],
-              0.1,
-              0.7
-          ]
-        }
-      });
-      
-      // Layer borders
-      map.addLayer({
-        'id': 'countries-borders',
-        'type': 'line',
-        'source': 'countries',
-        'source-layer': 'country_boundaries',
-        'layout': {},
-        'paint': {
-          'line-color': '#627BC1',
-          'line-width': 2
-        }
-      });
-
-      map.addLayer({
-        'id': 'continents-borders',
-        'type': 'line',
-        'source': 'continents',
-        'layout': {},
-        'paint': {
-          'line-color': '#627BC1',
-          'line-width': 3
-        }
-      });
-      map.fitBounds([
-        ["{{ regionBbox['sw']['lon'] }}", "{{ regionBbox['sw']['lat'] }}"],
-        ["{{ regionBbox['ne']['lon'] }}", "{{ regionBbox['ne']['lat'] }}"]
-      ]);
-
-      // Get cursor coordinates for development
-      // map.on('mousemove', (e) => {
-      //   console.log(e.lngLat)
-      // });
-
-      // On move listener for layers
-      map.on('mousemove', 'countries-fills', (e) => {
-        if (e.features.length > 0) {
-          if (hoveredStateId !== null) {
-            map.setFeatureState(
-              { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
-              { hover: false }
-            );
-          }
-          hoveredStateId = e.features[0].id;
-          map.setFeatureState(
-            { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
-            { hover: true }
-          )
-        }
-      });
-
-      map.on('mousemove', 'continents-fills', (e) => {
-        if (e.features.length > 0) {
-          if (hoveredStateId !== null) {
-            map.setFeatureState(
-              { source: 'continents', id: hoveredStateId },
-              { hover: false }
-            )
-          }
-          hoveredStateId = e.features[0].id;
-          map.setFeatureState(
-            { source: 'continents', id: hoveredStateId },
-            { hover: true }
-          );
-        }
-      });
-      
-      // On mouse leave listener for layers
-      map.on('mouseleave', 'countries-fills', () => {
-        if (hoveredStateId !== null) {
-          map.setFeatureState(
-            { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId},
-            { hover: false }
-          );
-        }
-        hoveredStateId = null;
-      });
-
-      map.on('mouseleave', 'continents-fills', () => {
-        if (hoveredStateId !== null) {
-          map.setFeatureState(
-            { source: 'continents', id: hoveredStateId},
-            { hover: false }
-          );
-        }
-        hoveredStateId = null;
-      });
-      
-      // Click listener for layers
-      map.on("click", 'countries-fills', function(e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ["countries-fills"] });
-        if (features.length) {
-          // Url must be built seperately as jinja set at render time
-          url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.iso_3166_1.toLowerCase()
-          location.href = url
-        }
-      });
-
-      map.on("click", 'continents-fills', function(e) {
-        var features = map.queryRenderedFeatures(e.point, { layers: ["continents-fills"] });
-        if (features.length) {
-          // Url must be built seperately as jinja set at render time
-          url = "{{ url_for('speedtest.index') }}/region/" + features[0].properties.name.toLowerCase()
-          location.href = url
-        }
-      });
-    });
+      }
+    );
   </script>
 {% endblock %}

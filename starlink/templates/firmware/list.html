@@ -40,7 +40,7 @@
     <p class="fs-1 fw-bold">Starlink Firmware</p>
     <p class="fs-3">{{ listType|capitalize }} <img src="{{ url_for('static', filename='img/firmware/thumbnails/'+listType|lower+'.png') }}" width="50px"></p>
     {% if g.user and g.user['role'] == 'admin' %}
-      <a type="button" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
+      <a type="button" class="btn btn-primary" href="{{ url_for('firmware.listAdmin', listType=listType) }}">Admin View</a>
     {% endif %}
     <table class="table table-striped table-bordered" id="dataTable">
       <thead>
