@@ -17,10 +17,12 @@
                 <input class="form-control" type="Email" name="Email" placeholder="Email" value="{{ userDetails['email'] }}" autocomplete="off" disabled>
                 <label for="Email">Email</label>
               </div>
+
               <div class="form-floating mb-3">
                 <input class="form-control" type="username" name="username" placeholder="Username" value="{{ userDetails['username'] }}" autocomplete="off">
                 <label for="username">Username</label>
               </div>
+
               <div class="form-floating mb-3">
                 <select class="form-select" id="timezone" name="timezone">
                   <option value="{{ userDetails['time_zone'] }}">{{ userDetails['time_zone'] }}</option>
@@ -30,9 +32,10 @@
                 </select>
                 <label for="timezone" class="col-sm-2 col-form-label">Time Zone</label>
               </div>
-              
-              <div class="mb-3">
+                            
+              <div class="col mb-3">
                 <button type="submit" class="btn btn-primary" name="btn" value="user">Submit</button>
+                <button type="button" class="btn btn-danger float-end" data-bs-toggle="modal" data-bs-target="#deleteUserModal">Delete User</button>               
               </div>
             </form>
           </div>
@@ -84,6 +87,31 @@
         </div>
       </div>
 
+      <!-- Modal -->
+      <div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <form method="POST">
+            <div class="modal-content">
+              <div class="modal-header">
+                <p class="modal-title fs-5">Delete User</p>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <p>Are you sure you want to delete your account?</p>
+                <p>Your account details will be removed, any submitted data such as speedtest results will NOT be deleted.</p>
+                <div class="form-floating">
+                  <input class="form-control" type="text" name="email" placeholder="name@example.com" pattern="{{ userDetails['email'] }}" required>
+                  <label for="email">Email Address</label>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-danger" name="btn" value="delete-user">Delete</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

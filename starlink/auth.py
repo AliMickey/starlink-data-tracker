@@ -134,12 +134,12 @@ def account():
                 db.execute('UPDATE users SET username = ?, time_zone = ? WHERE id = ?', (username, timezone, g.user['id']))
                 db.commit()
 
-        elif request.form["btn"] == "speedtest": # Speedtest related account settings
-            discordId = request.form['discordId']
-
-            if error is None:
-                db.execute('UPDATE users SET discord_id = ? WHERE id = ?', (discordId, g.user['id']))
-                db.commit()
+        elif request.form["btn"] == "delete-user": # Delete user account
+            userId = g.user['id']
+            db.execute('DELETE FROM users WHERE id = ?', (userId,))
+            db.execute('DELETE FROM users_api_keys WHERE user_id = ?', (userId,))
+            db.execute('DELETE FROM users_password_reset WHERE user_id = ?', (userId,))
+            db.commit()
 
         elif request.form["btn"] == "api-key-new": # Add a new api key for user
             apiKeyName = request.form['apiKeyNewName']
@@ -162,6 +162,13 @@ def account():
                     db.execute('DELETE FROM users_api_keys WHERE key = ?', (apiKey,))
                     db.commit()
                     break
+
+        elif request.form["btn"] == "speedtest": # Speedtest related account settings
+            discordId = request.form['discordId']
+
+            if error is None:
+                db.execute('UPDATE users SET discord_id = ? WHERE id = ?', (discordId, g.user['id']))
+                db.commit()
 
         if error:
             flash(error, "warning")
