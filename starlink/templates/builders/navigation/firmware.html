@@ -1,9 +1,7 @@
 <ul class="navbar-nav mb-2 mb-lg-0">
-    <li class="nav-item"><a class="nav-link active" aria-current="home" href="{{ url_for('main.index') }}">Home</a></li>
-    <li class="nav-item"><i class="nav-link bi-dash"></i></li>
     <li class="nav-item"><a class="nav-link" href="{{ url_for('firmware.index') }}">Dashboard</a></li>
     <li class="nav-item dropdown">
-        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Firmware</a>
+        <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">History</a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
             <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='dishy') }}">Dishy</a></li>
             <li><a class="dropdown-item" href="{{ url_for('firmware.list', listType='router') }}">Router</a></li>
