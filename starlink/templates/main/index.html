@@ -14,7 +14,7 @@
         <p class="fs-5"><a style="text-decoration: none" href="#">message</a></p>
       </div>
     {% endif %} -->
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="row row-cols-1 row-cols-md-3 g-4 justify-content-center">
       <div class="col">
         <div class="card">       
           <img src="{{ url_for('static', filename='img/main/firmware.jpg') }}" class="card-img" alt="firmware">
@@ -22,6 +22,7 @@
           <a href="{{ url_for('firmware.index') }}" class="stretched-link"></a>
         </div>
       </div>
+
       <div class="col">
         <div class="card">
           <img src="{{ url_for('static', filename='img/main/speedtests.jpg') }}" class="card-img" alt="speedtests">
@@ -29,13 +30,14 @@
           <a href="{{ url_for('speedtest.index') }}" class="stretched-link"></a>
         </div>
       </div>
-      <div class="col">
+
+      <!-- <div class="col">
         <div class="card">
           <img src="{{ url_for('static', filename='img/main/outages.jpg') }}" class="card-img" alt="outages">
           <div class="card-footer"><p class="fs-5 text-muted">Outages (Under Development)</p></div>
           <a href="#" class="stretched-link"></a>
         </div>
-      </div>
+      </div> -->
     </div>
 
     <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
