@@ -47,8 +47,7 @@ def register():
         emailRegex = '''(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])'''
         
         # Captcha verification
-        hcaptchaSecret = current_app.config['HCAPTCHA_KEY']
-        hcaptchaResponse = requests.post(url = "https://hcaptcha.com/siteverify", data = {'secret': hcaptchaSecret, 'response': captcha}).json()
+        hcaptchaResponse = hCaptchaVerify(captcha)
         
         if not hcaptchaResponse['success']:
             error = "Invalid captcha. Please try again"     
@@ -183,29 +182,39 @@ def forgotPassword():
 
     if request.method == 'POST':
         email = request.form['email']
+        captcha = request.form['h-captcha-response']
         db = get_db()
-        # Get user id for email if exists
-        user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
 
-        if user:
-            userID = user['id']
-            # Allow only two password reset requests per day
-            datePastDay = datetime.utcnow() - timedelta(days=1)
-            resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.utcnow())).fetchone()            
-            if resetPassCount[0] < 2:
-                # Generate and send a new key
-                resetKey = uuid.uuid4()
-                db.execute('INSERT INTO users_password_reset (reset_key, user_id, date_time, activated) VALUES (?, ?, ?, ?) ', 
-                    (str(resetKey), userID, datetime.utcnow(), False))
-                db.commit()
+        # Captcha verification
+        hcaptchaResponse = hCaptchaVerify(captcha)
 
-                sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
+        if not hcaptchaResponse['success']:
+            error = "Invalid captcha. Please try again"    
+
+        if error is None:
+            # Get user id for email if exists
+            user = db.execute('SELECT * FROM users WHERE email = ?', (email,)).fetchone()
+            
+            if user:
+                userID = user['id']
+                # Allow only two password reset requests per day
+                datePastDay = datetime.utcnow() - timedelta(days=1)
+                resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.utcnow())).fetchone()            
+                if resetPassCount[0] < 2:
+                    # Generate and send a new key
+                    resetKey = uuid.uuid4()
+                    db.execute('INSERT INTO users_password_reset (reset_key, user_id, date_time, activated) VALUES (?, ?, ?, ?) ', 
+                        (str(resetKey), userID, datetime.utcnow(), False))
+                    db.commit()
+
+                    sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
+            
+            # Generic message to prevent brute email validity checks
+            message = "If the provided email exists, you will soon receive an email with instructions. Please check your spam folder. (You can only change your password twice per day)"
+            flash(message, "success")
         
-        # Generic message to prevent brute email validity checks
-        error = "If the provided email exists, you will soon receive an email with instructions. Please check your spam folder. (You can only change your password twice per day)"
-        
-        if error:
-            flash(error, "success")
+        else:
+            flash(error, "warning")
 
     return render_template('auth/forgot-password.html')
 
@@ -280,3 +289,8 @@ def checkAccountActivationKeyValidity(userId):
     if activationStatus:
         return True
     return False 
+
+# Function to verify captcha
+def hCaptchaVerify(captcha):
+    hcaptchaSecret = current_app.config['HCAPTCHA_KEY']
+    return requests.post(url = "https://hcaptcha.com/siteverify", data = {'secret': hcaptchaSecret, 'response': captcha}).json()
