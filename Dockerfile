@@ -8,7 +8,8 @@ RUN apt-get update && apt-get install -y sqlite3 cron python3 && rm -rf /var/lib
 
 RUN pip install -r requirements.txt --no-cache-dir
 
-ADD scripts/cronjobs /etc/cron.d/cronjobs
+COPY scripts/cronjobs /etc/cron.d/cronjobs
+RUN crontab /etc/cron.d/cronjobs
 RUN chmod 0600 /etc/cron.d/cronjobs
 
 EXPOSE 80
