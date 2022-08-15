@@ -11,6 +11,7 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY scripts/cronjobs /etc/cron.d/cronjobs
 RUN crontab /etc/cron.d/cronjobs
 RUN chmod 0600 /etc/cron.d/cronjobs
+RUN chmod +x /app/scripts/backupDB.sh
 
 EXPOSE 80
 
