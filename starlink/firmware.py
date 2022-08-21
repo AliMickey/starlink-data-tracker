@@ -149,10 +149,8 @@ def getFirmwareData(listType, range=-1):
 def sendNotification(version, type, reddit):
     webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
     hostDomain = url_for('index', _external=True)
-    embed = DiscordEmbed(title=version, description=f"[Link]({hostDomain}firmware/{type})", color=242424)
+    embed = DiscordEmbed(title=version, description=f"[starlinktrack.com]({hostDomain}firmware/{type})", color=242424)
     embed.add_embed_field(name='Firmware Type', value=type.capitalize())
-    if reddit: embed.add_embed_field(name='Reddit', value=f"[Thread]({reddit})")
-    else: embed.add_embed_field(name='Reddit Thread', value="Not Provided")
     embed.set_thumbnail(url=hostDomain[:-1] + url_for('static', filename=f'img/firmware/thumbnails/{type}.png'))
     embed.set_timestamp()
     webhook.add_embed(embed)
