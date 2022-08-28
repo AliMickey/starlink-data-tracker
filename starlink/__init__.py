@@ -42,11 +42,11 @@ def create_app(test_config=None):
     app.add_url_rule('/', endpoint='index')
 
     Mobility(app)
-    limiter = Limiter(key_func=get_remote_address)
-    limiter.init_app(app)
-    limiter.limit("2/second")(auth.bp)
-    limiter.limit("2/second")(firmware.bp)
-    limiter.limit("2/second")(speedtests.bp)
-    limiter.limit("2/second")(main.bp)
+    # limiter = Limiter(key_func=get_remote_address)
+    # limiter.init_app(app)
+    # limiter.limit("2/second")(auth.bp)
+    # limiter.limit("2/second")(firmware.bp)
+    # limiter.limit("2/second")(speedtests.bp)
+    # limiter.limit("2/second")(main.bp)
     
     return app
