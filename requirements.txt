@@ -1,5 +1,5 @@
-Flask==2.2.2
-gunicorn==20.1.0
+Flask
+gunicorn
 discord_webhook
 Flask-Limiter==2.6.0
 Flask-Mobility==1.1.0
