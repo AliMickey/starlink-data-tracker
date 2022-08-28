@@ -1,8 +1,8 @@
-Flask
-gunicorn
+Flask==2.2.2
+gunicorn==20.1.0
 discord_webhook
-Flask-Limiter
-Flask-Mobility
+Flask-Limiter==2.6.0
+Flask-Mobility==1.1.0
 schedule
 beautifulsoup4
 pycountry
