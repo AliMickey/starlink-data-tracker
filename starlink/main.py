@@ -24,7 +24,6 @@ def database():
 # View for firmware info page
 @bp.route('/info')
 def info():
-    #x = requests.post('http://0.0.0.0:8080/new-firmware?firmware=test')
     return render_template('main/info.html')
 
 # 404 page not found error

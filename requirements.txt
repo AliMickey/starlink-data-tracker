@@ -2,7 +2,7 @@ Flask
 gunicorn
 discord_webhook
 Flask-Limiter==2.6.0
-Flask-Mobility==1.1.0
+Flask-Mobility
 schedule
 beautifulsoup4
 pycountry
