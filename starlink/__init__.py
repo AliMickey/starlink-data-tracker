@@ -22,8 +22,8 @@ def create_app(test_config=None):
     except OSError:
         pass
 
-    from . import scheduler
-    app.before_first_request(scheduler.schedInitJobs)
+    # from . import scheduler
+    # app.before_first_request(scheduler.schedInitJobs)
 
     from . import db
     db.init_app(app)
