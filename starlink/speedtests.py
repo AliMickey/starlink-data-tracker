@@ -1,9 +1,10 @@
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
-import re, requests, json, sqlite3, awoc, pycountry
-from datetime import datetime, timedelta
+import re, requests, json, awoc, pycountry, pytz
+import datetime
 from bs4 import BeautifulSoup
+import statistics
 
 # App imports
 from starlink.db import get_db
@@ -18,98 +19,102 @@ speedtestPeriods = ['day', 'week', 'month', 'year', 'all']
 continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceania', 'south_america']
 regionData = awoc.AWOC()
 
-# View to show the index page of speedtest results
+# View to show the index page of speedtest results & stats
 @bp.route('/', methods = ['GET'], defaults={'region': 'global'})
 @bp.route('/region/<string:region>')
 def index(region):
     db = get_db()
+    error = None
     listDict = {}
     statDict = {}
     region = region.lower()
+    periodSelect = request.args.get('period', default = 'day', type = str)
     mapboxKey = current_app.config['MAPBOX_KEY']
+    regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
+    timezone = "UTC"
+    if g.user:
+        timezone = g.user['time_zone']
 
-    # Latest entry dict
-    # Validator to only process if provided region is valid
+    # Recently added
+
+    # Global
     if region == "global": # Get latest rows for every country
-        regionName = region.capitalize() #Prettify region name
-        listDB = db.execute('''
-            SELECT id, url, datetime(date_run), country, latency, download, upload
-            FROM speedtests
-            ORDER BY date_run
-            DESC LIMIT 10
-            ''').fetchall()
+        regionName = region.capitalize() # Prettify region name
+        countries = [d['ISO2'].lower() for d in regionData.get_countries()]
 
-    # Get latest rows for countries within continent
-    elif region in continents: 
+    # Continent
+    elif region in continents:
         regionName = region.replace('_', ' ').title() # Prettify region name
-        sqlWhereQuery = ""
-        countries = regionData.get_countries_data_of(regionName)
-        for country in countries:
-            countryCode = country['ISO2'].lower()
-            sqlWhereQuery += f'"{countryCode}", '
-        sqlWhereQuery = sqlWhereQuery[:-2]
-        listDB = db.execute(f'''
-            SELECT id, url, datetime(date_run), country, latency, download, upload
-            FROM speedtests
-            WHERE country in ({sqlWhereQuery})
-            ORDER BY date_run
-            DESC LIMIT 10
-            ''').fetchall()       
-    
+        countries = [d['ISO2'].lower() for d in regionData.get_countries_data_of(regionName)]
+
+    # Country
     else: # Get latest rows for specific country
         regionCheck = pycountry.countries.get(alpha_2=region)  
         if regionCheck:
-            regionName = regionCheck.name # Get region name from country code
-            listDB = db.execute('''
-                SELECT id, url, datetime(date_run), country, latency, download, upload
-                FROM speedtests
-                WHERE country = ?
-                ORDER BY date_run
-                DESC LIMIT 10
-                ''', (region,)).fetchall()
-
-        # Return invalid region error
-        else:
+            regionName = regionCheck.name
+            countries = [region]
+        
+        else: # Return invalid region error
             flash("Supplied region code is incorrect.", "warning")
             return redirect(url_for('speedtest.index'))
-        
+
+    # Convert list into string for sqlite to parse correctly
+    countries = "'" + "','".join(list(map(str, countries))) + "'"
+
+    listDB = db.execute(f'''
+            SELECT id, url, datetime(date_run), country, latency, download, upload
+            FROM speedtests
+            WHERE country in ({countries})
+            ORDER BY date_run
+            DESC LIMIT 10
+            ''').fetchall()
+    
     for row in listDB:
         id, url, date_run, country, latency, download, upload = row
-        convDate = datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
-        listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download/1000:.1f}', 'upload': f'{upload/1000:.1f}'}
+        convDate = datetime.datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
+        listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
-    # Statistic dict
-    statDB = db.execute('''
-        SELECT *
-        FROM speedtest_stats
-        WHERE region = ?
-        ''', (region,)).fetchone()
 
-    for period in speedtestPeriods:
-        if statDB and statDB[f'{period}_count'] > 0:
-            count = statDB[f'{period}_count']
-            latencyAvg = f'{statDB[f"{period}_latency_avg"]:.0f}'
-            latencyMax = f'{statDB[f"{period}_latency_max"]:.0f}'
-            latencyMin = f'{statDB[f"{period}_latency_min"]:.0f}'
-            downloadAvg = f'{statDB[f"{period}_download_avg"]/1000:.2f}'
-            downloadMax = f'{statDB[f"{period}_download_max"]/1000:.2f}'
-            downloadMin = f'{statDB[f"{period}_download_min"]/1000:.2f}'
-            uploadAvg = f'{statDB[f"{period}_upload_avg"]/1000:.2f}'
-            uploadMax = f'{statDB[f"{period}_upload_max"]/1000:.2f}'
-            uploadMin = f'{statDB[f"{period}_upload_min"]/1000:.2f}'
-        else:
-            count = 0
-            latencyAvg = latencyMax = latencyMin = downloadAvg = downloadMax = downloadMin = uploadAvg = uploadMax = uploadMin = "No Data"
-            
-        statDict[period] = {'count': count, 
-            'latencyAvg': latencyAvg, 'latencyMax': latencyMax, 'latencyMin': latencyMin, 
-            'downloadAvg': downloadAvg, 'downloadMax': downloadMax, 'downloadMin': downloadMin,
-            'uploadAvg': uploadAvg, 'uploadMax': uploadMax, 'uploadMin': uploadMin}
-        regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
+    # Statistics
+    data = {}
+    todayDateTime = datetime.datetime.now(pytz.timezone(timezone))
 
-    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, mapboxKey=mapboxKey, regionBbox=regionBbox)
+    # Day
+    currentPeriodStart = (todayDateTime - datetime.timedelta(days=1))
+    regionDayStats = getStats(countries, currentPeriodStart, todayDateTime, "%H", [0, 24])
+    
+    # Shift hour codes relative to country timezone
+    tempData = {}
+    for hour, hourData in regionDayStats["aggregate"].items():
+        utcDateTime = datetime.datetime(1970,1,1,int(hour),0,0)
+        convDateTime = str(utcDateTime.replace(tzinfo=datetime.timezone.utc).astimezone(pytz.timezone(timezone)).hour)
+        if len(convDateTime) == 1:
+            convDateTime = "0" + convDateTime
+        newHour = str(convDateTime)
+        tempData[newHour] = hourData
+        regionDayStats["aggregate"] = tempData
 
-# View to show the index page of speedtest results
+    # Week
+    currentPeriodStart = todayDateTime - datetime.timedelta(days=7)
+    regionWeekStats = getStats(countries, currentPeriodStart, todayDateTime, "%w", [0, 7])
+
+    # Month
+    currentPeriodStart = todayDateTime - datetime.timedelta(weeks=4)
+    regionMonthStats = getStats(countries, currentPeriodStart, todayDateTime, "%d", [1, 32])
+
+    # Year
+    currentPeriodStart = todayDateTime - datetime.timedelta(weeks=52)
+    regionYearStats = getStats(countries, currentPeriodStart, todayDateTime, "%m", [1, 13])
+
+    # All
+    currentPeriodStart = "1970-01-01"
+    regionAllStats = getStats(countries, currentPeriodStart, todayDateTime, "%Y", [2020, 2023])
+
+    statDict = {"day": regionDayStats, "week": regionWeekStats, "month": regionMonthStats, "year": regionYearStats, "all": regionAllStats}
+
+    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, periodSelect=periodSelect, mapboxKey=mapboxKey, regionBbox=regionBbox)
+
+# View to show speedtest results & stats for a user
 # Under development
 @bp.route('/user/<string:username>', methods = ['GET'])
 def user(username):
@@ -130,7 +135,7 @@ def user(username):
 
         for row in listDB:
             id, url, date_run, country, latency, download, upload = row
-            convDate = datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
+            convDate = datetime.datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
             listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download/1000:.1f}', 'upload': f'{upload/1000:.1f}'}
     
     else:
@@ -143,6 +148,7 @@ def user(username):
 @bp.route('/leaderboard', methods = ['GET'])
 def leaderboard():
     db = get_db()
+    error = None
     statDict = {'latency': [], 'download': [], 'upload': []}
     
     latency = db.execute('''
@@ -163,15 +169,15 @@ def leaderboard():
 
     for result in latency:
         index = latency.index(result)
-        statDict['latency'].append({'latency': latency[index][0], 'url': latency[index][1], 'country': latency[index][2], 'date': datetime.strptime(latency[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['latency'].append({'latency': latency[index][0], 'url': latency[index][1], 'country': latency[index][2], 'date': datetime.datetime.strptime(latency[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
 
     for result in download:
         index = download.index(result)
-        statDict['download'].append({'download': f'{download[index][0]/1000:.2f}', 'url': download[index][1], 'country': download[index][2], 'date': datetime.strptime(download[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['download'].append({'download': f'{download[index][0]/1000:.2f}', 'url': download[index][1], 'country': download[index][2], 'date': datetime.datetime.strptime(download[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
 
     for result in upload:
         index = upload.index(result)
-        statDict['upload'].append({'upload': f'{upload[index][0]/1000:.2f}', 'url': upload[index][1], 'country': upload[index][2], 'date': datetime.strptime(upload[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['upload'].append({'upload': f'{upload[index][0]/1000:.2f}', 'url': upload[index][1], 'country': upload[index][2], 'date': datetime.datetime.strptime(upload[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
         
     return render_template('speedtest/leaderboard.html', statDict=statDict)
 
@@ -237,7 +243,7 @@ def add():
                                 error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(55mbps - 0.5mbps)."
                             else: # Add speedtest                                 
                                 db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                    (datetime.utcnow(), datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                                    (datetime.datetime.utcnow(), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                                 db.commit()
                         else:
                             error = "Speedtest was not run on Starlink."
@@ -264,78 +270,57 @@ def add():
 
     return render_template('speedtest/add.html')
 
+# Function to calculate stats for provided region and period type
+def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregateRange):
+    db = get_db()
+    data = {'current': {}, 'aggregate': {}}
 
-# Function to calculate periodic statistics while in thread
-def schedSpeedtestCalcBuilder():
-    db = sqlite3.connect('instance/starlink.db')
-    dbCountries = [row[0] for row in db.execute('SELECT DISTINCT country FROM speedtests').fetchall()] # Get a list of countries and convert into array
-    db.close()
+    data["current"] = dict(db.execute(f'''SELECT count(id) as count,
+        round(avg(latency), 0) as latency_avg,
+        round(min(latency), 0) as latency_min,
+        round(max(latency), 0) as latency_max,
+        group_concat(latency, ",") as latency_sd,
+        round(avg(download) / 1000, 0) as download_avg,
+        round(min(download) / 1000, 0) as download_min,
+        round(max(download) / 1000, 0) as download_max,
+        group_concat(download / 1000, ",") as download_sd,
+        round(avg(upload) / 1000, 0) as upload_avg,
+        round(min(upload) / 1000, 0) as upload_min,
+        round(max(upload) / 1000, 0) as upload_max,
+        group_concat(upload / 1000, ",") as upload_sd
+        FROM speedtests WHERE date(date_run) BETWEEN ? AND ?
+        AND country in ({countries})
+    ''', (currentPeriodStart, dateTimeNow)).fetchone())
+    
+    if data["current"]["count"] <= 1:
+        # Rename None to No Data
+        data["current"] = {x: "N/A" for x in data["current"]}
+        data["current"]["count"] = 0
+            
+    else:
+        # Calculate standard deviation using returned group_concat string
+        for metric in ["latency", "download", "upload"]: 
+            data["current"][metric + "_sd"] = round(statistics.stdev([int(s) for s in data["current"][metric + "_sd"].split(',')]))
+ 
+    # Get aggregate stats for all sub period ranges
+    for rangeItem in range(aggregateRange[0], aggregateRange[1]):
+        rangeItem = str(rangeItem)
+        if len(rangeItem) == 1 and strftimeCode != '%w': # Special edge case for week days, single digits required
+            rangeItem = "0" + rangeItem
 
-    # Global statistic calculation
-    schedSpeedtestCalc("global")
+        tempData = db.execute(f'''SELECT count(id) as count,
+            round(avg(latency), 0) as latency_avg,
+            round(min(latency), 0) as latency_min,
+            round(max(latency), 0) as latency_max,
+            round(avg(download) / 1000, 2) as download_avg,
+            round(min(download) / 1000, 2) as download_min,
+            round(max(download) / 1000, 2) as download_max,
+            round(avg(upload) / 1000, 2) as upload_avg,
+            round(min(upload) / 1000, 2) as upload_min,
+            round(max(upload) / 1000, 2) as upload_max
+            FROM speedtests WHERE strftime("{strftimeCode}", date_run) = ?
+            AND country in ({countries})
+        ''', (rangeItem,)).fetchone()
+        data['aggregate'][rangeItem] = dict(tempData)
 
-    # Country statistic calculation
-    for country in dbCountries:
-        schedSpeedtestCalc(country, f' AND country in ("{country}")')
-
-    # Collated region statistic calculation
-    for continent in continents:
-        countries = regionData.get_countries_data_of(continent.replace('_', ' '))
-        sqlWhereString = ""
-        # Build the SQL WHERE string only with countries with an existing speedtest result in DB to increase speed
-        for country in countries:
-            countryCode = country['ISO2'].lower()  
-            if countryCode in dbCountries:
-                sqlWhereString += f'"{countryCode}", '
-        sqlWhereString = sqlWhereString[:-2] # Trim off trailing comma
-        schedSpeedtestCalc(continent, f' AND country in ({sqlWhereString})')
-      
-# Common function to calculate periodic statistic for given region
-def schedSpeedtestCalc(region, sqlWhereString=""):
-    dateTimeNow = datetime.utcnow()
-    datePastDay = dateTimeNow - timedelta(days=1)
-    datePastWeek = dateTimeNow - timedelta(days=7)
-    datePastMonth = dateTimeNow - timedelta(weeks=4)
-    datePastYear = dateTimeNow - timedelta(weeks=52)
-    dateAll = "1970-01-01"
-
-    db = sqlite3.connect('instance/starlink.db')
-
-    # If a statistic record doesn't exist for the region, make one
-    dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtest_stats WHERE region = ? LIMIT 1)', (region,)).fetchone()[0]
-    if dbCheck == 0: 
-        db.execute('INSERT INTO speedtest_stats (region) VALUES (?)', (region,))
-        db.commit()
-
-    # Calculate and store statistics for each time period
-    for period, periodDateTime in {'day': datePastDay, 'week': datePastWeek, 'month': datePastMonth, 'year': datePastYear, 'all': dateAll}.items():
-        speedtestCount = db.execute(f'SELECT Count(id) FROM speedtests WHERE date_run BETWEEN ? AND ? {sqlWhereString}', (periodDateTime, dateTimeNow)).fetchone()[0]
-        latency = db.execute(f'''
-            SELECT avg(latency), max(latency), min(latency)
-            FROM speedtests
-            WHERE date_run BETWEEN ? AND ?
-            {sqlWhereString}
-            ''', (periodDateTime, dateTimeNow)).fetchone()
-        download = db.execute(f'''
-            SELECT avg(download), max(download), min(download)
-            FROM speedtests
-            WHERE date_run BETWEEN ? AND ?
-            {sqlWhereString}
-            ''', (periodDateTime, dateTimeNow)).fetchone()
-        upload = db.execute(f'''
-            SELECT avg(upload), max(upload), min(upload)
-            FROM speedtests
-            WHERE date_run BETWEEN ? AND ?
-            {sqlWhereString}
-            ''', (periodDateTime, dateTimeNow)).fetchone()
-
-        # Store updated stats
-        db.execute(f'''
-            UPDATE speedtest_stats SET date_calculated = ?, {period}_count = ?,
-            {period}_latency_avg = ?, {period}_latency_max = ?, {period}_latency_min = ?,
-            {period}_download_avg = ?, {period}_download_max = ?, {period}_download_min = ?,
-            {period}_upload_avg = ?, {period}_upload_max = ?, {period}_upload_min = ?
-            WHERE region = ?
-            ''', (dateTimeNow, speedtestCount, latency[0], latency[1], latency[2], download[0], download[1], download[2], upload[0], upload[1], upload[2], region))
-        db.commit()
-    db.close()
+    return data
