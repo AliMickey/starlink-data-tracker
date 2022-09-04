@@ -54,6 +54,14 @@ def index(region):
                 for tz in countryTimezones:
                     timezones.append(tz)
         timezone = timezones[0]
+    
+    # Special region for all countries except U.S.A.
+    elif region == "rest-of-world":
+        regionName = "Rest of World (Excluding U.S.A.)" # Prettify region name
+        countries = [d['ISO2'].lower() for d in regionData.get_countries()]
+        countries.remove("us")
+        timezones = pytz.common_timezones
+        timezone = "UTC"
 
     # Country
     else: # Get latest rows for specific country
@@ -94,8 +102,6 @@ def index(region):
         # Day
         periodStart = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day)
         periodEnd = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day, 23, 59, 59)
-        print(periodStart)
-        print(periodEnd)
         statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%H", [0, 24])
         statDict['labels'] = "12AM,1AM,2AM,3AM,4AM,5AM,6AM,7AM,8AM,9AM,10AM,11AM,12PM,1PM,2PM,3PM,4PM,5PM,6PM,7PM,8PM,9PM,10PM,11PM"
 
