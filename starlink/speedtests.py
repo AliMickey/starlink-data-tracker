@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
-import re, requests, json, awoc, pycountry, pytz
+import re, requests, json, awoc, pycountry, pytz, math
 import datetime
 from bs4 import BeautifulSoup
 import statistics
@@ -20,32 +20,40 @@ continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceani
 regionData = awoc.AWOC()
 
 # View to show the index page of speedtest results & stats
-@bp.route('/', methods = ['GET'], defaults={'region': 'global'})
-@bp.route('/region/<string:region>')
+@bp.route('/', methods = ['GET', 'POST'], defaults={'region': 'global'})
+@bp.route('/region/<string:region>', methods = ['GET', 'POST'])
 def index(region):
     db = get_db()
     error = None
+    region = region.replace(' ', '_').lower()
     listDict = {}
     statDict = {}
-    region = region.lower()
-    periodSelect = request.args.get('period', default = 'day', type = str)
-    mapboxKey = current_app.config['MAPBOX_KEY']
-    regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
-    timezone = "UTC"
-    if g.user:
-        timezone = g.user['time_zone']
 
+    if request.method == 'POST':
+        period = request.form['period']
+        timezone = request.form.get('timezone')
+        return redirect(url_for('speedtest.index', region=region, period=period, timezone=timezone))
+        
     # Recently added
-
     # Global
     if region == "global": # Get latest rows for every country
         regionName = region.capitalize() # Prettify region name
         countries = [d['ISO2'].lower() for d in regionData.get_countries()]
-
+        timezones = pytz.common_timezones
+        timezone = "UTC"
+        
     # Continent
     elif region in continents:
         regionName = region.replace('_', ' ').title() # Prettify region name
         countries = [d['ISO2'].lower() for d in regionData.get_countries_data_of(regionName)]
+        timezones = []
+        pytzValidCountries = list(pytz.country_names)
+        for country in countries:
+            if country.upper() in pytzValidCountries:
+                countryTimezones = pytz.country_timezones[country]
+                for tz in countryTimezones:
+                    timezones.append(tz)
+        timezone = timezones[0]
 
     # Country
     else: # Get latest rows for specific country
@@ -53,14 +61,19 @@ def index(region):
         if regionCheck:
             regionName = regionCheck.name
             countries = [region]
-        
+            timezones = pytz.country_timezones[region]
+            timezone = timezones[0]
+
         else: # Return invalid region error
             flash("Supplied region code is incorrect.", "warning")
             return redirect(url_for('speedtest.index'))
 
+    period = request.args.get('period', default = 'day', type = str)
+    timezone = request.args.get('timezone', default = 'UTC', type = str)
+    filters = {'period': period, 'timezone': timezone}
+
     # Convert list into string for sqlite to parse correctly
     countries = "'" + "','".join(list(map(str, countries))) + "'"
-
     listDB = db.execute(f'''
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
@@ -74,45 +87,72 @@ def index(region):
         convDate = datetime.datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
         listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
-
     # Statistics
-    data = {}
-    todayDateTime = datetime.datetime.now(pytz.timezone(timezone))
+    todayDateTime = datetime.datetime.utcnow()
 
-    # Day
-    currentPeriodStart = (todayDateTime - datetime.timedelta(days=1))
-    regionDayStats = getStats(countries, currentPeriodStart, todayDateTime, "%H", [0, 24])
-    
-    # Shift hour codes relative to country timezone
-    tempData = {}
-    for hour, hourData in regionDayStats["aggregate"].items():
-        utcDateTime = datetime.datetime(1970,1,1,int(hour),0,0)
-        convDateTime = str(utcDateTime.replace(tzinfo=datetime.timezone.utc).astimezone(pytz.timezone(timezone)).hour)
-        if len(convDateTime) == 1:
-            convDateTime = "0" + convDateTime
-        newHour = str(convDateTime)
-        tempData[newHour] = hourData
-        regionDayStats["aggregate"] = tempData
+    if period == "day":
+        # Day
+        periodStart = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day)
+        periodEnd = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day, 23, 59, 59)
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%H", [0, 24])
+        statDict['labels'] = "12AM,1AM,2AM,3AM,4AM,5AM,6AM,7AM,8AM,9AM,10AM,11AM,12PM,1PM,2PM,3PM,4PM,5PM,6PM,7PM,8PM,9PM,10PM,11PM"
 
-    # Week
-    currentPeriodStart = todayDateTime - datetime.timedelta(days=7)
-    regionWeekStats = getStats(countries, currentPeriodStart, todayDateTime, "%w", [0, 7])
+        # Shift hour codes relative to country timezone
+        tempData = {}
+        for hour, hourData in statsAggregate.items():
+            utcDateTime = datetime.datetime(1970,1,1,int(hour),0,0)
+            convDateTime = str(utcDateTime.replace(tzinfo=datetime.timezone.utc).astimezone(pytz.timezone(timezone)).hour)
 
-    # Month
-    currentPeriodStart = todayDateTime - datetime.timedelta(weeks=4)
-    regionMonthStats = getStats(countries, currentPeriodStart, todayDateTime, "%d", [1, 32])
+            if len(convDateTime) == 1: convDateTime = "0" + convDateTime
+            newHour = str(convDateTime)
+            tempData[newHour] = hourData
+            statsAggregate = tempData
+        statsAggregate = dict(sorted(statsAggregate.items()))
 
-    # Year
-    currentPeriodStart = todayDateTime - datetime.timedelta(weeks=52)
-    regionYearStats = getStats(countries, currentPeriodStart, todayDateTime, "%m", [1, 13])
+    elif period == "week":
+        # Week
+        periodStart = datetime.datetime.strptime(f'{todayDateTime.year}-W{todayDateTime.isocalendar()[1]}' + '-1', '%Y-W%W-%w') # Get first day of week from week number
+        periodEnd = periodStart + datetime.timedelta(days=6,hours=23, minutes=59, seconds=59) # Add on 6 days to get end of week
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%w", [0, 7])
+        statDict['labels'] = "Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday"
 
-    # All
-    currentPeriodStart = "1970-01-01"
-    regionAllStats = getStats(countries, currentPeriodStart, todayDateTime, "%Y", [2020, 2023])
+    elif period == "month":
+        # Month
+        periodStart = datetime.datetime(todayDateTime.year, todayDateTime.month, 1)  # Get first day of month
+        periodEnd = datetime.datetime(todayDateTime.year + int(todayDateTime.month / 12), ((todayDateTime.month % 12) + 1), 1) # Get end of month (next month 00:00:00)
+        print(periodEnd)
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%d", [1, 32])
+        statDict['labels'] = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
 
-    statDict = {"day": regionDayStats, "week": regionWeekStats, "month": regionMonthStats, "year": regionYearStats, "all": regionAllStats}
+    elif period == "year":
+        # Year
+        periodStart = datetime.datetime(todayDateTime.year, 1, 1) # Get first day of year
+        periodEnd = datetime.datetime(todayDateTime.year, 12, 31, 23, 59, 59) # Set to 31 December for last day of year
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%m", [1, 13])
+        statDict['labels'] = "January,February,March,April,May,June,July,August,September,October,November,December"
 
-    return render_template('speedtest/index.html', regionName=regionName, statDict=statDict, listDict=listDict, periodSelect=periodSelect, mapboxKey=mapboxKey, regionBbox=regionBbox)
+    elif period == "all":
+        # All
+        periodStart = "2019-01-01" # Day before any speedtests were collected
+        periodEnd = todayDateTime # Get last day as today
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%Y", [2021, 2023])
+        statDict['labels'] = "2021,2022"
+
+    latencyData = ""
+    downloadData = ""
+    uploadData = ""
+    for index, stat in statsAggregate.items():
+        latencyData += str(stat['latency_avg']) + ","
+        downloadData += str(stat['download_avg']) + ","
+        uploadData += str(stat['upload_avg']) + ","
+    statDict['latency'] = latencyData[:-1]
+    statDict['download'] = downloadData[:-1]
+    statDict['upload'] = uploadData[:-1]
+
+    regionBbox = json.load(open(current_app.root_path + '/static/other/regions-bbox.json'))[region]
+    mapboxKey = current_app.config['MAPBOX_KEY']
+
+    return render_template('speedtest/index.html', regionName=regionName, regionCode=region, timezones=timezones, statDict=statDict, listDict=listDict, filters=filters, mapboxKey=mapboxKey, regionBbox=regionBbox)
 
 # View to show speedtest results & stats for a user
 # Under development
@@ -273,9 +313,10 @@ def add():
 # Function to calculate stats for provided region and period type
 def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregateRange):
     db = get_db()
-    data = {'current': {}, 'aggregate': {}}
+    current = {}
+    aggregate = {}
 
-    data["current"] = dict(db.execute(f'''SELECT count(id) as count,
+    current = dict(db.execute(f'''SELECT count(id) as count,
         round(avg(latency), 0) as latency_avg,
         round(min(latency), 0) as latency_min,
         round(max(latency), 0) as latency_max,
@@ -292,15 +333,15 @@ def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregate
         AND country in ({countries})
     ''', (currentPeriodStart, dateTimeNow)).fetchone())
     
-    if data["current"]["count"] <= 1:
+    if current["count"] <= 1:
         # Rename None to No Data
-        data["current"] = {x: "N/A" for x in data["current"]}
-        data["current"]["count"] = 0
+        current = {x: "N/A" for x in current}
+        current["count"] = 0
             
     else:
         # Calculate standard deviation using returned group_concat string
         for metric in ["latency", "download", "upload"]: 
-            data["current"][metric + "_sd"] = round(statistics.stdev([int(s) for s in data["current"][metric + "_sd"].split(',')]))
+            current[metric + "_sd"] = round(statistics.stdev([int(s) for s in current[metric + "_sd"].split(',')]))
  
     # Get aggregate stats for all sub period ranges
     for rangeItem in range(aggregateRange[0], aggregateRange[1]):
@@ -310,17 +351,11 @@ def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregate
 
         tempData = db.execute(f'''SELECT count(id) as count,
             round(avg(latency), 0) as latency_avg,
-            round(min(latency), 0) as latency_min,
-            round(max(latency), 0) as latency_max,
             round(avg(download) / 1000, 2) as download_avg,
-            round(min(download) / 1000, 2) as download_min,
-            round(max(download) / 1000, 2) as download_max,
-            round(avg(upload) / 1000, 2) as upload_avg,
-            round(min(upload) / 1000, 2) as upload_min,
-            round(max(upload) / 1000, 2) as upload_max
+            round(avg(upload) / 1000, 2) as upload_avg
             FROM speedtests WHERE strftime("{strftimeCode}", date_run) = ?
             AND country in ({countries})
         ''', (rangeItem,)).fetchone()
-        data['aggregate'][rangeItem] = dict(tempData)
+        aggregate[rangeItem] = dict(tempData)
 
-    return data
+    return current, aggregate

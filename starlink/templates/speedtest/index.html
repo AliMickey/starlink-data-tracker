@@ -38,21 +38,39 @@
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
     <p class="fs-3">{{ regionName }}</p>
-    <div class="mx-auto col-md-2">
-      <div class="form-floating">
-        <select class="form-select" id="periodSelect" name="period" onfocus="this.currentValue = this.value;" onchange="changeStatPeriod(this.currentValue, this.value);this.currentValue = this.value;" autocomplete="off">
-          <option value="day" {% if periodSelect == "day" %}selected{% endif %}>Day - {{ statDict['day']['current']['count'] }} results</option>
-          <option value="week" {% if periodSelect == "week" %}selected{% endif %}>Week - {{ statDict['week']['current']['count'] }} results</option>
-          <option value="month" {% if periodSelect == "month" %}selected{% endif %}>Month - {{ statDict['month']['current']['count'] }} results</option>
-          <option value="year" {% if periodSelect == "year" %}selected{% endif %}>Year - {{ statDict['year']['current']['count'] }} results</option>
-          <option value="all" {% if periodSelect == "all" %}selected{% endif %}>All - {{ statDict['all']['current']['count'] }} results</option>
-        </select>
-        <label for="periodSelect">Period</label>
-      </div>
+    <div class="col-md-6 mx-auto">
+      <form method="POST">
+        <div class="row">
+          <div class="col-md-3 mx-auto mb-3">
+            <div class="form-floating">
+              <select class="form-select" id="periodSelect" name="period" autocomplete="off" onchange="this.form.submit()">
+                <option value="day" {% if filters['period'] == "day" %}selected{% endif %}>Day</option>
+                <option value="week" {% if filters['period'] == "week" %}selected{% endif %}>Week</option>
+                <option value="month" {% if filters['period'] == "month" %}selected{% endif %}>Month</option>
+                <option value="year" {% if filters['period'] == "year" %}selected{% endif %}>Year</option>
+                <option value="all" {% if filters['period'] == "all" %}selected{% endif %}>All</option>
+              </select>
+              <label for="periodSelect">Period</label>
+            </div>
+          </div>
+          {% if filters['period'] == "day" %}
+            <div class="col-md-3 mx-auto">
+              <div class="form-floating">
+                <select class="form-select" id="timezoneSelect" name="timezone" autocomplete="off" onChange="this.form.submit()">
+                  {% for timezone in timezones %}
+                      <option value="{{ timezone }}" {% if filters['timezone'] == timezone %}selected{% endif %}>{{ timezone }}</option>
+                  {% endfor %}
+                </select>
+                <label for="timezoneSelect">Time Zone</label>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </form>
     </div>
+    
     <br><br>
-    {% for period in ['day', 'week', 'month', 'year', 'all'] %}
-      <div class="row row-cols-1 row-cols-md-3 mb-3 g-4" id="statsText-{{period}}" {% if period != "day" %}hidden{% endif %}>
+      <div class="row row-cols-1 row-cols-md-3 mb-3 g-4" id="statsText">
         <div class="col">
           <div class="card shadow">
             <div class="card-body">
@@ -61,15 +79,15 @@
                 <div class="row row-cols-3">
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['latency_min'] }} - {{ statDict[period]['current']['latency_max'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['latency_min'] }} - {{ statDict['current']['latency_max'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['latency_avg'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['latency_avg'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['latency_sd'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['latency_sd'] }}</p>
                   </div>
                 </div>
               </div>
@@ -84,15 +102,15 @@
                 <div class="row row-cols-3">
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['download_min'] }} - {{ statDict[period]['current']['download_max'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['download_min'] }} - {{ statDict['current']['download_max'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['download_avg'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['download_avg'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['download_sd'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['download_sd'] }}</p>
                   </div>
                 </div>
               </div>
@@ -107,15 +125,15 @@
                 <div class="row row-cols-3">
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['upload_min'] }} - {{ statDict[period]['current']['upload_max'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['upload_min'] }} - {{ statDict['current']['upload_max'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['upload_avg'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['upload_avg'] }}</p>
                   </div>
                   <div class="col">
                     <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
-                    <p class="card-text fs-5">{{ statDict[period]['current']['upload_sd'] }}</p>
+                    <p class="card-text fs-5">{{ statDict['current']['upload_sd'] }}</p>
                   </div>
                 </div>
               </div>
@@ -123,16 +141,13 @@
           </div>
         </div> 
       </div>
-    {% endfor %}   
 
     <div class="row">
       <div class="col">
         <div class="card shadow">
           <div class="card-body">
             <div class="col mb-3">
-              {% for period in ['day', 'week', 'month', 'year', 'all'] %}
-                <canvas id="statsChart-{{period}}" height="200" {% if period != "day" %}hidden{% endif %}></canvas>
-              {% endfor %}
+                <canvas id="statsChart" height="200"></canvas>
             </div>
           </div>
         </div>
@@ -196,311 +211,55 @@
 
 {% block scriptsBody %}
   <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
-  <script>
-    function changeStatPeriod(currentPeriod, selectedPeriod) {
-        const currentStatDiv = document.getElementById("statsText-" + currentPeriod);
-        const currentChartDiv = document.getElementById("statsChart-" + currentPeriod);
-        currentStatDiv.hidden = true
-        currentChartDiv.hidden = true
-        const selectedStatDiv = document.getElementById("statsText-" + selectedPeriod);
-        const selectedChartDiv = document.getElementById("statsChart-" + selectedPeriod);
-        selectedStatDiv.hidden = false
-        selectedChartDiv.hidden = false
-    }
-  </script>  
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script> 
 
   <script>
-    const ctxChartDay = document.getElementById('statsChart-day');
-    const ctxChartWeek = document.getElementById('statsChart-week');
-    const ctxChartMonth = document.getElementById('statsChart-month');
-    const ctxChartYear = document.getElementById('statsChart-year');
-    const ctxChartAll = document.getElementById('statsChart-all');
+    const ctxChart = document.getElementById('statsChart');
+    const latencyData = "{{ statDict['latency'] }}".split(',');
+    const downloadData = "{{ statDict['download'] }}".split(',');
+    const uploadData = "{{ statDict['upload'] }}".split(',');
+    const labels = "{{ statDict['labels'] }}".split(',')
 
-    const statsChartDay = new Chart(ctxChartDay, {
+    const statsChart = new Chart(ctxChart, {
       type: 'bar',
       data: {
-        labels: ['12AM', '1AM', '2AM', '3AM', '4AM', '5AM', '6AM', '7AM', '8AM', '9AM', '10AM', '11AM', '12PM', '1PM', '2PM', '3PM', '4PM', '5PM', '6PM', '7PM', '8PM', '9PM', '10PM', '11PM'],
+        labels: labels,
         datasets: [
           {
-            label: 'Latency',
+            label: 'Latency (ms)',
             hidden: true,
             borderRadius: 3,
             backgroundColor: ['rgba(228, 26, 28, 0.7)'],
             borderColor: ['rgba(228, 26, 28, 1)'],
-            data: ["{{ statDict['day']['aggregate']['00']['latency_avg'] }}", "{{ statDict['day']['aggregate']['01']['latency_avg'] }}",
-              "{{ statDict['day']['aggregate']['02']['latency_avg'] }}", "{{ statDict['day']['aggregate']['03']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['04']['latency_avg'] }}", "{{ statDict['day']['aggregate']['05']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['06']['latency_avg'] }}", "{{ statDict['day']['aggregate']['07']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['08']['latency_avg'] }}", "{{ statDict['day']['aggregate']['09']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['10']['latency_avg'] }}", "{{ statDict['day']['aggregate']['11']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['12']['latency_avg'] }}", "{{ statDict['day']['aggregate']['13']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['14']['latency_avg'] }}", "{{ statDict['day']['aggregate']['15']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['16']['latency_avg'] }}", "{{ statDict['day']['aggregate']['17']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['18']['latency_avg'] }}", "{{ statDict['day']['aggregate']['19']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['20']['latency_avg'] }}", "{{ statDict['day']['aggregate']['21']['latency_avg'] }}", 
-              "{{ statDict['day']['aggregate']['22']['latency_avg'] }}", "{{ statDict['day']['aggregate']['23']['latency_avg'] }}"]
+            data: latencyData
           },
           {
-            label: 'Download',
+            label: 'Download (mbps)',
             hidden: false,
             borderRadius: 3,
             backgroundColor: ['rgba(55, 126, 184, 0.7)'],
             borderColor: ['rgba(55, 126, 184, 1)'],
-            data: ["{{ statDict['day']['aggregate']['00']['download_avg'] }}", "{{ statDict['day']['aggregate']['01']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['02']['download_avg'] }}", "{{ statDict['day']['aggregate']['03']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['04']['download_avg'] }}", "{{ statDict['day']['aggregate']['05']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['06']['download_avg'] }}", "{{ statDict['day']['aggregate']['07']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['08']['download_avg'] }}", "{{ statDict['day']['aggregate']['09']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['10']['download_avg'] }}", "{{ statDict['day']['aggregate']['11']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['12']['download_avg'] }}", "{{ statDict['day']['aggregate']['13']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['14']['download_avg'] }}", "{{ statDict['day']['aggregate']['15']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['16']['download_avg'] }}", "{{ statDict['day']['aggregate']['17']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['18']['download_avg'] }}", "{{ statDict['day']['aggregate']['19']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['20']['download_avg'] }}", "{{ statDict['day']['aggregate']['21']['download_avg'] }}",
-            "{{ statDict['day']['aggregate']['22']['download_avg'] }}", "{{ statDict['day']['aggregate']['23']['download_avg'] }}"]
+            data: downloadData
           },
           {
-            label: 'Upload',
+            label: 'Upload (mbps)',
             hidden: true,
             borderRadius: 3,
             backgroundColor: ['rgba(77, 175, 74, 0.7)'],
             borderColor: ['rgba(77, 175, 74, 1)'],
-            data: ["{{ statDict['day']['aggregate']['00']['upload_avg'] }}", "{{ statDict['day']['aggregate']['01']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['02']['upload_avg'] }}", "{{ statDict['day']['aggregate']['03']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['06']['upload_avg'] }}", "{{ statDict['day']['aggregate']['05']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['06']['upload_avg'] }}", "{{ statDict['day']['aggregate']['07']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['08']['upload_avg'] }}", "{{ statDict['day']['aggregate']['09']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['10']['upload_avg'] }}", "{{ statDict['day']['aggregate']['11']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['12']['upload_avg'] }}", "{{ statDict['day']['aggregate']['13']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['14']['upload_avg'] }}", "{{ statDict['day']['aggregate']['15']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['16']['upload_avg'] }}", "{{ statDict['day']['aggregate']['17']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['18']['upload_avg'] }}", "{{ statDict['day']['aggregate']['19']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['20']['upload_avg'] }}", "{{ statDict['day']['aggregate']['21']['upload_avg'] }}",
-            "{{ statDict['day']['aggregate']['22']['upload_avg'] }}", "{{ statDict['day']['aggregate']['23']['upload_avg'] }}"]
+            data: uploadData
           }      
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-      }
-    });
-
-    const statsChartWeek = new Chart(ctxChartWeek, {
-      type: 'bar',
-      data: {
-        labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
-        datasets: [
-          {
-            label: 'Latency',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(228, 26, 28, 0.7)'],
-            borderColor: ['rgba(228, 26, 28, 1)'],
-            data: ["{{ statDict['week']['aggregate']['0']['latency_avg'] }}", "{{ statDict['week']['aggregate']['1']['latency_avg'] }}",
-              "{{ statDict['week']['aggregate']['2']['latency_avg'] }}", "{{ statDict['week']['aggregate']['3']['latency_avg'] }}",
-              "{{ statDict['week']['aggregate']['4']['latency_avg'] }}", "{{ statDict['week']['aggregate']['5']['latency_avg'] }}",
-              "{{ statDict['week']['aggregate']['6']['latency_avg'] }}"]
-          },
-          {
-            label: 'Download',
-            hidden: false,
-            borderRadius: 3,
-            backgroundColor: ['rgba(55, 126, 184, 0.7)'],
-            borderColor: ['rgba(55, 126, 184, 1)'],
-            data: ["{{ statDict['week']['aggregate']['0']['download_avg'] }}", "{{ statDict['week']['aggregate']['1']['download_avg'] }}",
-              "{{ statDict['week']['aggregate']['2']['download_avg'] }}", "{{ statDict['week']['aggregate']['3']['download_avg'] }}",
-              "{{ statDict['week']['aggregate']['4']['download_avg'] }}", "{{ statDict['week']['aggregate']['5']['download_avg'] }}",
-              "{{ statDict['week']['aggregate']['6']['download_avg'] }}"]
-          },
-          {
-            label: 'Upload',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(77, 175, 74, 0.7)'],
-            borderColor: ['rgba(77, 175, 74, 1)'],
-            data: ["{{ statDict['week']['aggregate']['0']['upload_avg'] }}", "{{ statDict['week']['aggregate']['1']['upload_avg'] }}",
-              "{{ statDict['week']['aggregate']['2']['upload_avg'] }}", "{{ statDict['week']['aggregate']['3']['upload_avg'] }}",
-              "{{ statDict['week']['aggregate']['4']['upload_avg'] }}", "{{ statDict['week']['aggregate']['5']['upload_avg'] }}",
-              "{{ statDict['week']['aggregate']['6']['upload_avg'] }}"]
-          }      
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      }
-    });
-
-    const statsChartMonth = new Chart(ctxChartMonth, {
-      type: 'bar',
-      data: {
-        labels: ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31'],
-        datasets: [
-          {
-            label: 'Latency',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(228, 26, 28, 0.7)'],
-            borderColor: ['rgba(228, 26, 28, 1)'],
-            data: ["{{ statDict['month']['aggregate']['01']['latency_avg'] }}", "{{ statDict['month']['aggregate']['02']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['03']['latency_avg'] }}", "{{ statDict['month']['aggregate']['04']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['05']['latency_avg'] }}", "{{ statDict['month']['aggregate']['06']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['07']['latency_avg'] }}", "{{ statDict['month']['aggregate']['08']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['09']['latency_avg'] }}", "{{ statDict['month']['aggregate']['10']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['11']['latency_avg'] }}", "{{ statDict['month']['aggregate']['12']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['13']['latency_avg'] }}", "{{ statDict['month']['aggregate']['14']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['15']['latency_avg'] }}", "{{ statDict['month']['aggregate']['16']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['17']['latency_avg'] }}", "{{ statDict['month']['aggregate']['18']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['19']['latency_avg'] }}", "{{ statDict['month']['aggregate']['20']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['21']['latency_avg'] }}", "{{ statDict['month']['aggregate']['22']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['23']['latency_avg'] }}", "{{ statDict['month']['aggregate']['24']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['25']['latency_avg'] }}", "{{ statDict['month']['aggregate']['26']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['27']['latency_avg'] }}", "{{ statDict['month']['aggregate']['28']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['29']['latency_avg'] }}", "{{ statDict['month']['aggregate']['30']['latency_avg'] }}",
-              "{{ statDict['month']['aggregate']['31']['latency_avg'] }}"]
-          },
-          {
-            label: 'Download',
-            hidden: false,
-            borderRadius: 3,
-            backgroundColor: ['rgba(55, 126, 184, 0.7)'],
-            borderColor: ['rgba(55, 126, 184, 1)'],
-            data: ["{{ statDict['month']['aggregate']['01']['download_avg'] }}", "{{ statDict['month']['aggregate']['02']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['03']['download_avg'] }}", "{{ statDict['month']['aggregate']['04']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['05']['download_avg'] }}", "{{ statDict['month']['aggregate']['06']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['07']['download_avg'] }}", "{{ statDict['month']['aggregate']['08']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['09']['download_avg'] }}", "{{ statDict['month']['aggregate']['10']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['11']['download_avg'] }}", "{{ statDict['month']['aggregate']['12']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['13']['download_avg'] }}", "{{ statDict['month']['aggregate']['14']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['15']['download_avg'] }}", "{{ statDict['month']['aggregate']['16']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['17']['download_avg'] }}", "{{ statDict['month']['aggregate']['18']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['19']['download_avg'] }}", "{{ statDict['month']['aggregate']['20']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['21']['download_avg'] }}", "{{ statDict['month']['aggregate']['22']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['23']['download_avg'] }}", "{{ statDict['month']['aggregate']['24']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['25']['download_avg'] }}", "{{ statDict['month']['aggregate']['26']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['27']['download_avg'] }}", "{{ statDict['month']['aggregate']['28']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['29']['download_avg'] }}", "{{ statDict['month']['aggregate']['30']['download_avg'] }}",
-              "{{ statDict['month']['aggregate']['31']['download_avg'] }}"]
-          },
-          {
-            label: 'Upload',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(77, 175, 74, 0.7)'],
-            borderColor: ['rgba(77, 175, 74, 1)'],
-            data: ["{{ statDict['month']['aggregate']['01']['upload_avg'] }}", "{{ statDict['month']['aggregate']['02']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['03']['upload_avg'] }}", "{{ statDict['month']['aggregate']['04']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['05']['upload_avg'] }}", "{{ statDict['month']['aggregate']['06']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['07']['upload_avg'] }}", "{{ statDict['month']['aggregate']['08']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['09']['upload_avg'] }}", "{{ statDict['month']['aggregate']['10']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['11']['upload_avg'] }}", "{{ statDict['month']['aggregate']['12']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['13']['upload_avg'] }}", "{{ statDict['month']['aggregate']['14']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['15']['upload_avg'] }}", "{{ statDict['month']['aggregate']['16']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['17']['upload_avg'] }}", "{{ statDict['month']['aggregate']['18']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['19']['upload_avg'] }}", "{{ statDict['month']['aggregate']['20']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['21']['upload_avg'] }}", "{{ statDict['month']['aggregate']['22']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['23']['upload_avg'] }}", "{{ statDict['month']['aggregate']['24']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['25']['upload_avg'] }}", "{{ statDict['month']['aggregate']['26']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['27']['upload_avg'] }}", "{{ statDict['month']['aggregate']['28']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['29']['upload_avg'] }}", "{{ statDict['month']['aggregate']['30']['upload_avg'] }}",
-              "{{ statDict['month']['aggregate']['31']['upload_avg'] }}"]
-          }      
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      }
-    });
-
-    const statsChartYear = new Chart(ctxChartYear, {
-      type: 'bar',
-      data: {
-        labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
-        datasets: [
-          {
-            label: 'Latency',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(228, 26, 28, 0.7)'],
-            borderColor: ['rgba(228, 26, 28, 1)'],
-            data: ["{{ statDict['year']['aggregate']['01']['latency_avg'] }}", "{{ statDict['year']['aggregate']['02']['latency_avg'] }}",
-              "{{ statDict['year']['aggregate']['03']['latency_avg'] }}", "{{ statDict['year']['aggregate']['04']['latency_avg'] }}",
-              "{{ statDict['year']['aggregate']['05']['latency_avg'] }}", "{{ statDict['year']['aggregate']['06']['latency_avg'] }}",
-              "{{ statDict['year']['aggregate']['07']['latency_avg'] }}", "{{ statDict['year']['aggregate']['08']['latency_avg'] }}",
-              "{{ statDict['year']['aggregate']['09']['latency_avg'] }}", "{{ statDict['year']['aggregate']['10']['latency_avg'] }}",
-              "{{ statDict['year']['aggregate']['11']['latency_avg'] }}","{{ statDict['year']['aggregate']['12']['latency_avg'] }}"]
-            },
-            {
-              label: 'Download',
-              hidden: false,
-              borderRadius: 3,
-              backgroundColor: ['rgba(55, 126, 184, 0.7)'],
-              borderColor: ['rgba(55, 126, 184, 1)'],
-              data: ["{{ statDict['year']['aggregate']['01']['download_avg'] }}", "{{ statDict['year']['aggregate']['02']['download_avg'] }}",
-              "{{ statDict['year']['aggregate']['03']['download_avg'] }}", "{{ statDict['year']['aggregate']['04']['download_avg'] }}",
-              "{{ statDict['year']['aggregate']['05']['download_avg'] }}", "{{ statDict['year']['aggregate']['06']['download_avg'] }}",
-              "{{ statDict['year']['aggregate']['07']['download_avg'] }}", "{{ statDict['year']['aggregate']['08']['download_avg'] }}",
-              "{{ statDict['year']['aggregate']['09']['download_avg'] }}", "{{ statDict['year']['aggregate']['10']['download_avg'] }}",
-              "{{ statDict['year']['aggregate']['11']['download_avg'] }}","{{ statDict['year']['aggregate']['12']['download_avg'] }}"]
-            },
-            {
-              label: 'Upload',
-              hidden: true,
-              borderRadius: 3,
-              backgroundColor: ['rgba(77, 175, 74, 0.7)'],
-              borderColor: ['rgba(77, 175, 74, 1)'],
-              data: ["{{ statDict['year']['aggregate']['01']['upload_avg'] }}", "{{ statDict['year']['aggregate']['02']['upload_avg'] }}",
-              "{{ statDict['year']['aggregate']['03']['upload_avg'] }}", "{{ statDict['year']['aggregate']['04']['upload_avg'] }}",
-              "{{ statDict['year']['aggregate']['05']['upload_avg'] }}", "{{ statDict['year']['aggregate']['06']['upload_avg'] }}",
-              "{{ statDict['year']['aggregate']['07']['upload_avg'] }}", "{{ statDict['year']['aggregate']['08']['upload_avg'] }}",
-              "{{ statDict['year']['aggregate']['09']['upload_avg'] }}", "{{ statDict['year']['aggregate']['10']['upload_avg'] }}",
-              "{{ statDict['year']['aggregate']['11']['upload_avg'] }}","{{ statDict['year']['aggregate']['12']['upload_avg'] }}"]
-          }      
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-      }
-    });
-
-    const statsChartAll = new Chart(ctxChartAll, {
-      type: 'bar',
-      data: {
-        labels: ['2021', '2022'],
-        datasets: [
-          {
-            label: 'Latency',
-            hidden: true,
-            borderRadius: 3,
-            backgroundColor: ['rgba(228, 26, 28, 0.7)'],
-            borderColor: ['rgba(228, 26, 28, 1)'],
-            data: ["{{ statDict['all']['aggregate']['2021']['latency_avg'] }}", "{{ statDict['all']['aggregate']['2022']['latency_avg'] }}"]
-            },
-            {
-              label: 'Download',
-              hidden: false,
-              borderRadius: 3,
-              backgroundColor: ['rgba(55, 126, 184, 0.7)'],
-              borderColor: ['rgba(55, 126, 184, 1)'],
-              data: ["{{ statDict['all']['aggregate']['2021']['download_avg'] }}", "{{ statDict['all']['aggregate']['2022']['download_avg'] }}"]
-            },
-            {
-              label: 'Upload',
-              hidden: true,
-              borderRadius: 3,
-              backgroundColor: ['rgba(77, 175, 74, 0.7)'],
-              borderColor: ['rgba(77, 175, 74, 1)'],
-              data: ["{{ statDict['all']['aggregate']['2021']['upload_avg'] }}", "{{ statDict['all']['aggregate']['2022']['upload_avg'] }}"]
-          }      
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
+        plugins: {
+          subtitle: {
+                display: true,
+                text: 'Aggregate Data',
+          }
+        },
       }
     });
   </script>
