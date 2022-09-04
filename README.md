@@ -6,7 +6,7 @@ https://starlinktrack.com
 
 ## Features
 ### Firmware
-As new firmware revisions are constantly released to the public, it made sense to maintain an updated list. This allows us to compare and curate notes for each revision.
+Firmware, software, and hardware versions are collected for historical purpose. This allows us to compare and curate notes for each revision.
 
 ### Speedtests
 Tracking the performance of any ISP is important for accountability, we make use of Speedtest.net's services to store results from users. Data is captured via the website form, the official [Discord](https://discord.gg/Rr2u4ystEe) channel, and through the all-in-one script (in development).
@@ -24,7 +24,7 @@ The existing [spreadsheet](https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qN
 
 ## Build from source
 1. Clone the repository
-2. Move into the directory `cd starlink-firmware-track`
+2. Move into the directory `cd starlink-data-tracker`
 3. Initialise a virtual environment `python -m venv venv`
 4. Activate the virtual environment, Linux: `source venv/bin/activate`
 5. Install requirements `pip install -r requirements.txt`
