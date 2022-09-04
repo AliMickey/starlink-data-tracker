@@ -37,7 +37,8 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
-    <p class="fs-3">{{ regionName }}</p>
+    <p class="fs-3 mb-0">{{ regionName }}</p>
+    <p class="fs-5">{{ statDict['current']['count'] }} results</p>
     <div class="col-md-6 mx-auto">
       <form method="POST">
         <div class="row">
