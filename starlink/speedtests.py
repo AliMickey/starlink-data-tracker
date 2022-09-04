@@ -94,6 +94,8 @@ def index(region):
         # Day
         periodStart = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day)
         periodEnd = datetime.datetime(todayDateTime.year, todayDateTime.month, todayDateTime.day, 23, 59, 59)
+        print(periodStart)
+        print(periodEnd)
         statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%H", [0, 24])
         statDict['labels'] = "12AM,1AM,2AM,3AM,4AM,5AM,6AM,7AM,8AM,9AM,10AM,11AM,12PM,1PM,2PM,3PM,4PM,5PM,6PM,7PM,8PM,9PM,10PM,11PM"
 
@@ -329,7 +331,7 @@ def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregate
         round(min(upload) / 1000, 0) as upload_min,
         round(max(upload) / 1000, 0) as upload_max,
         group_concat(upload / 1000, ",") as upload_sd
-        FROM speedtests WHERE date(date_run) BETWEEN ? AND ?
+        FROM speedtests WHERE date_run BETWEEN ? AND ?
         AND country in ({countries})
     ''', (currentPeriodStart, dateTimeNow)).fetchone())
     
