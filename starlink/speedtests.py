@@ -340,8 +340,6 @@ def getStats(countries, periodStart, periodEnd, strftimeCode, aggregateRange):
         AND country in ({countries})
     ''', (periodStart, periodEnd)).fetchone())
     
-    print(current["count"])
-    print(current['latency_sd'])
     if current["count"] == 0:
         # Rename None to No Data
         current = {x: "N/A" for x in current}
