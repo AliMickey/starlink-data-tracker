@@ -259,8 +259,20 @@
           subtitle: {
                 display: true,
                 text: 'Aggregate Data',
+          },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label.split(" ")[0];
+                if (label == "Latency") {unit = "ms"}
+                else if (label == "Download" || label == "Upload") {unit = "mbps"}
+                
+                label += ": " + context.parsed.y + " " + unit;
+                return [label];
+              }
+            }
           }
-        },
+        }
       }
     });
   </script>
