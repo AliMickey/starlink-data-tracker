@@ -128,7 +128,6 @@ def index(region):
         # Month
         periodStart = datetime.datetime(todayDateTime.year, todayDateTime.month, 1)  # Get first day of month
         periodEnd = datetime.datetime(todayDateTime.year + int(todayDateTime.month / 12), ((todayDateTime.month % 12) + 1), 1) # Get end of month (next month 00:00:00)
-        print(periodEnd)
         statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%d", [1, 32])
         statDict['labels'] = "1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31"
 
@@ -319,7 +318,7 @@ def add():
     return render_template('speedtest/add.html')
 
 # Function to calculate stats for provided region and period type
-def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregateRange):
+def getStats(countries, periodStart, periodEnd, strftimeCode, aggregateRange):
     db = get_db()
     current = {}
     aggregate = {}
@@ -339,13 +338,19 @@ def getStats(countries, currentPeriodStart, dateTimeNow, strftimeCode, aggregate
         group_concat(upload / 1000, ",") as upload_sd
         FROM speedtests WHERE date_run BETWEEN ? AND ?
         AND country in ({countries})
-    ''', (currentPeriodStart, dateTimeNow)).fetchone())
+    ''', (periodStart, periodEnd)).fetchone())
     
-    if current["count"] <= 1:
+    print(current["count"])
+    print(current['latency_sd'])
+    if current["count"] == 0:
         # Rename None to No Data
         current = {x: "N/A" for x in current}
-        current["count"] = 0
-            
+
+    elif current["count"] == 1:
+        # Set SD to N/A since more than one data point is needed
+        for metric in ["latency", "download", "upload"]: 
+            current[metric + "_sd"] = "N/A"
+    
     else:
         # Calculate standard deviation using returned group_concat string
         for metric in ["latency", "download", "upload"]: 
