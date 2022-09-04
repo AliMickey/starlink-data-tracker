@@ -23,7 +23,7 @@
           <tbody>
             {% for id, details in dishyListDict.items() %}
             <tr>
-              <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
+              <td>{{ details['dateAdded'] }}</td>
               <td>
                 {% if request.MOBILE == True %}
                     <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
@@ -61,7 +61,7 @@
           <tbody>
             {% for id, details in routerListDict.items() %}
             <tr>
-              <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
+              <td>{{ details['dateAdded'] }}</td>
               <td>
                 {% if request.MOBILE == True %}
                     <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
@@ -97,7 +97,7 @@
           <tbody>
             {% for id, details in appListDict.items() %}
             <tr>
-              <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
+              <td>{{ details['dateAdded'] }}</td>
               <td>
                 {% if request.MOBILE == True %}
                     <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
