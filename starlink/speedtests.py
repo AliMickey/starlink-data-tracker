@@ -92,8 +92,7 @@ def index(region):
     
     for row in listDB:
         id, url, date_run, country, latency, download, upload = row
-        convDate = datetime.datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
-        listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
+        listDict[id] = {'url': url, 'dateRun': date_run, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
     # Statistics
     todayDateTime = datetime.datetime.utcnow()
