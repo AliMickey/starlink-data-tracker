@@ -61,7 +61,7 @@ def register():
             error = "Username is required"
         elif userUsernameCheck == 1:
             error = "Username is already taken"
-        elif len(username) >= 10:
+        elif len(username) > 10:
             error = "Username must be a maximum of 10 characters"
         elif predict([username]) == 1:
             error = "Username contains profanity"
