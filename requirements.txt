@@ -8,7 +8,7 @@ beautifulsoup4
 pycountry
 pytz
 a-world-of-countries
-alt-profanity-check
+#alt-profanity-check
 
 # Discord Bot
 discord.py==2.0.0
