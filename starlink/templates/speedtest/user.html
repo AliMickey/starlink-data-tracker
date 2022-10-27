@@ -6,27 +6,32 @@
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
   <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/mapbox-gl.js') }}"></script>
   <script>
     $(document).ready(function() {
-        var table = $('#dataTable').DataTable({
-            "searching": true,
-            "ordering": true,
-            "order": [0, "dsc"],
-            "paging":  false,
-            "stateSave": false,
-        });
-        $('#tableSearch').keyup(function(){ 
-            var input = $(this).val();
-            // Hide all rows
-            $('#dataTable tbody tr').hide();
-            // Show each row that contains the input
-            var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
-            if(len > 0){
-            $('#dataTable tbody td:contains("' + input + '")').each(function(){
-                $(this).closest('tr').show();
-            });
-            };
-        });
+      var table = $('#dataTable').DataTable({
+        "searching": true,
+        "ordering": true,
+        "order": [0, "dsc"],
+        "paging":  true,
+        "pagingType": "simple",
+        "lengthMenu": [ 10, 25, 50, 100 ],
+        "info": true,
+        "stateSave": false,
+      });
+
+      $('#tableSearch').keyup(function(){ 
+        var input = $(this).val();
+        // Hide all rows
+        $('#dataTable tbody tr').hide();
+        // Show each row that contains the input
+        var len = $('table tbody td:nth-child(1):contains("' + input + '")').length;
+        if (len > 0){
+          $('#dataTable tbody td:contains("' + input + '")').each(function(){
+              $(this).closest('tr').show();
+          });
+        };
+      });
     });
   </script> 
 {% endblock %}
@@ -34,53 +39,131 @@
 {% block content %}
   <div class="col-11 text-center">
     <p class="fs-1 fw-bold">Starlink Speedtests</p>
-    <p class="fs-3">{{ username }}</p>
+    <p class="fs-3 mb-0">{{ username }}</p>
+    <p class="fs-5">{{ statDict['count'] }} results</p>
+    
+    <br><br>
+    <div class="row row-cols-1 row-cols-md-3 mb-3 g-4" id="statsText">
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-body">
+            <div class="col">
+              <p class="card-text fs-3 fw-bold text-nowrap">Latency</p>
+              <div class="row row-cols-3">
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
+                  <p class="card-text fs-5">{{ statDict['latency_min'] }} - {{ statDict['latency_max'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
+                  <p class="card-text fs-5">{{ statDict['latency_avg'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
+                  <p class="card-text fs-5">{{ statDict['latency_sd'] }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-body">
+            <div class="col">
+              <p class="card-text fs-3 fw-bold text-nowrap">Download</p>
+              <div class="row row-cols-3">
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
+                  <p class="card-text fs-5">{{ statDict['download_min'] }} - {{ statDict['download_max'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
+                  <p class="card-text fs-5">{{ statDict['download_avg'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
+                  <p class="card-text fs-5">{{ statDict['download_sd'] }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card shadow">
+          <div class="card-body">
+            <div class="col">
+              <p class="card-text fs-3 fw-bold text-nowrap">Upload</p>
+              <div class="row row-cols-3">
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Min - Max</p>
+                  <p class="card-text fs-5">{{ statDict['upload_min'] }} - {{ statDict['upload_max'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Average</p>
+                  <p class="card-text fs-5">{{ statDict['upload_avg'] }}</p>
+                </div>
+                <div class="col">
+                  <p class="card-text fs-5 fw-bold text-nowrap">Std Dev</p>
+                  <p class="card-text fs-5">{{ statDict['upload_sd'] }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div> 
+    </div>
+
+    <br><br>
 
     <div class="row">
       <div class="col">
-        <p class="fs-4">Recently Submitted</p>
-        <table class="table table-striped table-bordered" id="dataTable">
-          <thead>
-            <tr>
-              <th>Measured (UTC)</th>
-              <th>Country</th>
-              <th>Latency (ms)</th>
-              <th>Download (mbps)</th>
-              <th>Upload (mbps)</th>
-              <th>URL</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for id, details in listDict.items() %}
+        <p class="fs-4">Speedtest Results</p>
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered" id="dataTable">
+            <thead>
               <tr>
-                <td>
-                  <span>{{ details['dateRun'] }}</span>
-                </td>
-                <td>
-                  <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
-                </td>
-                <td>
-                  <span>{{ details['latency'] }}</span>
-                </td>
-                <td>
-                  <span>{{ details['download'] }}</span>
-                </td>
-                <td>
-                  <span>{{ details['upload'] }}</span>
-                </td>
-                <td>
-                  <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
-                </td>
+                <th>Measured (UTC)</th>
+                <th>Country</th>
+                <th>Latency (ms)</th>
+                <th>Download (mbps)</th>
+                <th>Upload (mbps)</th>
+                <th>URL</th>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>      
+            </thead>
+            <tbody>
+              {% for id, details in listDict.items() %}
+                <tr>
+                  <td>
+                    <span>{{ details['dateRun'] }}</span>
+                  </td>
+                  <td>
+                    <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
+                  </td>
+                  <td>
+                    <span>{{ details['latency'] }}</span>
+                  </td>
+                  <td>
+                    <span>{{ details['download'] }}</span>
+                  </td>
+                  <td>
+                    <span>{{ details['upload'] }}</span>
+                  </td>
+                  <td>
+                    <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}
 
 {% block scriptsBody %}
   <script src="{{ url_for('static', filename='js/jquery.dataTables.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/dataTables.bootstrap5.min.js') }}"></script> 
 {% endblock %}

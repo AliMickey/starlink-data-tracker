@@ -82,7 +82,7 @@ def index(region):
 
     # Convert list into string for sqlite to parse correctly
     countries = "'" + "','".join(list(map(str, countries))) + "'"
-    listDB = db.execute(f'''
+    listDb = db.execute(f'''
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
             WHERE country in ({countries})
@@ -90,7 +90,7 @@ def index(region):
             DESC LIMIT 10
             ''').fetchall()
     
-    for row in listDB:
+    for row in listDb:
         id, url, date_run, country, latency, download, upload = row
         listDict[id] = {'url': url, 'dateRun': date_run, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
@@ -171,24 +171,51 @@ def user(username):
     userId = db.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
 
     if userId:
-        listDB = db.execute('''
+        listDb = db.execute('''
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
             WHERE user_id = ?
-            ORDER BY date_run
-            DESC LIMIT 10
             ''', (userId)).fetchall()
 
-        for row in listDB:
+        for row in listDb:
             id, url, date_run, country, latency, download, upload = row
-            convDate = datetime.datetime.strptime(date_run, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
-            listDict[id] = {'url': url, 'dateRun': convDate, 'country': country, 'latency': latency, 'download': f'{download/1000:.1f}', 'upload': f'{upload/1000:.1f}'}
+            listDict[id] = {'url': url, 'dateRun': date_run, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
+        statDict = dict(db.execute(f'''SELECT count(id) as count,
+            round(avg(latency), 0) as latency_avg,
+            round(min(latency), 0) as latency_min,
+            round(max(latency), 0) as latency_max,
+            group_concat(latency, ",") as latency_sd,
+            round(avg(download) / 1000, 0) as download_avg,
+            round(min(download) / 1000, 0) as download_min,
+            round(max(download) / 1000, 0) as download_max,
+            group_concat(download / 1000, ",") as download_sd,
+            round(avg(upload) / 1000, 0) as upload_avg,
+            round(min(upload) / 1000, 0) as upload_min,
+            round(max(upload) / 1000, 0) as upload_max,
+            group_concat(upload / 1000, ",") as upload_sd
+            FROM speedtests WHERE user_id = ?
+        ''', (userId)).fetchone())
+
+        if statDict["count"] == 0:
+            # Rename None to No Data
+            statDict = {x: "N/A" for x in statDict}
+
+        elif statDict["count"] == 1:
+            # Set SD to N/A since more than one data point is needed
+            for metric in ["latency", "download", "upload"]: 
+                statDict[metric + "_sd"] = "N/A"
+        
+        else:
+            # Calculate standard deviation using returned group_concat string
+            for metric in ["latency", "download", "upload"]: 
+                statDict[metric + "_sd"] = round(statistics.stdev([int(s) for s in statDict[metric + "_sd"].split(',')]))
+
     else:
         flash("User not found", "warning")
         return redirect(url_for('speedtest.index'))
 
-    return render_template('speedtest/user.html', username=username, listDict=listDict)
+    return render_template('speedtest/user.html', username=username, listDict=listDict, statDict=statDict)
 
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])
@@ -267,7 +294,7 @@ def add():
                     url = url.replace("my-result", "result")
 
         # Continue if url is valid with base domain
-        if re.search('^https://www.speedtest.net/result/.\S*$', url):
+        if re.search('^https://www.speedtest.net/.\S*$', url):
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
                 try:

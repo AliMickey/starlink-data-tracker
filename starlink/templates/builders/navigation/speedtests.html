@@ -1,5 +1,8 @@
 <ul class="navbar-nav mb-2 mb-lg-0">
     <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.index') }}">Global</a></li>
+    {% if g.user %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.user', username=g.user['username']) }}">User</a></li>
+    {% endif %}
     <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.leaderboard') }}">Leaderboard</a></li>
     <li class="nav-item"><a class="nav-link" href="{{ url_for('speedtest.add') }}">Add</a></li>
 </ul>
