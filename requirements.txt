@@ -9,8 +9,6 @@ pycountry
 pytz
 a-world-of-countries
 alt-profanity-check
-numpy==1.23.2
-scikit-learn==1.1.0
 
 # Discord Bot
 discord.py
