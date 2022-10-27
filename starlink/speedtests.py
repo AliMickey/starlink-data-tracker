@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
-import re, requests, json, awoc, pycountry, pytz, math
+import re, requests, json, awoc, pycountry, pytz
 import datetime
 from bs4 import BeautifulSoup
 import statistics

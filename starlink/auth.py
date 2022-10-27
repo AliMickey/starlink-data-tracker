@@ -4,7 +4,6 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 import functools, re, uuid, requests, pytz
 from datetime import datetime, timedelta
-from profanity_check import predict
 
 # App imports
 from starlink.db import get_db
@@ -63,8 +62,6 @@ def register():
             error = "Username is already taken"
         elif len(username) > 10:
             error = "Username must be a maximum of 10 characters"
-        elif predict([username]) == 1:
-            error = "Username contains profanity"
         elif not password or not passwordRepeat:
             error = "Password is required"
         elif len(password) < 8:
