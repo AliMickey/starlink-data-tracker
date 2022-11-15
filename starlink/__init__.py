@@ -37,6 +37,9 @@ def create_app(test_config=None):
     from . import speedtests
     app.register_blueprint(speedtests.bp)
 
+    from . import network
+    app.register_blueprint(network.bp)
+
     from . import main
     app.register_blueprint(main.bp)
     app.add_url_rule('/', endpoint='index')
