@@ -11,9 +11,9 @@ bp = Blueprint('network', __name__, url_prefix='/network')
 # Dashboard for firmware page
 @bp.route('/')
 def index():
-    print(request.headers.get('cf-connecting-ip'))
+    ip = request.headers.get('cf-connecting-ip')
 
-    return render_template('network/index.html')
+    return render_template('network/index.html', ip=ip)
 
 # View to show all firmware versions for a specific hardware/software type
 @bp.route('/<string:listType>', methods = ['GET', 'POST'])
