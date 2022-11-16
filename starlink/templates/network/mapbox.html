@@ -30,6 +30,10 @@
   
   <script>
     mapboxgl.accessToken = "{{ mapboxKey }}";
+
+    const countriesIpv4 = "{{ countriesIpv4 }}".split(',');
+    const countriesIpv6 = "{{ countriesIpv6 }}".split(',');
+
     var mapIpv4 = new mapboxgl.Map({
       container: 'mapIpv4',
       style: 'mapbox://styles/mapbox/light-v10',
@@ -53,13 +57,11 @@
         'source-layer': 'country_boundaries',
         'paint': {
           'fill-color': '#627BC1',
-          'fill-opacity': 0.8
+          'fill-opacity': 0.7
         },
         filter: [
           "in",
-          "iso_3166_1",
-          '{{ countriesIpv4 }}'
-          ]
+          "iso_3166_1"].concat(countriesIpv4)
         });
       
       // Layer borders
@@ -73,9 +75,9 @@
           'line-color': '#627BC1',
           'line-width': 1.5
         }
-      });   
+      });  
     });
-
+ 
     var mapIpv6 = new mapboxgl.Map({
       container: 'mapIpv6',
       style: 'mapbox://styles/mapbox/light-v10',
@@ -99,13 +101,11 @@
         'source-layer': 'country_boundaries',
         'paint': {
           'fill-color': '#C77416',
-          'fill-opacity': 0.8
+          'fill-opacity': 0.7
         },
         filter: [
           "in",
-          "iso_3166_1",
-          '{{ countriesIpv6 }}'
-          ]
+          "iso_3166_1"].concat(countriesIpv6)
         });
       
       // Layer borders
