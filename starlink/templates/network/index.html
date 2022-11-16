@@ -9,7 +9,48 @@
 {% block content %}
   <div class="col-11 text-center"> 
     <p class="fs-1 fw-bold">Starlink Network</p>
-    <p>{{ip}}</p>
+    <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-title fs-5">IP Address</p>
+            <p class="card-text fs-3">{{ userNetwork['ip'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-title fs-5">ISP</p>
+            <p class="card-text fs-3">{{ userNetwork['isp'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-title fs-5">Point of Presence</p>
+            <p class="card-text fs-3">{{ userNetwork['pop'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <p class="card-title fs-5">Country</p>
+            <p class="card-text fs-3">{{ userNetwork['country'] }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title fs-5">City</h5>
+            <p class="card-text fs-3">{{ userNetwork['city'] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% endblock %}
 

@@ -65,7 +65,7 @@ def index(region):
 
     # Country
     else: # Get latest rows for specific country
-        regionCheck = pycountry.countries.get(alpha_2=region)  
+        regionCheck = pycountry.countries.get(alpha_2=region)
         if regionCheck:
             regionName = regionCheck.name
             countries = [region]
