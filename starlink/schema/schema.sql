@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS users_password_reset;
 DROP TABLE IF EXISTS users_api_keys;
 DROP TABLE IF EXISTS firmware;
 DROP TABLE IF EXISTS speedtests;
+DROP TABLE IF EXISTS network;
 
 CREATE TABLE users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,4 +59,12 @@ CREATE TABLE speedtests (
   distance INTEGER,
   user_id INTEGER,
   FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE network (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ip TEXT NOT NULL,
+  protocol_type TEXT NOT NULL,
+  date_seen TEXT,
+  country TEXT
 );

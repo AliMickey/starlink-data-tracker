@@ -9,7 +9,7 @@
 {% block content %}
   <div class="col-11 text-center"> 
     <p class="fs-1 fw-bold">Starlink Network</p>
-    <div class="row">
+    <div class="row mb-5">
       <div class="col">
         <div class="card">
           <div class="card-body">
@@ -29,7 +29,7 @@
       <div class="col">
         <div class="card">
           <div class="card-body">
-            <p class="card-title fs-5">Point of Presence</p>
+            <p class="card-title fs-5">PoP</p>
             <p class="card-text fs-3">{{ userNetwork['pop'] }}</p>
           </div>
         </div>
@@ -45,11 +45,17 @@
       <div class="col">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title fs-5">City</h5>
+            <p class="card-title fs-5">City</p>
             <p class="card-text fs-3">{{ userNetwork['city'] }}</p>
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="row mb-5">
+      <p class="fs-2"><span style="color: #627BC1">IPv4</span> / <span style="color: #C77416">IPv6</span></p>
+      <p class="fs-5">Global rollout progress</p>
+      <iframe src="{{ url_for('network.mapbox') }}" title="IPv4/IPv6 Rollout Map" height="900"></iframe>
     </div>
   </div>
 {% endblock %}
