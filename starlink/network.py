@@ -16,7 +16,6 @@ def index():
     cloudflareIp = request.headers.get('cf-connecting-ip')
     if cloudflareIp is None:
         cloudflareIp = "0.0.0.0"
-    cloudflareIp = "2803:9810:4000:0000:0000:0000:0000:0000" #temp
     geoIp = pd.read_csv('https://geoip.starlinkisp.net/feed.csv', names=['subnet', 'country', 'state', 'city', 'NaN'], header=None)
 
     for index, row in geoIp.iterrows():       
