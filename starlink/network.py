@@ -55,7 +55,7 @@ def mapbox():
         countryIpsDb = db.execute('SELECT ip, datetime(date_seen) FROM network WHERE protocol_type = ? AND country = ? ORDER BY date_seen DESC', ('ipv4', country[0])).fetchall()
         ips = []
         for ip in countryIpsDb:
-            ips.append([ip[0][:8] + ".XX", datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
+            ips.append(['.'.join(ip[0].split(".") [0:3]) + ".XX", datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
         ipv4CountryData[country[0]] = ips
 
     countriesIpv4 = countriesIpv4[:-1]

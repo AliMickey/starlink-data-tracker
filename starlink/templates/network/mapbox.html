@@ -136,27 +136,29 @@
       for(var i = 0; i < countryData.length; i++) {
         tableBody += 
         `
-        <tr> \
-          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text"> \
-            ${countryData[i][0]} \
-          </td> \
-          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text"> \
-            ${countryData[i][1]} \
+        <tr>
+          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text">
+            ${countryData[i][0]}
+          </td>
+          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text">
+            ${countryData[i][1]}
           </td>
         </tr>
         `
       }
       var html = 
       `
-      <table style="border: 1px solid black;border-collapse: collapse;"> \
-        <thead> \
-          <th style="border: 1px solid black;border-collapse: collapse;">IP Prefix</th> \
-          <th style="border: 1px solid black;border-collapse: collapse;">Last Seen</th> \
-        </thead> \
-        <tbody> \
-          ${tableBody}
-        </tbody> \
-      </table> \
+      <div style="overflow-y: scroll !important;max-height: 400px;">
+        <table style="border: 1px solid black;border-collapse: collapse;">
+          <thead>
+            <th style="border: 1px solid black;border-collapse: collapse;">IP Prefix</th>
+            <th style="border: 1px solid black;border-collapse: collapse;">Last Seen</th>
+          </thead>
+          <tbody>
+            ${tableBody}
+          </tbody>
+        </table>
+      </div>
       `
       new mapboxgl.Popup()
         .setLngLat(e.lngLat)
