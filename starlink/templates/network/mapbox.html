@@ -1,23 +1,30 @@
-{% block title %}Network - Mapbox{% endblock %}
-{% set dataType = "network" %}
-
-{% block scriptsHead %}
-  <script src="{{ url_for('static', filename='js/mapbox-gl.js') }}"></script>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/mapbox-gl.css') }}"/>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Starlink Data Tracker - Network - Mapbox</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.css" rel="stylesheet">
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.11.0/mapbox-gl.js"></script>
   <style>
+    body { margin: 0; padding: 0; }
     #map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
-{% endblock %}
-
-{% block content %}
-    <div id="comparison-container">
-        <div id="mapIpv4" class="map"></div>
-        <div id="mapIpv6" class="map"></div>
-    </div>
-{% endblock %}
-
-{% block scriptsBody %}
-  <style>       
+  </style>
+</head>
+<body>
+  <style>
+    body {
+      overflow: hidden;
+    }
+    
+    body * {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+    
     .map {
       position: absolute;
       top: 0;
@@ -25,11 +32,24 @@
       width: 100%;
     }
   </style>
+
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.js"></script>
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.4.0/mapbox-gl-compare.css" type="text/css">
   
+  <div id="comparison-container">
+    <div id="mapIpv4" class="map"></div>
+    <div id="mapIpv6" class="map"></div>
+  </div>
+  
   <script>
     mapboxgl.accessToken = "{{ mapboxKey }}";
+    let hoveredStateId = null;
+
+    var countriesIpv4 = "{{ countriesIpv4 }}".split(",");
+    var countriesIpv6 = "{{ countriesIpv6 }}".split(",");
+    var ipv4CountryData = JSON.parse("{{ ipv4CountryData|safe }}".replaceAll(`'`, `"`))
+    // var ipv6CountryData = JSON.parse("{{ ipv6CountryData|safe }}".replaceAll(`'`, `"`))
+
     var mapIpv4 = new mapboxgl.Map({
       container: 'mapIpv4',
       style: 'mapbox://styles/mapbox/light-v10',
@@ -44,7 +64,7 @@
         'type': 'vector',
         'url': "mapbox://mapbox.country-boundaries-v1",
         });
-
+      
       // Layer colour fills
       mapIpv4.addLayer({
         'id': 'countries-fills',
@@ -53,12 +73,17 @@
         'source-layer': 'country_boundaries',
         'paint': {
           'fill-color': '#627BC1',
-          'fill-opacity': 0.8
+          'fill-opacity': [
+            'case',
+              ['boolean', ['feature-state', 'hover'], false],
+              0.1,
+              0.5 
+          ]
         },
         filter: [
           "in",
-          "iso_3166_1",
-          '{{ countriesIpv4 }}'
+          ["get", "iso_3166_1"],
+          ["literal", countriesIpv4]
           ]
         });
       
@@ -74,6 +99,69 @@
           'line-width': 1.5
         }
       });   
+    });
+
+    // On move listener for layers
+    mapIpv4.on('mousemove', 'countries-fills', (e) => {
+      if (e.features.length > 0) {
+        if (hoveredStateId !== null) {
+          mapIpv4.setFeatureState(
+            { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+            { hover: false }
+          );
+        }
+        hoveredStateId = e.features[0].id;
+        mapIpv4.setFeatureState(
+          { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId },
+          { hover: true }
+        )
+      }
+    });
+
+    // On mouse leave listener for layers
+    mapIpv4.on('mouseleave', 'countries-fills', () => {
+      if (hoveredStateId !== null) {
+        mapIpv4.setFeatureState(
+          { source: 'countries', sourceLayer: 'country_boundaries', id: hoveredStateId},
+          { hover: false }
+        );
+      }
+      hoveredStateId = null;
+    });
+
+    // Click listener for layers
+    mapIpv4.on("click", 'countries-fills', function(e) {
+      const countryData = ipv4CountryData[e.features[0].properties.iso_3166_1]
+      var tableBody = ""
+      for(var i = 0; i < countryData.length; i++) {
+        tableBody += 
+        `
+        <tr> \
+          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text"> \
+            ${countryData[i][0]} \
+          </td> \
+          <td style="border: 1px solid black;border-collapse: collapse;padding: 5px;cursor: text;user-select: text"> \
+            ${countryData[i][1]} \
+          </td>
+        </tr>
+        `
+      }
+      var html = 
+      `
+      <table style="border: 1px solid black;border-collapse: collapse;"> \
+        <thead> \
+          <th style="border: 1px solid black;border-collapse: collapse;">IP</th> \
+          <th style="border: 1px solid black;border-collapse: collapse;">Last Seen</th> \
+        </thead> \
+        <tbody> \
+          ${tableBody}
+        </tbody> \
+      </table> \
+      `
+      new mapboxgl.Popup()
+        .setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(mapIpv4);
     });
 
     var mapIpv6 = new mapboxgl.Map({
@@ -103,8 +191,8 @@
         },
         filter: [
           "in",
-          "iso_3166_1",
-          '{{ countriesIpv6 }}'
+          ["get", "iso_3166_1"],
+          ["literal", countriesIpv6]
           ]
         });
       
@@ -128,4 +216,5 @@
       // mousemove: true
     });
   </script>
-{% endblock %}
+</body>
+</html>
