@@ -13,6 +13,8 @@ Firmware, software, and hardware versions are collected for historical purpose. 
 ### Speedtests
 Tracking the performance of any ISP is important for accountability, we make use of Speedtest.net's services to store results from users. Data is captured via the website form, the official [Discord](https://discord.gg/Rr2u4ystEe) channel, and through the all-in-one script (in development).
 
+### Network
+An easy way to check your IP address, Point of Presence and region. Complemented with a global rollout map of IPv4 & IPv6.
 
 ## Motivation
 The existing [spreadsheet](https://docs.google.com/spreadsheets/d/1nsdLZ34VVX1qNVlDlAErzLov-fb_ZWgpYAQJWp_W8ic) solution was cumbersome and very messy.
