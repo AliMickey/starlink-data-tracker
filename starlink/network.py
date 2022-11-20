@@ -52,10 +52,10 @@ def mapbox():
     countriesIpv4Db = db.execute('SELECT DISTINCT country FROM network WHERE protocol_type = ?', ('ipv4',)).fetchall()
     for country in countriesIpv4Db:
         countriesIpv4 += country[0] + ","
-        countryIpsDb = db.execute('SELECT ip, datetime(date_seen) FROM network WHERE protocol_type = ? AND country = ? ORDER BY date_seen DESC', ('ipv4', country[0],)).fetchall()
+        countryIpsDb = db.execute('SELECT ip, datetime(date_seen) FROM network WHERE protocol_type = ? AND country = ? ORDER BY date_seen DESC', ('ipv4', country[0])).fetchall()
         ips = []
         for ip in countryIpsDb:
-            ips.append([ip[0], datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
+            ips.append([ip[0][:8] + ".XX", datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
         ipv4CountryData[country[0]] = ips
 
     countriesIpv4 = countriesIpv4[:-1]
@@ -63,18 +63,17 @@ def mapbox():
     countriesIpv6Db = db.execute('SELECT DISTINCT country FROM network WHERE protocol_type = ?', ('ipv6',)).fetchall()
     for country in countriesIpv6Db:
         countriesIpv6 += country[0] + ","
-        countryIpsDb = db.execute('SELECT ip, datetime(date_seen) FROM network WHERE protocol_type = ? AND country = ?', ('ipv6', country[0],)).fetchall()
+        countryIpsDb = db.execute('SELECT ip, datetime(date_seen) FROM network WHERE protocol_type = ? AND country = ? ORDER BY date_seen DESC', ('ipv6', country[0])).fetchall()
         ips = []
         for ip in countryIpsDb:
-            ips.append([ip[0], datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
+            ips.append([ip[0][:14] + ":XXXX", datetime.datetime.strptime(ip[1], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")])
         ipv6CountryData[country[0]] = ips
 
     countriesIpv6 = countriesIpv6[:-1]   
 
     mapboxKey = current_app.config['MAPBOX_KEY']
 
-    return render_template('network/mapbox.html', mapboxKey=mapboxKey, countriesIpv4=countriesIpv4, countriesIpv6=countriesIpv6, ipv4CountryData=ipv4CountryData)
-
+    return render_template('network/mapbox.html', mapboxKey=mapboxKey, countriesIpv4=countriesIpv4, countriesIpv6=countriesIpv6, ipv4CountryData=ipv4CountryData, ipv6CountryData=ipv6CountryData)
 
 # Function to update db with most recent user IP
 def checkDatabase(ip, country):
