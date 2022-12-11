@@ -4,7 +4,8 @@ Community maintained database for Starlink data.
 
 https://starlinktrack.com
 
-![image](https://user-images.githubusercontent.com/60691199/195441965-4227e51f-0e3f-4241-852b-7755f7e9b984.png)
+![image](https://user-images.githubusercontent.com/60691199/206889964-3fc4651e-7e67-41b7-b845-299589c6a2e3.png)
+
 
 ## Features
 ### Firmware
