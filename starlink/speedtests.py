@@ -1,10 +1,9 @@
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
-import re, requests, json, awoc, pycountry, pytz
-import datetime
+import re, requests, json, awoc, pycountry, pytz, datetime, statistics
+from time import sleep
 from bs4 import BeautifulSoup
-import statistics
 
 # App imports
 from starlink.db import get_db
@@ -289,6 +288,10 @@ def add():
 
         urls = urls.strip().split(',')
 
+        sleepTime = 0
+        if len(urls) > 5:
+            sleepTime = 2
+
         for url in urls:
             # Convert into clean url
             if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
@@ -332,6 +335,8 @@ def add():
                     error = "Speedtest result already exists."
             else:
                 error = "URL must be in `https://www.speedtest.net/result/` format as a standalone message."
+
+            sleep(sleepTime) # Sleep to not get rate limited
 
         if error is None:
             if source == "website-official":
