@@ -8,14 +8,14 @@
 
 {% block content %}
   <div class="col-md-4">
-    <p class="fs-2">Add a New Speedtest</p>
+    <p class="fs-2">Add Speedtest Result</p>
     <p class="fs-6">You can run a speedtest at <a class="text-decoration-none" href="https://speedtest.net" target="_blank">speedtest.net</a></p>
-    <p class="fs-6">Please do NOT cherry pick your results. Ensure to add any/all results to reduce bias.</p>
+    <p class="fs-6">Please do NOT cherry pick your results. Ensure to add any/all results to reduce bias. You may submit multiple results by seperating with a comma.</p>
     <br>
     <form method="POST" id="addSpeedTestForm">
       <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="url" name="url" maxLength="200" placeholder="https://speedtest.net/result/" pattern="^https://www.speedtest.net/.\S*$" required>
-        <label for="url">URL</label>
+        <input type="text" class="form-control" id="urls" name="urls" placeholder="https://speedtest.net/result/" required>
+        <label for="urls">URL</label>
       </div>
       <input type="text" id="source" name="source" value="website-official" hidden>
       <div class="mb-3">
