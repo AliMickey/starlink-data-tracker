@@ -286,8 +286,8 @@ def add():
             else: # Either website form or external POST (source is classified as website as external POST without an API key is rare)
                 userId = None
                 source = "website-official"
-        
-        urls = urls.split(',')
+
+        urls = urls.strip().split(',')
 
         for url in urls:
             # Convert into clean url
