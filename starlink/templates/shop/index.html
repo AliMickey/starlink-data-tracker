@@ -1,0 +1,101 @@
+{% extends 'builders/base.html' %}
+
+{% block title %}Shop{% endblock %}
+{% set dataType = "shop" %}
+
+{% block scriptsHead %}
+{% endblock %}
+
+{% block content %}
+  <div class="col-11 text-center"> 
+    <p class="fs-1 fw-bold">Starlink Shop</p>
+      <p class="fs-5">Not affiliated with Starlink. As an Amazon Associate, we earn from qualifying purchases. This means that when you click on product links on this site and make a purchase, we may receive a small commission at no extra cost to you. Thank you for supporting this website.</p>
+    <br><br><br>
+
+    <div class="row row-cols-2 row-cols-md-5 mb-5 g-4">
+      <div class="col">
+        <div class="card">       
+          <img src="{{ url_for('static', filename='img/shop/short-wall-mount.jpg') }}" class="card-img" alt="short-wall-mount">
+          <div class="card-footer"><p class="fs-5">Short Wall Mount</p></div>
+          <a class="stretched-link" href="https://amzn.to/3rQc0ea" target="_blank"></a>
+        </div>
+      </div>
+      
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/long-wall-mount.jpg') }}" class="card-img" alt="long-wall-mount">
+          <div class="card-footer"><p class="fs-5">Long Wall Mount</p></div>
+          <a class="stretched-link" href="https://amzn.to/3QpnRKx" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/pipe-adaptor.jpg') }}" class="card-img" alt="pipe-adaptor">
+          <div class="card-footer"><p class="fs-5">Pipe Adapter</p></div>
+          <a class="stretched-link" href="https://amzn.to/3DHz6Gh" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/replacement-cable-v2.jpg') }}" class="card-img" alt="replacement-cable-v2">
+          <div class="card-footer"><p class="fs-5">Replacement Cable V2</p></div>
+          <a class="stretched-link" href="https://amzn.to/3q4y9oC" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/ethernet-adaptor.jpg') }}" class="card-img" alt="ethernet-adaptor">
+          <div class="card-footer"><p class="fs-5">Ethernet Adaptor</p></div>
+          <a class="stretched-link" href="https://amzn.to/3YexJbD" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/cable-routing-kit.jpg') }}" class="card-img" alt="cable-routing-kit">
+          <div class="card-footer"><p class="fs-5">Cable Routing Kit</p></div>
+          <a class="stretched-link" href="https://amzn.to/3YcpmNW" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/pivot-mount.jpg') }}" class="card-img" alt="pivot-mount">
+          <div class="card-footer"><p class="fs-5">Pivot Mount</p></div>
+          <a class="stretched-link" href="https://amzn.to/3YbkoRD" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/router-wall-mount.jpg') }}" class="card-img" alt="router-wall-mount">
+          <div class="card-footer"><p class="fs-5">Router Wall Mount</p></div>
+          <a class="stretched-link" href="https://amzn.to/3rWLLCD" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/hard-carry-bag.jpg') }}" class="card-img" alt="hard-carry-bag">
+          <div class="card-footer"><p class="fs-5">Hard Carry Bag</p></div>
+          <a class="stretched-link" href="https://amzn.to/3DyY2Qz" target="_blank"></a>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/shop/cable-protective-cover.jpg') }}" class="card-img" alt="cable-protective-cover">
+          <div class="card-footer"><p class="fs-5">Cable Protective Cover</p></div>
+          <a class="stretched-link" href="https://amzn.to/3OBAv7G" target="_blank"></a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}
+
+{% block scriptsBody %}
+{% endblock %}

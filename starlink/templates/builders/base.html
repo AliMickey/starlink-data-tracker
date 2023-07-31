@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
     <head>
         <title>Starlink Track - {% block title %}{% endblock %}</title>
         <meta charset="utf-8">
@@ -25,7 +25,8 @@
     <body>
         <div class="container-fluid">
             <div class="row">
-                <nav class="navbar navbar-expand-md navbar-light bg-light">
+                <!-- navbar-light bg-light -->
+                <nav class="navbar navbar-expand-md px-3"> 
                     <a class="navbar-brand" href="{{ url_for('main.index') }}">
                         <img src="{{ url_for('static', filename='img/logos/starlink-data-tracker.png') }}" alt="" width="40">
                     </a>
@@ -64,6 +65,30 @@
             </div>
         </div>
         <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+        <script>
+            $(document).ready(function () {
+                console.log( "ready!" );
+                const getStoredTheme = localStorage.getItem('theme')
+                if (getStoredTheme) {
+                    document.documentElement.setAttribute('data-bs-theme', getStoredTheme)
+                }
+
+            });
+        </script>
+        <script>
+            function toggleTheme() {
+                const currentTheme = document.documentElement.getAttribute('data-bs-theme')     
+                if (currentTheme == 'light') {
+                    document.documentElement.setAttribute('data-bs-theme', 'dark')
+                    localStorage.setItem('theme', 'dark')
+                }
+                else {
+                    document.documentElement.setAttribute('data-bs-theme', 'light')
+                    localStorage.setItem('theme', 'light')
+                }
+            }
+        </script>
+
         {% block scriptsBody %} {% endblock %}
     </body>
 </html>

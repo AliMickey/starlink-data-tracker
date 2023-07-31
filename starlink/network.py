@@ -9,7 +9,7 @@ from starlink.db import get_db
 
 bp = Blueprint('network', __name__, url_prefix='/network')
 
-# Dashboard for firmware page
+# Dashboard for network page
 @bp.route('/')
 def index():
     db = get_db()
