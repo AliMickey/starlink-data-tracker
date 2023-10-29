@@ -5,7 +5,7 @@ Flask-Limiter==3.5.0
 Flask-Mobility==1.1.0
 schedule
 beautifulsoup4
-pycountry
+pycountry==22.3.5
 pytz
 a-world-of-countries
 pandas
