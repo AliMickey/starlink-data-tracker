@@ -1,6 +1,5 @@
 import os
 from flask import Flask
-
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_mobility import Mobility
@@ -25,25 +24,25 @@ def create_app(test_config=None):
     # from . import scheduler
     # app.before_first_request(scheduler.schedInitJobs)
 
-    from . import db
+    from app.functions import db
     db.init_app(app)
 
-    from . import auth
+    from app.views import auth
     app.register_blueprint(auth.bp)
 
-    from . import firmware
+    from app.views import firmware
     app.register_blueprint(firmware.bp)
 
-    from . import speedtests
+    from app.views import speedtests
     app.register_blueprint(speedtests.bp)
 
-    from . import network
+    from app.views import network
     app.register_blueprint(network.bp)
 
-    from . import shop
+    from app.views import shop
     app.register_blueprint(shop.bp)
 
-    from . import main
+    from app.views import main
     app.register_blueprint(main.bp)
     app.add_url_rule('/', endpoint='index')
 

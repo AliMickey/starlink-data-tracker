@@ -2,9 +2,6 @@ from flask import (
     Blueprint, render_template, send_file, current_app, make_response, request
 )
 
-# App imports
-from starlink.notifications import sendEmail
-
 bp = Blueprint('main', __name__)
 
 @bp.route('/')

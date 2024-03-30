@@ -1,8 +1,6 @@
 import discord, os, re, requests
 from dotenv import load_dotenv
 from discord.ext import commands
-#from aiohttp import web
-#import json
 
 load_dotenv()
 discordToken = os.getenv('DISCORD_BOT_TOKEN')
@@ -31,26 +29,5 @@ async def on_message(message):
                 #r = requests.post(url = "http://127.0.0.1:5000/speedtests/add", data = {'bot': True, 'url': messageData}) # Development
                 await message.reply(r.text)
 
-# async def newFirmware(request):
-#     try:
-#         ## happy path where name is set
-#         firmware = request.query['firmware']
-#         ## Process our new user
-#         print(firmware)
-
-#         response_obj = { 'status' : 'success' }
-#         ## return a success json response with status code 200 i.e. 'OK'
-#         return web.Response(text=json.dumps(response_obj), status=200)
-#     except Exception as e:
-#         ## Bad path where name is not set
-#         response_obj = { 'status' : 'failed', 'reason': str(e) }
-#         ## return failed with a status code of 500 i.e. 'Server Error'
-#         return web.Response(text=json.dumps(response_obj), status=500)
-
-
-# app = web.Application()
-# app.router.add_post('/new-firmware', newFirmware)
-
-# web.run_app(app)
                 
 bot.run(discordToken)

@@ -6,17 +6,10 @@ from time import sleep
 from bs4 import BeautifulSoup
 
 # App imports
-from starlink.db import get_db
+from app.functions.db import get_db
 
 bp = Blueprint('speedtest', __name__, url_prefix='/speedtests')
 
-requestHeaders = {
-        'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36',
-    }
-
-speedtestPeriods = ['day', 'week', 'month', 'year', 'all']
-continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceania', 'south_america']
-regionData = awoc.AWOC()
 
 # View to show the index page of speedtest results & stats
 @bp.route('/', methods = ['GET', 'POST'], defaults={'region': 'global'})
@@ -27,6 +20,8 @@ def index(region):
     region = region.replace(' ', '_').lower()
     listDict = {}
     statDict = {}
+    regionData = awoc.AWOC()
+    continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceania', 'south_america']
 
     if request.method == 'POST':
         period = request.form['period']
@@ -75,7 +70,7 @@ def index(region):
             flash("Supplied region code is incorrect.", "warning")
             return redirect(url_for('speedtest.index'))
 
-    period = request.args.get('period', default = 'day', type = str)
+    period = request.args.get('period', default = 'year', type = str)
     timezone = request.args.get('timezone', default = 'UTC', type = str)
     filters = {'period': period, 'timezone': timezone}
 
@@ -94,7 +89,7 @@ def index(region):
         listDict[id] = {'url': url, 'dateRun': date_run, 'country': country, 'latency': latency, 'download': f'{download / 1000:.1f}', 'upload': f'{upload / 1000:.1f}'}
     
     # Statistics
-    todayDateTime = datetime.datetime.utcnow()
+    todayDateTime = datetime.datetime.now(datetime.UTC)
 
     if period == "day":
         # Day
@@ -304,7 +299,7 @@ def add():
                 dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
                 if dbCheck == 0: # If speedtest result does not exist in db
                     try:
-                        response = requests.get(url, timeout=5, headers=requestHeaders)
+                        response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
                         page_html = BeautifulSoup(response.text, 'html.parser')
                         scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))[::-1] # Reverse list to improve speed because data script is at the end of <head>
                         dataScript = None
@@ -322,7 +317,7 @@ def add():
                                     error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
                                 else: # Add speedtest                                 
                                     db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                        (datetime.datetime.utcnow(), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                                        (datetime.datetime.now(datetime.UTC), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                                     db.commit()
                             else:
                                 error = "Speedtest was not run on Starlink."

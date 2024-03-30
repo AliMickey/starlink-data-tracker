@@ -1,2 +1,2 @@
-export FLASK_APP=starlink
+export FLASK_APP=app
 flask run --debug --port 5001

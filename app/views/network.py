@@ -1,11 +1,11 @@
 from flask import (
-    Blueprint, flash, redirect, render_template, request, abort, url_for, current_app, g
+    Blueprint, render_template, request, current_app
 )
-import ipaddress, pycountry, socket, re, datetime, json
+import ipaddress, pycountry, socket, re, datetime
 import pandas as pd
 
 # App imports
-from starlink.db import get_db
+from app.functions.db import get_db
 
 bp = Blueprint('network', __name__, url_prefix='/network')
 
@@ -85,7 +85,7 @@ def checkDatabase(ip, country):
     else:
         protocolType = "ipv6"
 
-    dateNow = datetime.datetime.utcnow()
+    dateNow = datetime.datetime.now(datetime.UTC)
     
     # Check if IP already exists, if so update country code. Otherwise insert new entry
     dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM network WHERE ip = ? LIMIT 1)', (ip,)).fetchone()[0]

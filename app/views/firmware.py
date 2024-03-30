@@ -2,12 +2,11 @@ from flask import (
     Blueprint, flash, redirect, render_template, request, abort, url_for, current_app, g
 )
 from discord_webhook import DiscordWebhook, DiscordEmbed
-import re
-from datetime import datetime
+import re, datetime
 
 # App imports
-from starlink.db import get_db
-from starlink.auth import login_required
+from app.functions.db import get_db
+from app.views.auth import login_required
 
 bp = Blueprint('firmware', __name__, url_prefix='/firmware')
 
@@ -114,9 +113,9 @@ def add():
             error = "Invalid list type"
 
         if error is None:
-            db.execute('INSERT INTO firmware (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.utcnow(), listType, version, redditThread))
+            db.execute('INSERT INTO firmware (date_added, type, version_info, reddit_thread) VALUES (?, ?, ?, ?)', (datetime.datetime.now(datetime.UTC), listType, version, redditThread))
             db.commit()
-            sendNotification(version, listType, redditThread)
+            sendNotification(version, listType)
             return redirect(url_for('firmware.list', listType=listType))
 
         else:
@@ -140,13 +139,13 @@ def getFirmwareData(listType, range=-1):
 
     for row in rowData:
         id, date_added, version, reddit = row
-        convDate = datetime.strptime(date_added, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
+        convDate = datetime.datetime.strptime(date_added, "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")
         listDict[id] = {'dateAdded': convDate, 'dateTimeAdded': date_added, 'id': id, 'version': version, 'reddit': reddit}
 
     return listDict
 
 # Function to send a notification to Starlink Discord channel
-def sendNotification(version, type, reddit):
+def sendNotification(version, type):
     webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
     hostDomain = url_for('index', _external=True)
     embed = DiscordEmbed(title=version, description=f"[starlinktrack.com]({hostDomain}firmware/{type})", color=242424)

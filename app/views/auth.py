@@ -2,12 +2,11 @@ from flask import (
     Blueprint, current_app, g, redirect, render_template, request, session, url_for, flash
 )
 from werkzeug.security import check_password_hash, generate_password_hash
-import functools, re, uuid, requests, pytz
-from datetime import datetime, timedelta
+import functools, re, uuid, requests, pytz, datetime
 
 # App imports
-from starlink.db import get_db
-from starlink.notifications import sendEmail
+from app.functions.db import get_db
+from app.functions.notifications import sendEmail
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -148,7 +147,7 @@ def account():
             if error is None:
                 apiKey = str(uuid.uuid1())
                 db.execute('INSERT INTO users_api_keys (key, date_time, source, name, use_counter, user_id) VALUES (?, ?, ?, ?, ?, ?)', 
-                        (apiKey, datetime.utcnow(), 'script-official', apiKeyName, 0, g.user['id']))
+                        (apiKey, datetime.datetime.now(datetime.UTC), 'script-official', apiKeyName, 0, g.user['id']))
                 db.commit()
 
         elif request.form["btn"] == "api-key-delete": # Delete specified api key for user
@@ -195,7 +194,7 @@ def forgotPassword():
             if user:
                 userID = user['id']
                 # Allow only two password reset requests per day
-                datePastDay = datetime.utcnow() - timedelta(days=1)
+                datePastDay = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
                 resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.utcnow())).fetchone()            
                 if resetPassCount[0] < 2:
                     # Generate and send a new key
@@ -267,11 +266,10 @@ def logout():
     session.clear()
     return redirect(url_for('main.index'))
 
-
 # Function to check if reset password key is still valid       
 def checkPasswordResetValidity(genTime, activated):
-    generatedDateTime = datetime.strptime(genTime, "%Y-%m-%d %H:%M:%S")
-    nowDateTime = datetime.utcnow()
+    generatedDateTime = datetime.datetime.strptime(genTime, "%Y-%m-%d %H:%M:%S")
+    nowDateTime = datetime.datetime.now(datetime.UTC)
     # Calculate time period between present and key generation
     diffSeconds = ((nowDateTime.hour * 60 + nowDateTime.minute) * 60 + nowDateTime.second) - ((generatedDateTime.hour * 60 + generatedDateTime.minute) * 60 + generatedDateTime.second)
     if (activated == 0 and diffSeconds < 86400):
