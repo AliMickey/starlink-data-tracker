@@ -1,0 +1,15 @@
+services:
+  web-starlink:
+    container_name: web-starlink
+    build: .
+    restart: unless-stopped
+    networks:
+      - apps
+    expose:
+      - 80
+    volumes:
+      - ./:/app
+
+networks:
+  apps:
+    external: true
