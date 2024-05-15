@@ -72,7 +72,7 @@ def register():
             db.execute(
                 'INSERT INTO users (email, username, password, role) VALUES (?, ?, ?, ?)', (email, username, generate_password_hash(password), "user"))
             db.commit()
-            sendEmail(email, "Welcome to Starlink Data Tracker", f"Hi {username}, welcome to Starlink Data Tracker.")
+            #sendEmail(email, "Welcome to Starlink Data Tracker", f"Hi {username}, welcome to Starlink Data Tracker.")
             flash("User registered successfully", "success")
             return redirect(url_for('auth.login'))
         else:
