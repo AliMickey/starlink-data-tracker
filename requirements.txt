@@ -1,3 +1,4 @@
+# Web App
 Flask
 gunicorn
 discord_webhook
@@ -10,7 +11,3 @@ pytz
 a-world-of-countries
 pandas
 numpy
-
-# Discord Bot
-discord.py
-python-dotenv
