@@ -284,7 +284,7 @@ def add():
         #urls = urls.strip().split(',')
         
         # Find all valid speedtest result and split into array
-        urlPattern = re.compile(r'https:\/\/www\.speedtest\.net\/result\/(?:i\/|d\/)?[0-9a-zA-Z\-]+(?:\.png)?')
+        urlPattern = re.compile(r'https:\/\/www\.speedtest\.net\/(?:result|i|my-result|[a-z])\/(?:[a-z]\/)?[0-9a-zA-Z\-]+(?:\.png)?')
         urls = urlPattern.findall(urls)
 
         sleepTime = 0
