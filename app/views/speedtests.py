@@ -256,8 +256,16 @@ def add():
     source = ""
 
     if request.method == 'POST':
-        urls = request.form['urls']
-        apiKey = request.form.get('api-key')
+        if request.args.get('api-key'):
+            apiKey = request.args.get('api-key')
+        elif request.form.get('api-key'):
+            apiKey = request.form.get('api-key')
+
+        if request.form.get('speedtest_url'):
+            urls = [request.form['speedtest_url']]
+        else:
+            urls = request.form['urls']
+
         if apiKey:
             apiDetails = db.execute('SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
             if apiDetails: # If the supplied api key is valid
