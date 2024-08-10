@@ -179,7 +179,7 @@ def user(username):
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
             WHERE user_id = ?
-            ''', (userId,)).fetchall()
+            ''', (userId[0],)).fetchall()
 
         for row in listDb:
             id, url, date_run, country, latency, download, upload = row
