@@ -7,7 +7,6 @@ schedule
 beautifulsoup4
 pycountry
 pytz
-a-world-of-countries
 pandas
 numpy
 

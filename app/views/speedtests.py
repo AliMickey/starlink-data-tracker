@@ -1,7 +1,7 @@
 from flask import (
     Blueprint, current_app, render_template, request, flash, redirect, url_for, g
 )
-import re, requests, json, awoc, pycountry, pytz, datetime, statistics
+import re, requests, json, pycountry, pytz, datetime, statistics
 from time import sleep
 from bs4 import BeautifulSoup
 
@@ -20,7 +20,6 @@ def index(region):
     region = region.replace(' ', '_').lower()
     listDict = {}
     statDict = {}
-    regionData = awoc.AWOC()
     continents = ['africa', 'antarctica', 'asia', 'europe', 'north_america', 'oceania', 'south_america']
 
     if request.method == 'POST':
@@ -32,14 +31,25 @@ def index(region):
     # Global
     if region == "global": # Get latest rows for every country
         regionName = region.capitalize() # Prettify region name
-        countries = [d['ISO2'].lower() for d in regionData.get_countries()]
+        countries = [c.alpha_2.lower() for c in pycountry.countries]
         timezones = pytz.common_timezones
         timezone = "UTC"
         
     # Continent
     elif region in continents:
         regionName = region.replace('_', ' ').title() # Prettify region name
-        countries = [d['ISO2'].lower() for d in regionData.get_countries_data_of(regionName)]
+
+        continent_countries = {
+            'africa': ['DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CM', 'CV', 'CF', 'TD', 'KM', 'CG', 'CD', 'CI', 'DJ', 'EG', 'GQ', 'ER', 'SZ', 'ET', 'GA', 'GM', 'GH', 'GN', 'GW', 'KE', 'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'MU', 'MA', 'MZ', 'NA', 'NE', 'NG', 'RW', 'ST', 'SN', 'SC', 'SL', 'SO', 'ZA', 'SS', 'SD', 'TZ', 'TG', 'TN', 'UG', 'EH', 'ZM', 'ZW'],
+            'antarctica': ['AQ'],
+            'asia': ['AF', 'AM', 'AZ', 'BH', 'BD', 'BT', 'BN', 'KH', 'CN', 'CY', 'GE', 'IN', 'ID', 'IR', 'IQ', 'IL', 'JP', 'JO', 'KZ', 'KW', 'KG', 'LA', 'LB', 'MY', 'MV', 'MN', 'MM', 'NP', 'KP', 'OM', 'PK', 'PH', 'QA', 'SA', 'SG', 'KR', 'LK', 'SY', 'TJ', 'TH', 'TL', 'TR', 'TM', 'AE', 'UZ', 'VN', 'YE'],
+            'europe': ['AL', 'AD', 'AM', 'AT', 'AZ', 'BY', 'BE', 'BA', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE', 'FI', 'FR', 'GE', 'DE', 'GR', 'HU', 'IS', 'IE', 'IT', 'KZ', 'XK', 'LV', 'LI', 'LT', 'LU', 'MT', 'MD', 'MC', 'ME', 'NL', 'MK', 'NO', 'PL', 'PT', 'RO', 'RU', 'SM', 'RS', 'SK', 'SI', 'ES', 'SE', 'CH', 'UA', 'GB', 'VA'],
+            'north_america': ['AG', 'BS', 'BB', 'BZ', 'CA', 'CR', 'CU', 'DM', 'DO', 'SV', 'GD', 'GT', 'HT', 'HN', 'JM', 'MX', 'NI', 'PA', 'KN', 'LC', 'VC', 'TT', 'US'],
+            'oceania': ['AS', 'AU', 'CK', 'FJ', 'PF', 'GU', 'KI', 'MH', 'FM', 'NR', 'NC', 'NZ', 'NU', 'NF', 'MP', 'PW', 'PG', 'WS', 'SB', 'TK', 'TO', 'TV', 'VU', 'WF'],
+            'south_america': ['AR', 'BO', 'BR', 'CL', 'CO', 'EC', 'GY', 'PY', 'PE', 'SR', 'UY', 'VE']
+        }
+
+        countries = [country.lower() for country in continent_countries[region]]
         timezones = []
         pytzValidCountries = list(pytz.country_names)
         for country in countries:
@@ -48,11 +58,11 @@ def index(region):
                 for tz in countryTimezones:
                     timezones.append(tz)
         timezone = timezones[0]
-    
+        
     # Special region for all countries except U.S.A.
     elif region == "rest-of-world":
         regionName = "Rest of World (Excluding U.S.A.)" # Prettify region name
-        countries = [d['ISO2'].lower() for d in regionData.get_countries()]
+        countries = [c.alpha_2.lower() for c in pycountry.countries]
         countries.remove("us")
         timezones = pytz.common_timezones
         timezone = "UTC"
@@ -169,7 +179,7 @@ def user(username):
             SELECT id, url, datetime(date_run), country, latency, download, upload
             FROM speedtests
             WHERE user_id = ?
-            ''', (userId)).fetchall()
+            ''', (userId,)).fetchall()
 
         for row in listDb:
             id, url, date_run, country, latency, download, upload = row
