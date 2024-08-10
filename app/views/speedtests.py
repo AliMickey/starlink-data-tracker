@@ -270,6 +270,8 @@ def add():
             apiKey = request.args.get('api-key')
         elif request.form.get('api-key'):
             apiKey = request.form.get('api-key')
+        else:
+            apiKey = None
 
         if request.form.get('speedtest_url'):
             urls = [request.form['speedtest_url']]
