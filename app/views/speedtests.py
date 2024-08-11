@@ -274,7 +274,7 @@ def add():
             apiKey = None
 
         if request.form.get('speedtest_url'):
-            urls = [request.form['speedtest_url']]
+            urls = request.form['speedtest_url']
         else:
             urls = request.form['urls']
 
