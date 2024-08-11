@@ -266,17 +266,18 @@ def add():
     source = ""
 
     if request.method == 'POST':
+        if request.is_json:
+            data = request.get_json()
+            urls = data.get('speedtest_url') 
+        else:
+            urls = request.form['urls']
+
         if request.args.get('api-key'):
             apiKey = request.args.get('api-key')
         elif request.form.get('api-key'):
             apiKey = request.form.get('api-key')
         else:
-            apiKey = None
-
-        if request.form.get('speedtest_url'):
-            urls = request.form['speedtest_url']
-        else:
-            urls = request.form['urls']
+            apiKey = None            
 
         if apiKey:
             apiDetails = db.execute('SELECT user_id, source, use_counter FROM users_api_keys WHERE key = ?', (apiKey,)).fetchone()
