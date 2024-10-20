@@ -85,7 +85,7 @@ def add():
     error = None
 
     if request.method == 'POST':
-        listDetails = {'dishy': '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.uterm(_catapult)?_manifest\.release$',
+        listDetails = {'dishy': '(^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.uterm(_catapult)?_manifest\.release$)|(^\d{4}[.]\d{2}[.]\d{1,2}[.](mr)\d+$)',
                         'router': '^(\d{4}[.]\d{2}[.]\d{1,2}[.](mr)\d+)$', 
                         'app': '^\d{4}[.]\d{2}[.]\d{1}$',
                         'web': '^\d{1}[.]\d{1}[.]\d{1,2}$',
