@@ -55,23 +55,7 @@
         <tr>
           <td>{{ details['dateAdded'] }} <p hidden>{{ details['id'] }}</p></td>
           <td>
-            {% if listType == "dishy" %}
-              {% set versionTrimLength = 8 %}
-            {% elif listType == "router" or listType == "app" %}
-              {% set versionTrimLength = 9 %}
-            {% elif listType == "web" %}
-              {% set versionTrimLength = 6 %}
-            {% else %}
-              {% set versionTrimLength = 0 %}
-            {% endif %}
-
-            {% if request.MOBILE == True %}
-                <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                  <span class="font-monospace">{{ details['version'][:versionTrimLength] }}</span>
-                </button>
-            {% else %}
-            <span class="font-monospace user-select-all"><b>{{ details['version'][:versionTrimLength] }}</b>{{ details['version'][versionTrimLength:] }}</span>
-            {% endif %}
+            <span class="font-monospace user-select-all">{{ details['version'] }}</span>
           </td>
           <td>
             {% if details['reddit'] %}

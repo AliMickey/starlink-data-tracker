@@ -25,13 +25,7 @@
             <tr>
               <td>{{ details['dateAdded'] }}</td>
               <td>
-                {% if request.MOBILE == True %}
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                      <span class="font-monospace">{{ details['version'][:8] }}</span>
-                    </button>
-                {% else %}
-                  <span class="font-monospace user-select-all"><b>{{ details['version'][:8] }}</b>{{ details['version'][8:] }}</span>
-                {% endif %} 
+                <span class="font-monospace user-select-all">{{ details['version'] }}</span>
               </td>
               <td>
                 {% if details['reddit'] %}
@@ -63,13 +57,7 @@
             <tr>
               <td>{{ details['dateAdded'] }}</td>
               <td>
-                {% if request.MOBILE == True %}
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                      <span class="font-monospace">{{ details['version'][:9] }}</span>
-                    </button>
-                {% else %}
-                  <span class="font-monospace user-select-all"><b>{{ details['version'][:9] }}</b>{{ details['version'][9:] }}</span>
-                {% endif %} 
+                <span class="font-monospace user-select-all">{{ details['version'] }}</span>
               </td>
               <td>
                 {% if details['reddit'] %}
@@ -99,13 +87,7 @@
             <tr>
               <td>{{ details['dateAdded'] }}</td>
               <td>
-                {% if request.MOBILE == True %}
-                    <button type="button" class="btn btn-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ details['version'] }}">
-                      <span class="font-monospace">{{ details['version'][:9] }}</span>
-                    </button>
-                {% else %}
-                  <span class="font-monospace user-select-all"><b>{{ details['version'][:9] }}</b>{{ details['version'][9:] }}</span>
-                {% endif %} 
+                <span class="font-monospace user-select-all">{{ details['version'] }}</span>
               </td>
               <td>
                 {% if details['reddit'] %}
