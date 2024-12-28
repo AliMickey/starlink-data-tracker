@@ -3,20 +3,24 @@ from flask import (
 )
 import ipaddress, pycountry, socket, re, datetime
 import pandas as pd
+from time import time
 
 # App imports
 from app.functions.db import get_db
 
 bp = Blueprint('network', __name__, url_prefix='/network')
 
+geoip_cache = {
+    "data": None,
+    "last_updated": 0,
+}
+
 # Dashboard for network page
 @bp.route('/')
 def index():
-    db = get_db()
-    cloudflareIp = request.headers.get('cf-connecting-ip')
-    if cloudflareIp is None:
-        cloudflareIp = "0.0.0.0"
-    geoIp = pd.read_csv('https://geoip.starlinkisp.net/feed.csv', names=['subnet', 'country', 'state', 'city', 'NaN'], header=None)
+    cloudflareIp = request.headers.get('cf-connecting-ip', "0.0.0.0")
+
+    geoIp = fetch_geoip_csv()
 
     for index, row in geoIp.iterrows():       
         if ipaddress.ip_address(cloudflareIp) in ipaddress.ip_network(row['subnet']): 
@@ -95,3 +99,22 @@ def checkDatabase(ip, country):
     else:
         db.execute('INSERT INTO network (ip, protocol_type, country, date_seen) VALUES (?, ?, ?, ?)', (ip, protocolType, country, dateNow))
         db.commit()
+
+
+def fetch_geoip_csv():
+    refresh_interval = 43200  # 12 hours
+
+    # Access and modify the global cache
+    global geoip_cache
+
+    current_time = time()
+
+    # Refresh cache if it's expired or not initialized
+    if geoip_cache["data"] is None or current_time - geoip_cache["last_updated"] > refresh_interval:
+        geoip_cache["data"] = pd.read_csv(
+            'https://geoip.starlinkisp.net/feed.csv',
+            names=['subnet', 'country', 'state', 'city', 'NaN'], header=None
+        )
+        geoip_cache["last_updated"] = current_time
+
+    return geoip_cache["data"]
