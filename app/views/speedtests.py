@@ -145,8 +145,8 @@ def index(region):
         # All
         periodStart = "2019-01-01" # Day before any speedtests were collected
         periodEnd = todayDateTime # Get last day as today
-        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%Y", [2021, 2025])
-        statDict['labels'] = "2021,2022,2023,2024"
+        statDict['current'], statsAggregate = getStats(countries, periodStart, periodEnd, "%Y", [2021, 2026])
+        statDict['labels'] = "2021,2022,2023,2024,2025"
 
     latencyData = ""
     downloadData = ""
