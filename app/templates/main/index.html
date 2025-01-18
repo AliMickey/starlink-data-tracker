@@ -16,7 +16,7 @@
       </div>
     {% endif %} -->
     <br><br><br><br>
-    <div class="row row-cols-2 row-cols-md-4 g-4 justify-content-center">
+    <div class="row row-cols-2 row-cols-md-3 g-4 justify-content-center">
       <div class="col">
         <div class="card">       
           <img src="{{ url_for('static', filename='img/main/firmware.jpg') }}" class="card-img" alt="firmware">
@@ -41,13 +41,13 @@
         </div>
       </div>
 
-      <div class="col">
+      <!-- <div class="col">
         <div class="card">
           <img src="{{ url_for('static', filename='img/main/shop.jpg') }}" class="card-img" alt="shop">
           <div class="card-footer"><p class="fs-5">Shop</p></div>
           <a href="{{ url_for('shop.index') }}" class="stretched-link"></a>
         </div>
-      </div>
+      </div> -->
     </div>
     <br>
     {% include 'builders/footer.html' %}
