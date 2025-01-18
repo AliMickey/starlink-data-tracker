@@ -22,10 +22,15 @@ def database():
 def serve_ads_txt():
     return send_file(current_app.root_path + "/static/other/ads.txt")
 
-# View for firmware info page
+# View for info page
 @bp.route('/info')
 def info():
     return render_template('main/info.html')
+
+# View for priavcy policy page
+@bp.route('/privacypolicy')
+def privacypolicy():
+    return render_template('main/privacypolicy.html')
 
 # 404 page not found error
 @bp.app_errorhandler(404)
