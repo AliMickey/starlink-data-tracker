@@ -86,7 +86,7 @@ def add():
 
     if request.method == 'POST':
         listDetails = {'dishy': '^\d{4}[.]\d{2}[.]\d{2}.*$',
-                        'router': '^(\d{4}[.]\d{2}[.]\d{1,2}[.](mr)\d+)$', 
+                        'router': '^(\d{4}[.]\d{2}[.]\d{1,2}[.](mr|cr)\d+)$', 
                         'app': '^\d{4}[.]\d{2}[.]\d{1}$',
                         'web': '^\d{1}[.]\d{1}[.]\d{1,2}$',
                         'hardware': ''}
