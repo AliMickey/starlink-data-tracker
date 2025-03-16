@@ -16,7 +16,6 @@ def exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
-            return None
     return wrapper
 
 # Global authentication checker
