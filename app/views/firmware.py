@@ -5,13 +5,14 @@ from discord_webhook import DiscordWebhook, DiscordEmbed
 import re, datetime
 
 # App imports
+from app.functions.wrappers import exception_handler, login_required
 from app.functions.db import get_db
-from app.views.auth import login_required
 
 bp = Blueprint('firmware', __name__, url_prefix='/firmware')
 
 # Dashboard for firmware page
 @bp.route('/')
+@exception_handler
 def index():
     # Get firmware data for the past 5 dishy entries
     dishyListDict = getFirmwareData(listType="dishy", range=5)
@@ -22,6 +23,7 @@ def index():
 
 # View to show all firmware versions for a specific hardware/software type
 @bp.route('/<string:listType>', methods = ['GET', 'POST'])
+@exception_handler
 def list(listType):
     if request.method == 'POST':
         db = get_db()
@@ -46,6 +48,7 @@ def list(listType):
 
 # View for admins to view/edit/delete data
 @bp.route('/<string:listType>/admin', methods = ['GET', 'POST'])
+@exception_handler
 @login_required
 def listAdmin(listType):
     db = get_db()  
@@ -80,6 +83,7 @@ def listAdmin(listType):
 
 # View to add a new firmware version
 @bp.route('/add', methods = ['GET', 'POST'])
+@exception_handler
 def add():
     db = get_db()
     error = None
@@ -126,6 +130,7 @@ def add():
 
 
 # Function to get db data for firmware type
+@exception_handler
 def getFirmwareData(listType, range=-1):
     db = get_db()
     listDict = {}
@@ -145,6 +150,7 @@ def getFirmwareData(listType, range=-1):
     return listDict
 
 # Function to send a notification to Starlink Discord channel
+@exception_handler
 def sendNotification(version, type):
     webhook = DiscordWebhook(url=current_app.config['DISCORD_WEBHOOK'])
     hostDomain = url_for('index', _external=True)

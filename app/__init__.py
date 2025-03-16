@@ -39,9 +39,6 @@ def create_app(test_config=None):
     from app.views import network
     app.register_blueprint(network.bp)
 
-    from app.views import shop
-    app.register_blueprint(shop.bp)
-
     from app.views import main
     app.register_blueprint(main.bp)
     app.add_url_rule('/', endpoint='index')
@@ -53,7 +50,6 @@ def create_app(test_config=None):
     limiter.limit("2/second")(firmware.bp)
     limiter.limit("2/second")(speedtests.bp)
     limiter.limit("2/second")(network.bp)
-    limiter.limit("2/second")(shop.bp)
     limiter.limit("2/second")(main.bp)
     
     return app

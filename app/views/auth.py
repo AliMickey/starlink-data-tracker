@@ -5,18 +5,11 @@ from werkzeug.security import check_password_hash, generate_password_hash
 import functools, re, uuid, requests, pytz, datetime
 
 # App imports
+from app.functions.wrappers import exception_handler, login_required
 from app.functions.db import get_db
 from app.functions.notifications import sendEmail
 
 bp = Blueprint('auth', __name__, url_prefix='/auth')
-
-# Global authentication checker
-def login_required(view):
-    @functools.wraps(view)
-    def wrapped_view(**kwargs):
-        if g.user is None: return redirect(url_for('auth.login'))
-        return view(**kwargs)
-    return wrapped_view
 
 # Set session user id
 @bp.before_app_request
@@ -30,6 +23,7 @@ def load_logged_in_user():
 
 # View to register a new user
 @bp.route('/register', methods=('GET', 'POST'))
+@exception_handler
 def register():
     error = None
     if request.method == 'POST':
@@ -82,6 +76,7 @@ def register():
 
 # View to login to the system
 @bp.route('/login', methods=('GET', 'POST'))
+@exception_handler
 def login():
     error = None
     if request.method == 'POST':
@@ -103,6 +98,7 @@ def login():
 
 # View to request a new password link
 @bp.route('/account', methods=('GET', 'POST'))
+@exception_handler
 @login_required
 def account():
     error = None
@@ -173,6 +169,7 @@ def account():
 
 # View to request a new password link
 @bp.route('/forgot-password', methods=('GET', 'POST'))
+@exception_handler
 def forgotPassword():
     error = None
 
@@ -216,6 +213,7 @@ def forgotPassword():
 
 # View to reset password via uuid
 @bp.route('/reset-password/<string:resetKey>', methods=('GET', 'POST'))
+@exception_handler
 def resetPassword(resetKey):
     error = None
     db = get_db()          
@@ -262,11 +260,13 @@ def resetPassword(resetKey):
     
 # View to clear session
 @bp.route('/logout')
+@exception_handler
 def logout():
     session.clear()
     return redirect(url_for('main.index'))
 
-# Function to check if reset password key is still valid       
+# Function to check if reset password key is still valid
+@exception_handler  
 def checkPasswordResetValidity(genTime, activated):
     generatedDateTime = datetime.datetime.strptime(genTime, "%Y-%m-%d %H:%M:%S")
     nowDateTime = datetime.datetime.now(datetime.UTC)
@@ -276,7 +276,8 @@ def checkPasswordResetValidity(genTime, activated):
         return True        
     return False 
 
-# Function to check if account verify key is still valid       
+# Function to check if account verify key is still valid
+@exception_handler  
 def checkAccountActivationKeyValidity(userId):
     db = get_db()
     activationStatus = db.execute('SELECT activated FROM users WHERE id = ?', (userId,)).fetchone()
@@ -286,6 +287,7 @@ def checkAccountActivationKeyValidity(userId):
     return False 
 
 # Function to verify captcha
+@exception_handler
 def hCaptchaVerify(captcha):
     hcaptchaSecret = current_app.config['HCAPTCHA_KEY']
     return requests.post(url = "https://hcaptcha.com/siteverify", data = {'secret': hcaptchaSecret, 'response': captcha}).json()

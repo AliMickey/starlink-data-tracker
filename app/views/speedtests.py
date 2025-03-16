@@ -6,6 +6,7 @@ from time import sleep
 from bs4 import BeautifulSoup
 
 # App imports
+from app.functions.wrappers import exception_handler
 from app.functions.db import get_db
 
 bp = Blueprint('speedtest', __name__, url_prefix='/speedtests')
@@ -14,6 +15,7 @@ bp = Blueprint('speedtest', __name__, url_prefix='/speedtests')
 # View to show the index page of speedtest results & stats
 @bp.route('/', methods = ['GET', 'POST'], defaults={'region': 'global'})
 @bp.route('/region/<string:region>', methods = ['GET', 'POST'])
+@exception_handler
 def index(region):
     db = get_db()
     error = None
@@ -165,8 +167,8 @@ def index(region):
     return render_template('speedtest/index.html', regionName=regionName, regionCode=region, timezones=timezones, statDict=statDict, listDict=listDict, filters=filters, mapboxKey=mapboxKey, regionBbox=regionBbox)
 
 # View to show speedtest results & stats for a user
-# Under development
 @bp.route('/user/<string:username>', methods = ['GET'])
+@exception_handler
 def user(username):
     db = get_db()
     error = None
@@ -223,6 +225,7 @@ def user(username):
 
 # View to show the all time leaderboard
 @bp.route('/leaderboard', methods = ['GET'])
+@exception_handler
 def leaderboard():
     db = get_db()
     error = None
@@ -260,6 +263,7 @@ def leaderboard():
 
 # View & function to add new speedtests
 @bp.route('/add', methods = ['GET', 'POST'])
+@exception_handler
 def add():
     db = get_db()
     error = None
@@ -348,7 +352,6 @@ def add():
                         error = "Speedtest result could not be found. Ensure the URL is correct."
                 except Exception as e:
                     error = "Speedtest could not be added. Please tag Tech Support."
-                    print(e)
             else:
                 error = "Speedtest result already exists."
 
@@ -368,6 +371,7 @@ def add():
     return render_template('speedtest/add.html')
 
 # Function to calculate stats for provided region and period type
+@exception_handler
 def getStats(countries, periodStart, periodEnd, strftimeCode, aggregateRange):
     db = get_db()
     current = {}

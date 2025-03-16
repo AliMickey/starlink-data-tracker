@@ -28,5 +28,4 @@ async def on_message(message):
             #r = requests.post(url = "http://127.0.0.1:5000/speedtests/add", data = {'bot': True, 'url': messageData}) # Development
             await message.reply(r.text)
 
-                
 bot.run(discordToken)

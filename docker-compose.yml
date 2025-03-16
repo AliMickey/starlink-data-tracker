@@ -1,6 +1,6 @@
 services:
-  web-starlink:
-    container_name: web-starlink
+  web-starlink-track:
+    container_name: web-starlink-track
     build: .
     restart: unless-stopped
     networks:

@@ -6,6 +6,7 @@ import pandas as pd
 from time import time
 
 # App imports
+from app.functions.wrappers import exception_handler
 from app.functions.db import get_db
 
 bp = Blueprint('network', __name__, url_prefix='/network')
@@ -17,6 +18,7 @@ geoip_cache = {
 
 # Dashboard for network page
 @bp.route('/')
+@exception_handler
 def index():
     cloudflareIp = request.headers.get('cf-connecting-ip', "0.0.0.0")
 
@@ -46,6 +48,7 @@ def index():
     return render_template('network/index.html', userNetwork=userNetwork)
 
 @bp.route('/mapbox')
+@exception_handler
 def mapbox():
     db = get_db()
     countriesIpv4 = ""
@@ -80,6 +83,7 @@ def mapbox():
     return render_template('network/mapbox.html', mapboxKey=mapboxKey, countriesIpv4=countriesIpv4, countriesIpv6=countriesIpv6, ipv4CountryData=ipv4CountryData, ipv6CountryData=ipv6CountryData)
 
 # Function to update db with most recent user IP
+@exception_handler
 def checkDatabase(ip, country):
     db = get_db()
     # Determine protocol type
@@ -100,7 +104,8 @@ def checkDatabase(ip, country):
         db.execute('INSERT INTO network (ip, protocol_type, country, date_seen) VALUES (?, ?, ?, ?)', (ip, protocolType, country, dateNow))
         db.commit()
 
-
+# Function to fetch geoip data
+@exception_handler
 def fetch_geoip_csv():
     refresh_interval = 43200  # 12 hours
 
