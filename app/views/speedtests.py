@@ -344,7 +344,7 @@ def add():
                             error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
                         else: # Add speedtest             
                             db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                (datetime.datetime.now(datetime.UTC), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                                (datetime.datetime.now(datetime.UTC), datetime.datetime.fromtimestamp(data['date'], tz=datetime.timezone.utc), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                             db.commit()
                     else:
                         error = "Speedtest was not run on Starlink."
