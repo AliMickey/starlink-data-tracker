@@ -6,7 +6,7 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
-    return render_template('main/index.html', welcomeMessageCookie=request.cookies.get('welcome-message-viewed'))
+    return render_template('main/index.html')
 
 # View to download database schema/data
 @bp.route('/database')
