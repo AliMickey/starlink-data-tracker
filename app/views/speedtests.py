@@ -325,33 +325,30 @@ def add():
 
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
-                try:
-                    response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
-                    page_html = BeautifulSoup(response.text, 'html.parser')
-                    scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))[::-1] # Reverse list to improve speed because data script is at the end of <head>
-                    dataScript = None
-                    for script in scripts:
-                        if "window.OOKLA.INIT_DATA" in script.get_text():
-                            dataScript = script
-                            break
-                    if dataScript:
-                        result = re.search('({"result").*}}*', dataScript.get_text())       
-                        data = json.loads(result.group())['result']
-                        if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                            if int(data['distance']) >= 500: # If test conducted has a distance greater than 500 miles between server and Starlink POP
-                                error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
-                            elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 500 or int(data['upload']) >= 65000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
-                                error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
-                            else: # Add speedtest                                 
-                                db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                    (datetime.datetime.now(datetime.UTC), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
-                                db.commit()
-                        else:
-                            error = "Speedtest was not run on Starlink."
+                response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
+                page_html = BeautifulSoup(response.text, 'html.parser')
+                scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))[::-1] # Reverse list to improve speed because data script is at the end of <head>
+                dataScript = None
+                for script in scripts:
+                    if "window.OOKLA.INIT_DATA" in script.get_text():
+                        dataScript = script
+                        break
+                if dataScript:
+                    result = re.search('({"result").*}}*', dataScript.get_text())       
+                    data = json.loads(result.group())['result']
+                    if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
+                        if int(data['distance']) >= 500: # If test conducted has a distance greater than 500 miles between server and Starlink POP
+                            error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
+                        elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 500 or int(data['upload']) >= 65000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
+                            error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
+                        else: # Add speedtest                                 
+                            db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                                (datetime.datetime.now(datetime.UTC), datetime.datetime.utcfromtimestamp(data['date']), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                            db.commit()
                     else:
-                        error = "Speedtest result could not be found. Ensure the URL is correct."
-                except Exception as e:
-                    error = "Speedtest could not be added. Please tag Tech Support."
+                        error = "Speedtest was not run on Starlink."
+                else:
+                    error = "Speedtest result could not be found. Ensure the URL is correct."
             else:
                 error = "Speedtest result already exists."
 

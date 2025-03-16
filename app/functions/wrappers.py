@@ -16,6 +16,7 @@ def exception_handler(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.exception(f"Exception occurred in {func.__name__}")
+            error = "An error occurred. Please try again later."
     return wrapper
 
 # Global authentication checker
