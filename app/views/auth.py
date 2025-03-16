@@ -195,12 +195,12 @@ def forgotPassword():
                 userID = user['id']
                 # Allow only two password reset requests per day
                 datePastDay = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
-                resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.utcnow())).fetchone()            
+                resetPassCount = db.execute('SELECT count(id) FROM users_password_reset WHERE user_id = ? AND date_time BETWEEN ? AND ?', (userID, datePastDay, datetime.datetime.now(datetime.UTC))).fetchone()            
                 if resetPassCount[0] < 2:
                     # Generate and send a new key
                     resetKey = uuid.uuid4()
                     db.execute('INSERT INTO users_password_reset (reset_key, user_id, date_time, activated) VALUES (?, ?, ?, ?) ', 
-                        (str(resetKey), userID, datetime.utcnow(), False))
+                        (str(resetKey), userID, datetime.datetime.now(datetime.UTC), False))
                     db.commit()
 
                     sendEmail(email, "Reset password", f"Use the following link to reset your password for Starlink Data Tracker. https://starlinktrack.com/auth/reset-password/{resetKey}")
