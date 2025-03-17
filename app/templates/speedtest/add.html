@@ -11,10 +11,11 @@
     <p class="fs-2">Add Speedtest Result</p>
     <p class="fs-6">You can run a speedtest at <a class="text-decoration-none" href="https://speedtest.net" target="_blank">speedtest.net</a></p>
     <p class="fs-6">Please do NOT cherry pick your results. Ensure to add any/all results to reduce bias. You may submit multiple results by seperating with a comma.</p>
+    <p class="fs-5">Unfortunately Ookla has stopped providing critical data located in speedtest results to accurately aggregate country stats, as such adding results are disabled until an alternative is found.</p>
     <br>
     <form method="POST" id="addSpeedTestForm">
       <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="urls" name="urls" placeholder="https://speedtest.net/result/" required>
+        <input type="text" class="form-control" id="urls" name="urls" placeholder="https://speedtest.net/result/" required disabled>
         <label for="urls">URL</label>
       </div>
       <input type="text" id="source" name="source" value="website-official" hidden>
