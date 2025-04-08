@@ -338,8 +338,8 @@ def add():
                     if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
                         
                         # Alternative method to check country code after Ookla stopped providing country_code in early 2025.
-                        us_states = json.loads(open(current_app.root_path + '/static/other/us_states.json').read())
-                        city_mapping = json.loads(open(current_app.root_path + '/static/other/city_mapping.json').read())
+                        us_states = json.loads(open(current_app.root_path + '/static/other/us-states.json').read())
+                        city_mapping = json.loads(open(current_app.root_path + '/static/other/city-mapping.json').read())
                         
                         server_name = data['server_name']
                         server_name_split = server_name.split(",")
