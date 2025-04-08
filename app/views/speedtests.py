@@ -346,21 +346,20 @@ def add():
 
                         # If server name is in the format of "City, State"
                         if len(server_name_split) == 2: 
-                            if server_name_split[1].strip().upper() in us_states:
-                                country_code = "US"
+                            if server_name_split[1].strip().lower() in us_states:
+                                country_code = "us"
 
                         else:
-                            if server_name in city_mapping:
-                                country_code = city_mapping[server_name]['country_code']
+                            if server_name.lower() in city_mapping:
+                                country_code = city_mapping[server_name.lower()]
                         
-
                         if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 500 or int(data['upload']) >= 65000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
                             error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
                         elif country_code is None:
                             error = f"Could not detect country from {server_name}"
                         else: # Add speedtest             
                             db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                (datetime.datetime.now(datetime.UTC), datetime.datetime.fromtimestamp(data['date'], tz=datetime.timezone.utc), url, country_code, data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                                (datetime.datetime.now(datetime.UTC), datetime.datetime.fromtimestamp(data['date'], tz=datetime.timezone.utc), url, country_code, server_name, int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                             db.commit()
                     else:
                         error = "Speedtest was not run on Starlink."
