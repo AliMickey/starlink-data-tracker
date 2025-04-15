@@ -11,7 +11,6 @@ from app.functions.db import get_db
 
 bp = Blueprint('speedtest', __name__, url_prefix='/speedtests')
 
-
 # View to show the index page of speedtest results & stats
 @bp.route('/', methods = ['GET', 'POST'], defaults={'region': 'global'})
 @bp.route('/region/<string:region>', methods = ['GET', 'POST'])
@@ -305,8 +304,6 @@ def add():
             else: # Either website form or external POST (source is classified as website as external POST without an API key is rare)
                 userId = None
                 source = "website-official"
-
-        #urls = urls.strip().split(',')
         
         # Find all valid speedtest result and split into array
         urlPattern = re.compile(r'https:\/\/www\.speedtest\.net\/(?:result|i|my-result|[a-z])\/(?:[a-z]\/)?[0-9a-zA-Z\-]+(?:\.png)?')
@@ -336,15 +333,33 @@ def add():
                 if dataScript:
                     result = re.search('({"result").*}}*', dataScript.get_text())       
                     data = json.loads(result.group())['result']
+                    country_code = None
+
                     if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                        # Distance measurement disabled as ookla no longer provides this data
-                        #if int(data['distance']) >= 500: # If test conducted has a distance greater than 500 miles between server and Starlink POP
-                            #error = "The speedtest was measured with a server that is far away from your location. This can lead to inaccurate results. Please ensure you select a server that is close to you."
+                        
+                        # Alternative method to check country code after Ookla stopped providing country_code in early 2025.
+                        us_states = json.loads(open(current_app.root_path + '/static/other/us-states.json').read())
+                        city_mapping = json.loads(open(current_app.root_path + '/static/other/city-mapping.json').read())
+                        
+                        server_name = data['server_name']
+                        server_name_split = server_name.split(",")
+
+                        # If server name is in the format of "City, State"
+                        if len(server_name_split) == 2: 
+                            if server_name_split[1].strip().lower() in us_states:
+                                country_code = "us"
+
+                        else:
+                            if server_name.lower() in city_mapping:
+                                country_code = city_mapping[server_name.lower()]
+                        
                         if int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 500 or int(data['upload']) >= 65000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
                             error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
+                        elif country_code is None:
+                            error = f"Could not detect country from {server_name}"
                         else: # Add speedtest             
                             db.execute('INSERT INTO speedtests (date_added, date_run, url, country, server, latency, download, upload, source, user_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
-                                (datetime.datetime.now(datetime.UTC), datetime.datetime.fromtimestamp(data['date'], tz=datetime.timezone.utc), url, data['country_code'].lower(), data['server_name'], int(data['latency']), int(data['download']), int(data['upload']), source, userId))
+                                (datetime.datetime.now(datetime.UTC), datetime.datetime.fromtimestamp(data['date'], tz=datetime.timezone.utc), url, country_code, server_name, int(data['latency']), int(data['download']), int(data['upload']), source, userId))
                             db.commit()
                     else:
                         error = "Speedtest was not run on Starlink."
