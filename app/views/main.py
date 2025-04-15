@@ -13,10 +13,6 @@ def index():
 def database():
     return send_file(current_app.root_path + "/static/other/databaseBackup.sql", as_attachment=True)
 
-@bp.route('/ads.txt')
-def serve_ads_txt():
-    return send_file(current_app.root_path + "/static/other/ads.txt")
-
 # View for info page
 @bp.route('/info')
 def info():
