@@ -342,10 +342,10 @@ def add():
                         city_mapping = json.loads(open(current_app.root_path + '/static/other/city-mapping.json').read())
                         
                         server_name = data['server_name']
-                        server_name_split = server_name.split(",")
+                        server_name_split = server_name.split(",")[0].lower()
 
-                        if server_name.lower() in city_mapping:
-                            country_code = city_mapping[server_name.lower()]
+                        if server_name_split in city_mapping:
+                            country_code = city_mapping[server_name_split]
 
                         if country_code is None:
                             error = f"Could not detect country from {server_name}, ping a moderator."
