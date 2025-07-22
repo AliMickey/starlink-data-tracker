@@ -17,8 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 COPY scripts/cronjobs /etc/cron.d/cronjobs
-RUN crontab /etc/cron.d/cronjobs \
-    && chmod 0600 /etc/cron.d/cronjobs
+RUN crontab /etc/cron.d/cronjobs && chmod 0600 /etc/cron.d/cronjobs
 
 RUN chmod +x /app/scripts/backupDB.sh
 
