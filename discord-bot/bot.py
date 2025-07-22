@@ -25,7 +25,6 @@ async def on_message(message):
         messageData = str(message.content)
         if re.search('https://www.speedtest.net', messageData): # Only submit messages that contain speedtest results to minimise API usage.
             r = requests.post(url = "https://starlinktrack.com/speedtests/add", data = {'api-key': apiKey, 'discord-user-id': message.author.id, 'urls': messageData}) # Submit POST with bot identifier
-            #r = requests.post(url = "http://127.0.0.1:5000/speedtests/add", data = {'bot': True, 'url': messageData}) # Development
             await message.reply(r.text)
 
 bot.run(discordToken)
