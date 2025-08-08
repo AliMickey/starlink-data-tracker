@@ -347,7 +347,7 @@ def add():
                             country_code = city_mapping[server_name_split]
 
                         if country_code is None:
-                            error = f"Could not detect country from {server_name}, ping a moderator."
+                            error = f"Could not detect country from {server_name}, contribute changes on [Github](https://github.com/AliMickey/starlink-data-tracker/edit/master/app/static/other/city-mapping.json)."
                         elif int(data['latency']) <= 5 or int(data['download']) >= 600000 or int(data['download']) <= 500 or int(data['upload']) >= 65000 or int(data['upload']) <= 500: # If test results are not within a valid range (<5ms latency, 1-600mbps download, 0.5-50mbps upload) for Starlink (may change in the future)
                             error = "Speedtest contains potentially inaccurate results. Please try again.\nLimits: Latency (> 5ms), Download (600mbps - 0.5mbps), Upload(60mbps - 0.5mbps)."
                         else: # Add speedtest             
