@@ -1,5 +1,5 @@
 {
-  "_comment": "Mappings are city -> country code (alpha-2)"
+  "_comment": "Mappings are city -> country code (alpha-2)",
   "abu dhabi": "ae",
   "abuja": "ng",
   "accra": "gh",
