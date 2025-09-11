@@ -12,7 +12,7 @@ https://starlinktrack.com
 Firmware, software, and hardware versions are collected for historical purpose. This allows us to compare and curate notes for each revision.
 
 ### Speedtests
-Tracking the performance of any ISP is important for accountability, we make use of Speedtest.net's services to store results from users. Data is captured via the website form, the official [Discord](https://discord.gg/Rr2u4ystEe) channel, and through the all-in-one script (in development).
+Tracking the performance of any ISP is important for accountability, we make use of Speedtest.net's services to store results from users. Data is captured via the website form, the official [Discord](https://discord.gg/Rr2u4ystEe) channel and via user submitted results via the API. (Note: Ookla has stopped providing the country code in speedtest results, thus we need to maintain a separate list of city to country mappings in order to perform accurate result categorisation).
 
 ### Network
 An easy way to check your IP address, Point of Presence and region. Complemented with a global rollout map of IPv4 & IPv6.
