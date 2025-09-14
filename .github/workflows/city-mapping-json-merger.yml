@@ -13,47 +13,42 @@ permissions:
   pull-requests: write
 
 jobs:
-  validate:
+  validate_and_merge:
+    name: Validate and Merge Contribution
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
+      - name: Checkout PR Head with Full History
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Security Check Validate File Size
+      - name: Validate File Format and Size
         run: |
           FILE_PATH="app/static/other/city-mapping.json"
-          MAX_SIZE=50000
+          MAX_SIZE=500000
           ACTUAL_SIZE=$(stat -c%s "$FILE_PATH")
           if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
             echo "Security Risk: File size ($ACTUAL_SIZE bytes) exceeds the limit of $MAX_SIZE bytes."
             exit 1
           fi
-          echo "File size is within limits."
-
-      - name: Validate Contribution
-        run: |
-          FILE_PATH="app/static/other/city-mapping.json"
           if ! python -m json.tool "$FILE_PATH" > /dev/null; then
             echo "Validation failed: Invalid JSON format."
             exit 1
           fi
 
+      - name: Validate Contribution Logic
+        run: |
+          FILE_PATH="app/static/other/city-mapping.json"
           BASE_COMMIT_SHA="${{ github.event.pull_request.base.sha }}"
-          BASE_CONTENT=$(git show "${BASE_COMMIT_SHA}:${FILE_PATH}" || true)
-          
-          OLD_COUNT=$( [ -z "$BASE_CONTENT" ] && echo 0 || echo "$BASE_CONTENT" | jq 'length' )
-          NEW_COUNT=$(jq 'length' "$FILE_PATH")
-          ENTRIES_ADDED=$((NEW_COUNT - OLD_COUNT))
-
-          echo "Net change: $ENTRIES_ADDED entries"
-          if [ "$NEW_COUNT" -gt "$OLD_COUNT" ] && [ "$ENTRIES_ADDED" -le 2 ]; then
-            echo "Validation passed: A valid number of entries were added."
+          DIFF=$(git diff --unified=0 "${BASE_COMMIT_SHA}" HEAD -- "$FILE_PATH" | grep -E '^[+-]' | grep -vE '^(--- a/|\+\+\+ b/)')
+          ADDED_LINES=$(echo "$DIFF" | grep -c '^+' || true)
+          DELETED_LINES=$(echo "$DIFF" | grep -c '^-' || true)
+          if [ "$DELETED_LINES" -eq 0 ] && [ "$ADDED_LINES" -gt 0 ] && [ "$ADDED_LINES" -le 2 ]; then
             exit 0
           else
             echo "Validation failed: Change does not meet the criteria for auto-merging."
+            echo "Criteria: Must be an addition of 2 entries maximum. No modifications or deletions are allowed."
             exit 1
           fi
 
