@@ -23,34 +23,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Validate File Format and Size
+      - name: Run Validation Script
         run: |
-          FILE_PATH="app/static/other/city-mapping.json"
-          MAX_SIZE=500000
-          ACTUAL_SIZE=$(stat -c%s "$FILE_PATH")
-          if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
-            echo "Security Risk: File size ($ACTUAL_SIZE bytes) exceeds the limit of $MAX_SIZE bytes."
-            exit 1
-          fi
-          if ! python -m json.tool "$FILE_PATH" > /dev/null; then
-            echo "Validation failed: Invalid JSON format."
-            exit 1
-          fi
+          git show "${{ github.event.pull_request.base.sha }}:${{ 'app/static/other/city-mapping.json' }}" > "base_mapping.json"
 
-      - name: Validate Contribution Logic
-        run: |
-          FILE_PATH="app/static/other/city-mapping.json"
-          BASE_COMMIT_SHA="${{ github.event.pull_request.base.sha }}"
-          DIFF=$(git diff --unified=0 "${BASE_COMMIT_SHA}" HEAD -- "$FILE_PATH" | grep -E '^[+-]' | grep -vE '^(--- a/|\+\+\+ b/)')
-          ADDED_LINES=$(echo "$DIFF" | grep -c '^+' || true)
-          DELETED_LINES=$(echo "$DIFF" | grep -c '^-' || true)
-          if [ "$DELETED_LINES" -eq 0 ] && [ "$ADDED_LINES" -gt 0 ] && [ "$ADDED_LINES" -le 2 ]; then
-            exit 0
-          else
-            echo "Validation failed: Change does not meet the criteria for auto-merging."
-            echo "Criteria: Must be an addition of 2 entries maximum. No modifications or deletions are allowed."
-            exit 1
-          fi
+          python scripts/city-mapping-json-merger.py
 
       - name: Enable Auto-Merge
         if: success()
