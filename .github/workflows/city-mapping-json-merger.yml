@@ -13,23 +13,23 @@ permissions:
   pull-requests: write
 
 jobs:
-  validate_and_merge:
-    name: Validate and Merge Contribution
+  validate:
+    name: Validate Contribution
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout PR Head with Full History
+      - name: Checkout PR Head
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Run Validation Script
-        run: |
-          git show "${{ github.event.pull_request.base.sha }}:${{ 'app/static/other/city-mapping.json' }}" > "base_mapping.json"
+      - name: Generate base file
+        run: git show "${{ github.event.pull_request.base.sha }}:${{ 'app/static/other/city-mapping.json' }}" > "base_mapping.json"
+      
+      - name: Validation script
+        run: python .github/workflows/city-mapping-json-merger.py
 
-          python .github/workflows/city-mapping-json-merger.py
-
-      - name: Enable Auto-Merge
+      - name: Merge
         if: success()
         run: gh pr merge --auto --squash "${{ github.event.pull_request.number }}"
         env:
