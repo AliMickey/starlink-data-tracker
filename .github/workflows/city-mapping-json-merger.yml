@@ -13,7 +13,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  triage-contribution:
+  validate:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -21,6 +21,9 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+      - name: Fetch Base Branch
+        run: git fetch origin ${{ github.base.ref }}
 
       - name: Security Check Validate File Size
         run: |
