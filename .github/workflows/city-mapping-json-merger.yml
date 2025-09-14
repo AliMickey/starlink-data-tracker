@@ -22,13 +22,10 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
-      - name: Fetch Base Branch
-        run: git fetch origin ${{ github.base.ref }}
-
       - name: Security Check Validate File Size
         run: |
           FILE_PATH="app/static/other/city-mapping.json"
-          MAX_SIZE=500000
+          MAX_SIZE=50000
           ACTUAL_SIZE=$(stat -c%s "$FILE_PATH")
           if [ "$ACTUAL_SIZE" -gt "$MAX_SIZE" ]; then
             echo "Security Risk: File size ($ACTUAL_SIZE bytes) exceeds the limit of $MAX_SIZE bytes."
@@ -43,10 +40,14 @@ jobs:
             echo "Validation failed: Invalid JSON format."
             exit 1
           fi
-          BASE_CONTENT=$(git show "origin/${{ github.base.ref }}:$FILE_PATH" || true)
+
+          BASE_COMMIT_SHA="${{ github.event.pull_request.base.sha }}"
+          BASE_CONTENT=$(git show "${BASE_COMMIT_SHA}:${FILE_PATH}" || true)
+          
           OLD_COUNT=$( [ -z "$BASE_CONTENT" ] && echo 0 || echo "$BASE_CONTENT" | jq 'length' )
           NEW_COUNT=$(jq 'length' "$FILE_PATH")
           ENTRIES_ADDED=$((NEW_COUNT - OLD_COUNT))
+
           echo "Net change: $ENTRIES_ADDED entries"
           if [ "$NEW_COUNT" -gt "$OLD_COUNT" ] && [ "$ENTRIES_ADDED" -le 2 ]; then
             echo "Validation passed: A valid number of entries were added."
