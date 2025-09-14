@@ -9,7 +9,7 @@ on:
       - 'app/static/other/city-mapping.json'
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 
 jobs:
