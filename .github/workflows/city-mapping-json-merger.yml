@@ -27,7 +27,7 @@ jobs:
         run: |
           git show "${{ github.event.pull_request.base.sha }}:${{ 'app/static/other/city-mapping.json' }}" > "base_mapping.json"
 
-          python scripts/city-mapping-json-merger.py
+          python .github/workflows/city-mapping-json-merger.py
 
       - name: Enable Auto-Merge
         if: success()
