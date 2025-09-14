@@ -35,7 +35,7 @@ jobs:
 
       - name: Validate Contribution
         run: |
-          FILE_PATH="app/static/other/city-mapping.jsonn"
+          FILE_PATH="app/static/other/city-mapping.json"
           if ! python -m json.tool "$FILE_PATH" > /dev/null; then
             echo "Validation failed: Invalid JSON format."
             exit 1
