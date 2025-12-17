@@ -227,7 +227,6 @@ def user(username):
 @exception_handler
 def leaderboard():
     db = get_db()
-    error = None
     statDict = {'latency': [], 'download': [], 'upload': []}
     
     latency = db.execute('''
@@ -247,16 +246,28 @@ def leaderboard():
         ''').fetchall()
 
     for result in latency:
-        index = latency.index(result)
-        statDict['latency'].append({'latency': latency[index][0], 'url': latency[index][1], 'country': latency[index][2], 'date': datetime.datetime.strptime(latency[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['latency'].append({
+            'latency': result[0], 
+            'url': result[1], 
+            'country': result[2], 
+            'date': datetime.datetime.fromisoformat(str(result[3])).date().strftime("%Y-%m-%d")
+        })
 
     for result in download:
-        index = download.index(result)
-        statDict['download'].append({'download': f'{download[index][0]/1000:.2f}', 'url': download[index][1], 'country': download[index][2], 'date': datetime.datetime.strptime(download[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['download'].append({
+            'download': f'{result[0]/1000:.2f}', 
+            'url': result[1], 
+            'country': result[2], 
+            'date': datetime.datetime.fromisoformat(str(result[3])).date().strftime("%Y-%m-%d")
+        })
 
     for result in upload:
-        index = upload.index(result)
-        statDict['upload'].append({'upload': f'{upload[index][0]/1000:.2f}', 'url': upload[index][1], 'country': upload[index][2], 'date': datetime.datetime.strptime(upload[index][3], "%Y-%m-%d %H:%M:%S").date().strftime("%Y-%m-%d")})
+        statDict['upload'].append({
+            'upload': f'{result[0]/1000:.2f}', 
+            'url': result[1], 
+            'country': result[2], 
+            'date': datetime.datetime.fromisoformat(str(result[3])).date().strftime("%Y-%m-%d")
+        })
         
     return render_template('speedtest/leaderboard.html', statDict=statDict)
 
