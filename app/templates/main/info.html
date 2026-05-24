@@ -10,30 +10,7 @@
     <div class="row mb-3" id="information">
       <p class="fs-2 border-bottom">Information</p>
       <p>This website collects information on various Starlink services. Starlink does not provide this information themselves, this is crowdsourced data.<br>Any information here is not authoritative and could be incorrect.</p>
-      
-      <div class="card-group mb-3">
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Website Analytics</h5>
-            <p class="card-text">Umami is used for its simple, fast and privacy-focused analytics</p>
-            <a href="https://analytics.mickit.net/share/D2CSSpvn/Starlink%20Data" target="_blank" class="stretched-link"></a>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">User Install Map</h5>
-            <p class="card-text">A global map with markers for user submitted installs</p>
-            <a href="https://www.google.com/maps/d/viewer?mid=13Ny9oD8XRlsSYAwSRhM67vg7MePmTBxB&ll=0.9693652147468512%2C0&z=2" target="_blank" class="stretched-link"></a>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-body">
-            <h5 class="card-title">Database Backup</h5>
-            <p class="card-text">The database dump only contains firmware information</p>
-            <a href="{{ url_for('main.database') }}" target="_blank" class="stretched-link"></a>
-          </div>
-        </div>
-      </div>
+      <p class="card-text">Download a dump of the firmware database <a href="{{ url_for('main.database') }}" target="_blank" rel="noopener noreferrer">here</a></p>
 
       <div class="mb-3">
         <p class="fs-4">Firmware</p>
@@ -59,8 +36,8 @@
       <p>NOTE: We are not related to official Starlink, do not send us personal information or ask for customer support.</p>
       <p>For any inquiries (feedback, bugs, incorrect information), contact us by sending an email to 'admin@starlinktrack.com'</p>
       <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
-      <p><a class="text-decoration-none" href="https://github.com/sponsors/AliMickey" target="_blank">Github Sponsors</a></p>
-      <p><a class="text-decoration-none" href="https://ko-fi.com/alimicky" target="_blank">Ko-Fi</a></p>
+      <p><a class="text-decoration-none" href="https://github.com/sponsors/AliMickey" target="_blank" rel="noopener noreferrer">Github Sponsors</a></p>
+      <p><a class="text-decoration-none" href="https://ko-fi.com/alimicky" target="_blank" rel="noopener noreferrer">Ko-Fi</a></p>
     </div>
 
     <div class="row mb-3" id="links">
@@ -68,16 +45,16 @@
       <div class="row p-2 row-cols-1 row-cols-md-2">
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/reddit.png') }}" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/reddit.png') }}" alt="Reddit" width="75px">
           </div>
-          <h2><a class="text-decoration-none" href="https://www.reddit.com/r/Starlink" target="_blank">Starlink Subreddit</h2></a>
+          <h2><a class="text-decoration-none" href="https://www.reddit.com/r/Starlink" target="_blank" rel="noopener noreferrer">Starlink Subreddit</a></h2>
           <p>News, images/videos and discussions related to Starlink. Discuss new versions here.</p>
         </div>
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/discord.png') }}" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/discord.png') }}" alt="Discord" width="75px">
           </div>
-          <h2><a class="text-decoration-none" href="https://discord.gg/Rr2u4ystEe" target="_blank">Starlink Discord</a></h2>
+          <h2><a class="text-decoration-none" href="https://discord.gg/Rr2u4ystEe" target="_blank" rel="noopener noreferrer">Starlink Discord</a></h2>
           <p>A place to chat about Starlink news as a secondary resource to the subreddit.</p>
         </div>
       </div>
@@ -85,16 +62,16 @@
       <div class="row p-2 row-cols-1 row-cols-lg-2">
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/starlink-sx.png') }}" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/starlink-sx.png') }}" alt="Starlink.sx" width="75px">
           </div>
-          <h2><a class="text-decoration-none" href="https://starlink.sx" target="_blank">Starlink Coverage Tracker</a></h2>
+          <h2><a class="text-decoration-none" href="https://starlink.sx" target="_blank" rel="noopener noreferrer">Starlink Coverage Tracker</a></h2>
           <p>Starlink orbital maps and constellation status.</p>
         </div>
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/starlink-logo.png') }}" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/starlink-logo.png') }}" alt="Starlink" width="75px">
           </div>
-          <h2><a class="text-decoration-none" href="https://starlink.com/map" target="_blank">Starlink Availability Map</a></h2>
+          <h2><a class="text-decoration-none" href="https://starlink.com/map" target="_blank" rel="noopener noreferrer">Starlink Availability Map</a></h2>
           <p>Official availability map provided by Starlink.</p>
         </div>
       </div>

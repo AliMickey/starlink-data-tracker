@@ -139,7 +139,7 @@
                     <span>{{ details['dateRun'] }}</span>
                   </td>
                   <td>
-                    <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
+                    <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" class="text-decoration-none"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" alt="Flag of {{ details['country'].upper() }}" width="30"> {{ details['country'].upper() }}</a></span>
                   </td>
                   <td>
                     <span>{{ details['latency'] }}</span>
@@ -151,7 +151,7 @@
                     <span>{{ details['upload'] }}</span>
                   </td>
                   <td>
-                    <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+                    <a href="{{ details['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="View speedtest result (opens in new tab)"><img src="{{ url_for('static', filename='img/speedtest.png') }}" alt="Speedtest link" width="30px"></a>
                   </td>
                 </tr>
               {% endfor %}

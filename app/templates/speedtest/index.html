@@ -5,8 +5,8 @@
 
 {% block scriptsHead %}
   <link rel="stylesheet" href="{{ url_for('static', filename='css/dataTables.bootstrap5.min.css') }}">
-  <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/mapbox-gl.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/chart.min.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/mapbox-gl.js') }}" defer></script>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/mapbox-gl.css') }}"/>
   <script>
     $(document).ready(function() {
@@ -179,7 +179,7 @@
                     <span>{{ details['dateRun'] }}</span>
                   </td>
                   <td>
-                    <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" style="text-decoration: none;"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" width="30"> {{ details['country'].upper() }}</a></span>
+                    <span><a href="{{ url_for('speedtest.index', region=details['country']) }}" class="text-decoration-none"><img src="https://cdn.jsdelivr.net/npm/country-flag-icons/1x1/{{ details['country'].upper() }}.svg" alt="Flag of {{ details['country'].upper() }}" width="30"> {{ details['country'].upper() }}</a></span>
                   </td>
                   <td>
                     <span>{{ details['latency'] }}</span>
@@ -191,7 +191,7 @@
                     <span>{{ details['upload'] }}</span>
                   </td>
                   <td>
-                    <a href="{{ details['url'] }}" target="_blank"><img src="{{ url_for('static', filename='img/speedtest.png') }}" width="30px"></a>
+                    <a href="{{ details['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="View speedtest result (opens in new tab)"><img src="{{ url_for('static', filename='img/speedtest.png') }}" alt="Speedtest link" width="30px"></a>
                   </td>
                 </tr>
               {% endfor %}
@@ -202,9 +202,9 @@
 
       <div class="col">
         <div class="col">
-          <img id="map-hover" class="img-fluid" src="{{ url_for('static', filename='img/speedtest/placeholder-map.png') }}" style="height: 650px;">
+          <img id="map-hover" class="img-fluid" src="{{ url_for('static', filename='img/speedtest/placeholder-map.png') }}" alt="Map of speedtest result locations" style="width: 100%; height: clamp(300px, 60vh, 650px); object-fit: cover;">
         </div>
-        <div id="map" style="height: 650px;" hidden></div>
+        <div id="map" style="width: 100%; height: clamp(300px, 60vh, 650px);" hidden></div>
       </div>
     </div>
   </div>

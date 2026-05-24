@@ -53,9 +53,9 @@
     </div>
 
     <div class="row mb-5">
-      <p class="fs-2"><span style="color: #627BC1">IPv4</span> / <span style="color: #C77416">IPv6</span></p>
+      <p class="fs-2"><span style="color: #627BC1;">IPv4</span> / <span style="color: #C77416;">IPv6</span></p>
       <p class="fs-5">Global rollout progress</p>
-      <iframe src="{{ url_for('network.mapbox') }}" title="IPv4/IPv6 Rollout Map" height="900"></iframe>
+      <iframe src="{{ url_for('network.mapbox') }}" title="IPv4 and IPv6 global rollout map" loading="lazy" style="width: 100%; border: 0; min-height: 500px; height: 75vh; max-height: 900px;"></iframe>
     </div>
   </div>
 {% endblock %}
