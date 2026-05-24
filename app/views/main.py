@@ -11,7 +11,11 @@ def index():
 # View to download database schema/data
 @bp.route('/database')
 def database():
-    return send_file(current_app.root_path + "/static/other/databaseBackup.sql", as_attachment=True)
+    return send_file(
+        current_app.root_path + "/static/other/databaseBackup.sql",
+        as_attachment=True,
+        max_age=0,
+    )
 
 # View for info page
 @bp.route('/info')
