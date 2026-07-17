@@ -323,6 +323,8 @@ def add():
         if len(urls) > 5:
             sleepTime = 2
 
+        countryMethods = set()
+
         for url in urls:
             # Convert into clean url
             if re.search('png', url): # If an image was picked up, get the id and convert to ordinary url
@@ -362,6 +364,7 @@ def add():
                                 match = next((server for server in servers if matcher(server)), None)
                                 if match and match.get('cc'):
                                     country_code = match['cc'].lower()
+                                    countryMethods.add("API")
                                     break
 
                         # Fall back to city name mapping if the servers could not be found
@@ -371,6 +374,7 @@ def add():
 
                             if server_name_split in city_mapping:
                                 country_code = city_mapping[server_name_split]
+                                countryMethods.add("JSON")
 
                         if country_code is None:
                             error = f"Could not detect country from {server_name}, contribute changes on [Github](https://github.com/AliMickey/starlink-data-tracker/edit/master/app/static/other/city-mapping.json)."
@@ -390,10 +394,11 @@ def add():
             sleep(sleepTime) # Sleep to not get rate limited
 
         if error is None:
+            countryMethodNote = f" (country via {', '.join(sorted(countryMethods))})" if countryMethods else ""
             if source == "website-official":
-                flash("Speedtest added successfully.", "success")
+                flash(f"Speedtest added successfully.{countryMethodNote}", "success")
             else:
-                return "Speedtest added successfully, thanks!"     
+                return f"Speedtest added successfully, thanks!{countryMethodNote}"
         else:
             if source == "website-official":
                 flash(error, "warning")
