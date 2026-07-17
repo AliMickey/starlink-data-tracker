@@ -3,7 +3,6 @@ from flask import (
 )
 import re, requests, json, pycountry, pytz, datetime, statistics
 from time import sleep
-from bs4 import BeautifulSoup
 
 # App imports
 from app.functions.wrappers import exception_handler
@@ -333,17 +332,15 @@ def add():
 
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
-                response = requests.get(url, timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
-                page_html = BeautifulSoup(response.text, 'html.parser')
-                scripts = list(filter(lambda script: not script.has_attr("src"), page_html.find_all("script")))[::-1] # Reverse list to improve speed because data script is at the end of <head>
-                dataScript = None
-                for script in scripts:
-                    if "window.OOKLA.INIT_DATA" in script.get_text():
-                        dataScript = script
-                        break
-                if dataScript:
-                    result = re.search('({"result").*}}*', dataScript.get_text())       
-                    data = json.loads(result.group())['result']
+                resultId = url.rstrip('/').split('/')[-1]
+                response = requests.get(f"https://www.speedtest.net/api/result/{resultId}", timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
+                data = None
+                if response.status_code == 200:
+                    try:
+                        data = response.json()
+                    except ValueError:
+                        data = None
+                if data and 'isp_name' in data:
                     country_code = None
 
                     if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
