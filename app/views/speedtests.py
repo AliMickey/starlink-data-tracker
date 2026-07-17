@@ -344,15 +344,33 @@ def add():
                     country_code = None
 
                     if data['isp_name'] == "SpaceX Starlink": # If ISP is Starlink
-                        
-                        # Alternative method to check country code after Ookla stopped providing country_code in early 2025.
-                        city_mapping = json.loads(open(current_app.root_path + '/static/other/city-mapping.json').read())
-                        
                         server_name = data['server_name']
-                        server_name_split = server_name.split(",")[0].lower()
+                        requestHeaders = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'}
 
-                        if server_name_split in city_mapping:
-                            country_code = city_mapping[server_name_split]
+                        # Resolve country code by looking up the test servers in the public server list API
+                        additionalServers = {str(server['server_id']): server['server_name'] for server in data.get('additional_servers', [])}
+                        lookups = [(server_name, lambda server: server.get('name') == server_name and server.get('sponsor') == data.get('sponsor_name'))]
+                        lookups += [(addName, lambda server, addId=addId: server.get('id') == addId) for addId, addName in additionalServers.items()]
+
+                        for searchName, matcher in lookups:
+                            serversResponse = requests.get("https://www.speedtest.net/api/js/servers", params={'engine': 'js', 'search': searchName, 'limit': 50}, timeout=5, headers=requestHeaders)
+                            if serversResponse.status_code == 200:
+                                try:
+                                    servers = serversResponse.json()
+                                except ValueError:
+                                    servers = []
+                                match = next((server for server in servers if matcher(server)), None)
+                                if match and match.get('cc'):
+                                    country_code = match['cc'].lower()
+                                    break
+
+                        # Fall back to city name mapping if the servers could not be found
+                        if country_code is None:
+                            city_mapping = json.loads(open(current_app.root_path + '/static/other/city-mapping.json').read())
+                            server_name_split = server_name.split(",")[0].lower()
+
+                            if server_name_split in city_mapping:
+                                country_code = city_mapping[server_name_split]
 
                         if country_code is None:
                             error = f"Could not detect country from {server_name}, contribute changes on [Github](https://github.com/AliMickey/starlink-data-tracker/edit/master/app/static/other/city-mapping.json)."
