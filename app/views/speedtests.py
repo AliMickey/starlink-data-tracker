@@ -334,8 +334,9 @@ def add():
 
             dbCheck = db.execute('SELECT EXISTS (SELECT 1 FROM speedtests WHERE url = ? LIMIT 1)', (url,)).fetchone()[0]
             if dbCheck == 0: # If speedtest result does not exist in db
-                resultId = url.rstrip('/').split('/')[-1]
-                response = requests.get(f"https://www.speedtest.net/api/result/{resultId}", timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
+                # Keep the optional client-type segment (e.g. /a/) as Ookla reuses ids across client types, pointing to different results
+                resultPath = re.search(r'net/(?:result|i|my-result|[a-z])/((?:[a-z]/)?[0-9a-zA-Z\-]+)', url).group(1)
+                response = requests.get(f"https://www.speedtest.net/api/result/{resultPath}", timeout=5, headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.87 Safari/537.36'})
                 data = None
                 if response.status_code == 200:
                     try:
