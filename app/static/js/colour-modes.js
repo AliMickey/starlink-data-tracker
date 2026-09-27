@@ -61,6 +61,7 @@
     const btnToActive = document.querySelector(`[data-bs-theme-value="${theme}"]`);
     btnToActive.classList.add('active');
     btnToActive.setAttribute('aria-pressed', 'true');
+    themeSwitcher.setAttribute('aria-label', `Toggle theme (${theme})`);
 
     if (focus) {
       themeSwitcher.focus();

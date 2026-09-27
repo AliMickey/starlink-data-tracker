@@ -1,4 +1,4 @@
-<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+<ul class="navbar-nav ms-auto mb-2 mb-md-0">
     {% if g.user %}
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.account') }}">Account</a></li>
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Log Out</a></li>
@@ -6,4 +6,33 @@
         <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Log In</a></li>
     {% endif %}
     <li class="nav-item"><a class="nav-link" href="{{ url_for('main.info') }}">Info</a></li>
+    <li class="nav-item dropdown">
+        <button class="btn btn-link nav-link dropdown-toggle d-flex align-items-center" id="bd-theme" type="button" aria-expanded="false" data-bs-toggle="dropdown" data-bs-display="static" aria-label="Toggle theme (light)">
+            <i class="bi bi-sun-fill my-1 theme-icon-active"></i>
+            <span class="d-md-none ms-2" id="bd-theme-text">Toggle theme</span>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="bd-theme-text">
+            <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="light" aria-pressed="false">
+                <i class="bi bi-sun-fill me-2"></i>
+                Light
+                <i class="bi bi-check2 ms-auto d-none"></i>
+            </button>
+            </li>
+            <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark" aria-pressed="false">
+                <i class="bi bi-moon-stars-fill me-2"></i>
+                Dark
+                <i class="bi bi-check2 ms-auto d-none"></i>
+            </button>
+            </li>
+            <li>
+            <button type="button" class="dropdown-item d-flex align-items-center" data-bs-theme-value="auto" aria-pressed="false">
+                <i class="bi bi-circle-half me-2"></i>
+                Auto
+                <i class="bi bi-check2 ms-auto d-none"></i>
+            </button>
+            </li>
+        </ul>
+    </li>
 </ul>
