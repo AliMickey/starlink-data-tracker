@@ -7,36 +7,31 @@
 
 {% block content %}
   <div class="col-11 text-center">
-    <p class="fs-1 fw-bold">Starlink Data Tracker</p>
+    <h1 class="fs-1 fw-bold mb-3">Starlink Data Tracker</h1>
     <p class="fs-3">Community maintained database for Starlink</p>
     <a class="btn btn-primary m-1" href="https://www.starlink.com/?referral=RC-138996-16190-20" target="_blank" rel="noopener noreferrer" data-umami-event="home_buy_starlink">Buy Starlink</a>
     <br><br><br><br>
     <div class="row row-cols-2 row-cols-md-3 g-4 justify-content-center">
       <div class="col">
-        <div class="card">       
-          <img src="{{ url_for('static', filename='img/main/firmware.jpg') }}" class="card-img" alt="firmware">
-          <div class="card-footer"><p class="fs-5">Firmware</p></div>
-          <a href="{{ url_for('firmware.index') }}" class="stretched-link"></a>
+        <div class="card">
+          <img src="{{ url_for('static', filename='img/main/firmware.jpg') }}" class="card-img img-fluid" alt="" width="1000" height="750">
+          <div class="card-footer"><p class="fs-5"><a href="{{ url_for('firmware.index') }}" class="stretched-link link-body-emphasis link-underline-opacity-0 link-underline-opacity-75-hover">Firmware</a></p></div>
         </div>
       </div>
 
       <div class="col">
         <div class="card">
-          <img src="{{ url_for('static', filename='img/main/speedtests.jpg') }}" class="card-img" alt="speedtests">
-          <div class="card-footer"><p class="fs-5">Speedtests</p></div>
-          <a href="{{ url_for('speedtest.index') }}" class="stretched-link"></a>
+          <img src="{{ url_for('static', filename='img/main/speedtests.jpg') }}" class="card-img img-fluid" alt="" width="1000" height="750">
+          <div class="card-footer"><p class="fs-5"><a href="{{ url_for('speedtest.index') }}" class="stretched-link link-body-emphasis link-underline-opacity-0 link-underline-opacity-75-hover">Speedtests</a></p></div>
         </div>
       </div>
 
       <div class="col">
         <div class="card">
-          <img src="{{ url_for('static', filename='img/main/network.jpg') }}" class="card-img" alt="network">
-          <div class="card-footer"><p class="fs-5">Network</p></div>
-          <a href="{{ url_for('network.index') }}" class="stretched-link"></a>
+          <img src="{{ url_for('static', filename='img/main/network.jpg') }}" class="card-img img-fluid" alt="" width="1000" height="750">
+          <div class="card-footer"><p class="fs-5"><a href="{{ url_for('network.index') }}" class="stretched-link link-body-emphasis link-underline-opacity-0 link-underline-opacity-75-hover">Network</a></p></div>
         </div>
       </div>
     </div>
-    <br>
-    {% include 'builders/footer.html' %}
   </div>
 {% endblock %}

@@ -237,7 +237,7 @@ def resetPassword(resetKey):
             if not password or not passwordRepeat:
                 error = 'Password is required'
             elif len(password) < 8:
-                error = "Password must be a minimum of 8 digits"
+                error = "Password must be a minimum of 8 characters"
             elif password != passwordRepeat:
                 error = 'Passwords do not match'
 

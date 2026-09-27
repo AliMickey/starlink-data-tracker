@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Starlink Data Tracker - Network - Mapbox</title>
-  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://api.mapbox.com/mapbox-gl-js/v3.31.0/mapbox-gl.css" rel="stylesheet">
   <script src="https://api.mapbox.com/mapbox-gl-js/v3.31.0/mapbox-gl.js"></script>
   <style>
@@ -36,10 +36,11 @@
   <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.5.0/mapbox-gl-compare.js"></script>
   <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-compare/v0.5.0/mapbox-gl-compare.css" type="text/css">
   
-  <div id="comparison-container">
+  <main id="comparison-container">
+    <h1 style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;">Starlink IPv4 and IPv6 rollout map</h1>
     <div id="mapIpv4" class="map"></div>
     <div id="mapIpv6" class="map"></div>
-  </div>
+  </main>
   
   <script>
     mapboxgl.accessToken = "{{ mapboxKey }}";
@@ -52,6 +53,7 @@
 
     var mapIpv4 = new mapboxgl.Map({
       container: 'mapIpv4',
+      locale: { 'Map.Title': 'IPv4 rollout map' },
       style: 'mapbox://styles/mapbox/light-v10',
       minZoom: 1.7,
       zoom: 1.7,
@@ -168,6 +170,7 @@
 
     var mapIpv6 = new mapboxgl.Map({
       container: 'mapIpv6',
+      locale: { 'Map.Title': 'IPv6 rollout map' },
       style: 'mapbox://styles/mapbox/light-v10',
       minZoom: 1.7,
       zoom: 1.7,

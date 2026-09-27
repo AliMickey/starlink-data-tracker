@@ -4,21 +4,21 @@
 
 {% block content %}
   <div class="col-md-4">
-    <p class="fs-2">Login</p>
+    <h1 class="fs-2 fw-normal mb-3">Login</h1>
     <a class="btn btn-primary m-1" href="https://www.starlink.com/?referral=RC-138996-16190-20" target="_blank" rel="noopener noreferrer" data-umami-event="login_buy_starlink">Buy Starlink</a>
     <br><br>
     <form method="POST">
       <div class="form-floating mb-3">
-        <input class="form-control" type="email" name="email" placeholder="name@example.com" required>
+        <input class="form-control" type="email" id="email" name="email" placeholder="name@example.com" autocomplete="email" required>
         <label for="email">Email Address</label>
       </div>
       <div class="form-floating mb-3">
-        <input class="form-control" type="password" name="password" placeholder="Password required" required>
+        <input class="form-control" type="password" id="password" name="password" placeholder="Password" autocomplete="current-password" required>
         <label for="password">Password</label>
       </div>
       <div class="row mb-3">
-        <p>Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Register</a></p>
-        <p>Forgot your password? <a href="{{ url_for('auth.forgotPassword') }}" class="text-decoration-none">Reset</a></p>
+        <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Register</a></p>
+        <p>Forgot your password? <a href="{{ url_for('auth.forgotPassword') }}">Reset</a></p>
       </div>
       <div class="mb-3">
         <button type="submit" class="btn btn-primary">Log in</button>

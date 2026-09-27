@@ -7,53 +7,53 @@
 {% endblock %}
 
 {% block content %}
-  <div class="col-11 text-center"> 
-    <p class="fs-1 fw-bold">Starlink Network</p>
-    <div class="row row-cols-1 row-cols-md-5 mb-5 g-4">
+  <div class="col-11 text-center">
+    <h1 class="fs-1 fw-bold mb-3">Starlink Network</h1>
+    <div class="row row-cols-2 row-cols-md-5 mb-5 g-4">
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <p class="card-title fs-5">IP Address</p>
-            <p class="card-text fs-3">{{ userNetwork['ip'] }}</p>
+            <h2 class="card-title fs-5 fw-normal">IP Address</h2>
+            <p class="card-text fs-4 text-break">{{ userNetwork['ip'] }}</p>
           </div>
         </div>
       </div>
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <p class="card-title fs-5">ISP</p>
-            <p class="card-text fs-3">{{ userNetwork['isp'] }}</p>
+            <h2 class="card-title fs-5 fw-normal">ISP</h2>
+            <p class="card-text fs-4">{{ userNetwork['isp'] }}</p>
           </div>
         </div>
       </div>
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <p class="card-title fs-5">Point of Presence</p>
-            <p class="card-text fs-3">{{ userNetwork['pop'] }}</p>
+            <h2 class="card-title fs-5 fw-normal">Point of Presence</h2>
+            <p class="card-text fs-4">{{ userNetwork['pop'] }}</p>
           </div>
         </div>
       </div>
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <p class="card-title fs-5">Country</p>
-            <p class="card-text fs-3">{{ userNetwork['country'] }}</p>
+            <h2 class="card-title fs-5 fw-normal">Country</h2>
+            <p class="card-text fs-4">{{ userNetwork['country'] }}</p>
           </div>
         </div>
       </div>
       <div class="col">
-        <div class="card">
+        <div class="card h-100">
           <div class="card-body">
-            <p class="card-title fs-5">City</p>
-            <p class="card-text fs-3">{{ userNetwork['city'] }}</p>
+            <h2 class="card-title fs-5 fw-normal">City</h2>
+            <p class="card-text fs-4">{{ userNetwork['city'] }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <div class="row mb-5">
-      <p class="fs-2"><span style="color: #627BC1;">IPv4</span> / <span style="color: #C77416;">IPv6</span></p>
+      <h2 class="fs-2 fw-normal"><span style="color: #627BC1;">IPv4</span> / <span style="color: #C77416;">IPv6</span></h2>
       <p class="fs-5">Global rollout progress</p>
       <iframe src="{{ url_for('network.mapbox') }}" title="IPv4 and IPv6 global rollout map" loading="lazy" style="width: 100%; border: 0; min-height: 500px; height: 75vh; max-height: 900px;"></iframe>
     </div>
