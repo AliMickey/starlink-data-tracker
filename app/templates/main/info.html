@@ -6,33 +6,33 @@
 {% endblock %}
 
 {% block content %}
-  <div class="col-9">
+  <div class="col-11 col-md-9">
     <div class="row mb-3" id="information">
-      <p class="fs-2 border-bottom">Information</p>
+      <h1 class="fs-2 fw-normal border-bottom mb-3">Information</h1>
       <p>This website collects information on various Starlink services. Starlink does not provide this information themselves, this is crowdsourced data.<br>Any information here is not authoritative and could be incorrect.</p>
       <p class="card-text">Download a dump of the firmware database <a href="{{ url_for('main.database') }}" target="_blank" rel="noopener noreferrer">here</a></p>
 
       <div class="mb-3">
-        <p class="fs-4">Firmware</p>
+        <h2 class="fs-4 fw-normal mb-3">Firmware</h2>
         <p>Firmware, software, and hardware versions are collected for historical purpose.</p>
         <p>Feel free to add new firmware versions. Please do not vandalize.</p>
       </div>
 
       <div class="mb-3">
-        <p class="fs-4">Speedtests</p>
+        <h2 class="fs-4 fw-normal mb-3">Speedtests</h2>
         <p>Speedtest results are collected via the online form, the Starlink Discord and the provided scripts.</p>
         <p>Reliably distinguishing service types (residential, business, etc.) is not possible, as such statistics represent the overall Starlink network.</p>
         <p>Feel free to add new speedtest results.</p>
       </div>
 
       <div class="mb-3">
-        <p class="fs-4">Network</p>
+        <h2 class="fs-4 fw-normal mb-3">Network</h2>
         <p>The IP address of visiting users to this page are collected and represented across a world map to outline IPv4 and IPv6 assignments.</p>
       </div>
     </div>
-    
+
     <div class="row mb-3" id="contact">
-      <p class="fs-2 border-bottom">Contact</p>
+      <h2 class="fs-2 fw-normal border-bottom mb-3">Contact</h2>
       <p>NOTE: We are not related to official Starlink, do not send us personal information or ask for customer support.</p>
       <p>For any inquiries (feedback, bugs, incorrect information), contact us by sending an email to 'admin@starlinktrack.com'</p>
       <p>Please consider donating (any amount is appreciated), it helps to pay server costs.</p>
@@ -41,37 +41,37 @@
     </div>
 
     <div class="row mb-3" id="links">
-      <p class="fs-2 border-bottom">Useful Links</p>
+      <h2 class="fs-2 fw-normal border-bottom mb-3">Useful Links</h2>
       <div class="row p-2 row-cols-1 row-cols-md-2">
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/reddit.png') }}" alt="Reddit" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/reddit.png') }}" alt="" width="75" height="75" loading="lazy">
           </div>
-          <h2><a class="text-decoration-none" href="https://www.reddit.com/r/Starlink" target="_blank" rel="noopener noreferrer">Starlink Subreddit</a></h2>
+          <h3 class="fs-2"><a class="text-decoration-none" href="https://www.reddit.com/r/Starlink" target="_blank" rel="noopener noreferrer">Starlink Subreddit</a></h3>
           <p>News, images/videos and discussions related to Starlink. Discuss new versions here.</p>
         </div>
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/discord.png') }}" alt="Discord" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/discord.png') }}" alt="" width="75" height="75" loading="lazy">
           </div>
-          <h2><a class="text-decoration-none" href="https://discord.gg/Rr2u4ystEe" target="_blank" rel="noopener noreferrer">Starlink Discord</a></h2>
+          <h3 class="fs-2"><a class="text-decoration-none" href="https://discord.gg/Rr2u4ystEe" target="_blank" rel="noopener noreferrer">Starlink Discord</a></h3>
           <p>A place to chat about Starlink news as a secondary resource to the subreddit.</p>
         </div>
       </div>
-      
+
       <div class="row p-2 row-cols-1 row-cols-lg-2">
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/starlink-sx.png') }}" alt="Starlink.sx" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/starlink-sx.png') }}" alt="" width="75" height="75" loading="lazy">
           </div>
-          <h2><a class="text-decoration-none" href="https://starlink.sx" target="_blank" rel="noopener noreferrer">Starlink Coverage Tracker</a></h2>
+          <h3 class="fs-2"><a class="text-decoration-none" href="https://starlink.sx" target="_blank" rel="noopener noreferrer">Starlink Coverage Tracker</a></h3>
           <p>Starlink orbital maps and constellation status.</p>
         </div>
         <div class="feature col">
           <div class="feature-icon">
-            <img src="{{ url_for('static', filename='img/logos/starlink-logo.png') }}" alt="Starlink" width="75px">
+            <img src="{{ url_for('static', filename='img/logos/starlink-logo.png') }}" alt="" width="75" height="76" loading="lazy">
           </div>
-          <h2><a class="text-decoration-none" href="https://starlink.com/map" target="_blank" rel="noopener noreferrer">Starlink Availability Map</a></h2>
+          <h3 class="fs-2"><a class="text-decoration-none" href="https://starlink.com/map" target="_blank" rel="noopener noreferrer">Starlink Availability Map</a></h3>
           <p>Official availability map provided by Starlink.</p>
         </div>
       </div>

@@ -19,7 +19,7 @@ def sendEmail(recipient, header, message):
 def sendEmailThread(recipient, header, message, password):
     msg = MIMEText(message, 'plain', 'utf-8')
     msg['Subject'] =  Header(header, 'utf-8')
-    msg['From'] = formataddr((str(Header("Starlink Data Tracke", 'utf-8')), "admin@starlinktrack.com"))
+    msg['From'] = formataddr((str(Header("Starlink Data Tracker", 'utf-8')), "admin@starlinktrack.com"))
     msg['To'] = recipient
     try:
         server = smtplib.SMTP_SSL('smtp.migadu.com', 465)

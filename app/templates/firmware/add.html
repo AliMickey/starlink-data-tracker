@@ -8,7 +8,7 @@
 
 {% block content %}
   <div class="col-md-4">
-    <p class="fs-2">Add a New Firmware Version</p>
+    <h1 class="fs-2 fw-normal mb-3">Add a New Firmware Version</h1>
     <p class="fs-6">Please check that the firmware version has not been submitted already.<br>Changes will go live immediately, be sure you mean it!</p>
     <br>
     <form method="POST" id="addVersionForm">
@@ -20,14 +20,14 @@
           <option value="web">Web UI</option>
           <option value="hardware">Hardware</option>
         </select>
-        <label for="listType" class="col-sm-2 col-form-label">Type</label>
+        <label for="listType">Type</label>
       </div>
       <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="version" name="version" maxLength="80" placeholder="Version" required>
+        <input type="text" class="form-control" id="version" name="version" maxlength="80" placeholder="Version" required>
         <label for="version">Version</label>
       </div>
       <div class="form-floating mb-3">
-        <input type="text" class="form-control" id="redditThread" name="redditThread" maxLength="500" placeholder="https://reddit.com/r/starlink/">
+        <input type="url" class="form-control" id="redditThread" name="redditThread" maxlength="500" placeholder="https://reddit.com/r/starlink/">
         <label for="redditThread">Reddit Thread</label>
       </div>
       <div class="mb-3">
