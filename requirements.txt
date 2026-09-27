@@ -1,14 +1,15 @@
 Flask==3.1.3
-gunicorn==26.0.0
-discord_webhook==1.3.1
+gunicorn==26.2.0
+discord_webhook==1.4.1
 Flask-Limiter==4.1.1
 Flask-Mobility==2.0.1
 schedule==1.2.2
 pycountry==26.2.16
-pytz==2026.2
-pandas==3.0.3
-numpy==2.4.6
+pytz==2026.4
+pandas==3.0.6
+numpy==2.5.3
+requests==2.34.2
 
 # Discord Bot
-discord.py==2.4.0
-python-dotenv==1.0.1
+discord.py==2.7.1
+python-dotenv==1.2.3
